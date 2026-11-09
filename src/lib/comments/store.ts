@@ -2,11 +2,13 @@ import { randomUUID } from "crypto";
 import { promises as fs } from "fs";
 import path from "path";
 
+import { resolveArticleUuid } from "@/lib/articles/resolve-id";
 import { siteConfig } from "@/lib/site-config";
 import {
   createServiceClient,
   isSupabaseConfigured,
 } from "@/lib/supabase/service";
+import { isUuid } from "@/lib/uuid";
 import type { CommentStatus } from "@/types/database";
 
 import type { CommentRecord, CommentReport, PublicComment } from "./types";
@@ -88,13 +90,16 @@ const SELECT_COLS =
 export async function listApprovedComments(
   articleId: string,
 ): Promise<PublicComment[]> {
+  // Mock/seed passano lo slug: risolvi a UUID solo se esiste in Supabase.
+  // Mai passare valori non-UUID a `comments.article_id`.
   if (isSupabaseConfigured()) {
-    const client = createServiceClient();
-    if (client) {
+    const articleUuid = await resolveArticleUuid(articleId);
+    const client = articleUuid ? createServiceClient() : null;
+    if (client && articleUuid) {
       const { data, error } = await client
         .from("comments")
         .select(SELECT_COLS)
-        .eq("article_id", articleId)
+        .eq("article_id", articleUuid)
         .eq("status", "approvato")
         .order("created_at", { ascending: true });
       if (error) throw new Error(error.message);
@@ -125,7 +130,7 @@ export async function listAllCommentsForAdmin(): Promise<CommentRecord[]> {
 export async function getCommentById(
   id: string,
 ): Promise<CommentRecord | null> {
-  if (isSupabaseConfigured()) {
+  if (isSupabaseConfigured() && isUuid(id)) {
     const client = createServiceClient();
     if (client) {
       const { data, error } = await client
@@ -184,13 +189,14 @@ export async function insertComment(input: {
   };
 
   if (isSupabaseConfigured()) {
-    const client = createServiceClient();
-    if (client) {
+    const articleUuid = await resolveArticleUuid(input.articleId);
+    const client = articleUuid ? createServiceClient() : null;
+    if (client && articleUuid) {
       const { data, error } = await client
         .from("comments")
         .insert({
           id: record.id,
-          article_id: record.articleId,
+          article_id: articleUuid,
           parent_id: record.parentId,
           author_name: record.authorName,
           author_email: record.authorEmail,
@@ -217,7 +223,7 @@ export async function moderateComment(
   action: "approve" | "reject" | "delete",
 ): Promise<void> {
   if (action === "delete") {
-    if (isSupabaseConfigured()) {
+    if (isSupabaseConfigured() && isUuid(commentId)) {
       const client = createServiceClient();
       if (client) {
         const { error } = await client
@@ -240,7 +246,7 @@ export async function moderateComment(
   const status: CommentStatus =
     action === "approve" ? "approvato" : "rifiutato";
 
-  if (isSupabaseConfigured()) {
+  if (isSupabaseConfigured() && isUuid(commentId)) {
     const client = createServiceClient();
     if (client) {
       const { error } = await client
@@ -279,7 +285,7 @@ export async function insertReport(input: {
     resolvedAt: null,
   };
 
-  if (isSupabaseConfigured()) {
+  if (isSupabaseConfigured() && isUuid(input.commentId)) {
     const client = createServiceClient();
     if (client) {
       const { error: flagError } = await client
