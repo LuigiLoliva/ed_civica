@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { SiteSettingsForm } from "@/components/admin/SiteSettingsForm";
 import { requireAdminOrDemo } from "@/lib/auth/require-admin";
-import { getSiteSettingsFresh } from "@/lib/site-settings";
+import { getSiteSettingsFresh } from "@/lib/site-settings/get-site-settings";
 import { siteConfig } from "@/lib/site-config";
 
 export const dynamic = "force-dynamic";

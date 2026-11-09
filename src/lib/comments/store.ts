@@ -4,7 +4,7 @@ import path from "path";
 
 import { resolveArticleUuid } from "@/lib/articles/resolve-id";
 import { getCommentsModerationEnabled } from "@/lib/comments/moderation-settings";
-import { getSiteSettings } from "@/lib/site-settings";
+import { getSiteSettings } from "@/lib/site-settings/get-site-settings";
 import {
   createServiceClient,
   isSupabaseConfigured,

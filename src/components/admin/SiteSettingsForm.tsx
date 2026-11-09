@@ -18,9 +18,9 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import {
   siteSettingsSchema,
-  type SiteSettings,
   type SiteSettingsFormValues,
-} from "@/lib/site-settings";
+} from "@/lib/site-settings/schema";
+import type { SiteSettings } from "@/lib/site-settings/types";
 
 interface SiteSettingsFormProps {
   initial: SiteSettings;

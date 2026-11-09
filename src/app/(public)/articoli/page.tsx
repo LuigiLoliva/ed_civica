@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArticleCard } from "@/components/articles/article-card";
 import { Badge } from "@/components/ui/badge";
 import { articles, getTopicBySlug, topics } from "@/lib/mock-data";
-import { getSiteSettings } from "@/lib/site-settings";
+import { getSiteSettings } from "@/lib/site-settings/get-site-settings";
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
