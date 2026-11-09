@@ -33,9 +33,9 @@ const sections = [
     adminOnly: true,
   },
   {
-    href: "/admin",
+    href: "/admin/quiz",
     title: "Quiz",
-    description: "Editor quiz (Fase 5).",
+    description: "Editor quiz e seed da revisionare (Fase 5).",
     adminOnly: true,
   },
 ] as const;
