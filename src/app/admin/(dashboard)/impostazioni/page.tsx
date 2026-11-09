@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { SiteSettingsForm } from "@/components/admin/SiteSettingsForm";
+import { SiteSettingsFormLoader } from "@/components/admin/SiteSettingsFormLoader";
 import { requireAdminOrDemo } from "@/lib/auth/require-admin";
 import { getSiteSettingsFresh } from "@/lib/site-settings/get-site-settings";
+import { normalizeSiteSettings } from "@/lib/site-settings/normalize";
 import { siteConfig } from "@/lib/site-config";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +15,14 @@ export const metadata: Metadata = {
 
 export default async function AdminImpostazioniPage() {
   await requireAdminOrDemo();
-  const settings = await getSiteSettingsFresh();
+
+  let settings;
+  try {
+    settings = normalizeSiteSettings(await getSiteSettingsFresh());
+  } catch (err) {
+    console.error("[admin/impostazioni] getSiteSettingsFresh:", err);
+    settings = normalizeSiteSettings(null);
+  }
 
   return (
     <div className="space-y-8">
@@ -35,7 +43,7 @@ export default async function AdminImpostazioniPage() {
           salvataggio.
         </p>
       </header>
-      <SiteSettingsForm initial={settings} />
+      <SiteSettingsFormLoader initial={settings} />
     </div>
   );
 }

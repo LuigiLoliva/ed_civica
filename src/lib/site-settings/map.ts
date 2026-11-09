@@ -7,7 +7,7 @@ function asTeachers(value: unknown): SiteTeacher[] {
   if (!Array.isArray(value) || value.length === 0) {
     return DEFAULT_SITE_SETTINGS.teachers;
   }
-  return value
+  const teachers = value
     .map((item) => {
       if (!item || typeof item !== "object") return null;
       const row = item as Record<string, unknown>;
@@ -17,6 +17,7 @@ function asTeachers(value: unknown): SiteTeacher[] {
       return { name, role: role || "Docente" };
     })
     .filter((t): t is SiteTeacher => Boolean(t));
+  return teachers.length > 0 ? teachers : DEFAULT_SITE_SETTINGS.teachers;
 }
 
 function asSocialLinks(value: unknown): SiteSocialLinks {
@@ -49,10 +50,13 @@ export function rowToSiteSettings(row: SiteSettingsRow): SiteSettings {
     socialLinks: asSocialLinks(row.social_links),
     footerHtml: row.footer_html || DEFAULT_SITE_SETTINGS.footerHtml,
     projectHtml: row.project_html || DEFAULT_SITE_SETTINGS.projectHtml,
-    logoUrl: row.logo_url,
-    faviconUrl: row.favicon_url,
+    logoUrl: row.logo_url ?? null,
+    faviconUrl: row.favicon_url ?? null,
     commentsModerationEnabled: Boolean(row.comments_moderation_enabled),
-    studentRegistrationEnabled: Boolean(row.student_registration_enabled),
+    studentRegistrationEnabled:
+      row.student_registration_enabled == null
+        ? DEFAULT_SITE_SETTINGS.studentRegistrationEnabled
+        : Boolean(row.student_registration_enabled),
   };
 }
 

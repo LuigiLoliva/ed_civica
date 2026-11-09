@@ -3,7 +3,6 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 
 import { getCurrentProfile, isAdmin, isSupabaseConfigured } from "@/lib/auth/roles";
-import { writeFileSettings } from "@/lib/site-settings/file-store";
 import {
   SITE_SETTINGS_CACHE_TAG,
   siteSettingsSchema,
@@ -11,7 +10,7 @@ import {
   type SiteSettings,
   type SiteSettingsFormValues,
 } from "@/lib/site-settings";
-
+import { normalizeSiteSettings } from "@/lib/site-settings/normalize";
 import { sanitizeSiteHtml } from "@/lib/site-settings/sanitize-html";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
@@ -35,7 +34,7 @@ async function assertAdminOrDemo(): Promise<{ ok: true } | { ok: false; message:
 }
 
 function normalizeForm(values: SiteSettingsFormValues): SiteSettings {
-  return {
+  return normalizeSiteSettings({
     ...values,
     contactEmail: values.contactEmail.trim(),
     footerHtml: sanitizeSiteHtml(values.footerHtml),
@@ -48,7 +47,7 @@ function normalizeForm(values: SiteSettingsFormValues): SiteSettings {
     },
     logoUrl: values.logoUrl || null,
     faviconUrl: values.faviconUrl || null,
-  };
+  });
 }
 
 function humanizeDbError(message: string): string {
@@ -145,6 +144,8 @@ export async function saveSiteSettingsAction(
   }
 
   if (!isSupabaseConfigured()) {
+    // Import dinamico: evita di caricare `fs` / `server-only` al GET della pagina.
+    const { writeFileSettings } = await import("@/lib/site-settings/file-store");
     await writeFileSettings(settings);
     revalidateSiteSettingsPaths();
     return {

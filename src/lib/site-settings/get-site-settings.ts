@@ -10,7 +10,7 @@ import {
 import type { Database, SiteSettingsRow } from "@/types/database";
 
 import { DEFAULT_SITE_SETTINGS, SITE_SETTINGS_CACHE_TAG } from "./defaults";
-import { readFileSettings } from "./file-store";
+import { normalizeSiteSettings } from "./normalize";
 import { rowToSiteSettings } from "./map";
 import type { SiteSettings } from "./types";
 
@@ -23,32 +23,47 @@ function createAnonReadClient() {
   });
 }
 
+async function readFileSettingsSafe(): Promise<SiteSettings> {
+  try {
+    const { readFileSettings } = await import("./file-store");
+    return normalizeSiteSettings(await readFileSettings());
+  } catch (err) {
+    console.error("[site-settings] lettura file store fallita:", err);
+    return { ...DEFAULT_SITE_SETTINGS };
+  }
+}
+
 async function fetchSiteSettingsUncached(): Promise<SiteSettings> {
-  if (!isSupabaseConfigured()) {
-    return readFileSettings();
-  }
+  try {
+    if (!isSupabaseConfigured()) {
+      return readFileSettingsSafe();
+    }
 
-  const supabase = createServiceClient() ?? createAnonReadClient();
-  if (!supabase) {
-    return readFileSettings();
-  }
+    const supabase = createServiceClient() ?? createAnonReadClient();
+    if (!supabase) {
+      return readFileSettingsSafe();
+    }
 
-  const { data, error } = await supabase
-    .from("site_settings")
-    .select("*")
-    .eq("id", 1)
-    .maybeSingle();
+    const { data, error } = await supabase
+      .from("site_settings")
+      .select("*")
+      .eq("id", 1)
+      .maybeSingle();
 
-  if (error) {
-    console.error("[site-settings] lettura fallita:", error.message);
+    if (error) {
+      console.error("[site-settings] lettura fallita:", error.message);
+      return { ...DEFAULT_SITE_SETTINGS };
+    }
+
+    if (!data) {
+      return { ...DEFAULT_SITE_SETTINGS };
+    }
+
+    return normalizeSiteSettings(rowToSiteSettings(data as SiteSettingsRow));
+  } catch (err) {
+    console.error("[site-settings] lettura eccezione:", err);
     return { ...DEFAULT_SITE_SETTINGS };
   }
-
-  if (!data) {
-    return { ...DEFAULT_SITE_SETTINGS };
-  }
-
-  return rowToSiteSettings(data as SiteSettingsRow);
 }
 
 /**
