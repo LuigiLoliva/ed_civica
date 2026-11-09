@@ -6,7 +6,6 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { siteConfig } from "@/lib/site-config";
 
@@ -29,7 +28,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     <div className="flex min-h-dvh items-center justify-center bg-partnership-pattern px-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="font-heading text-2xl">Area riservata</CardTitle>
+          <h1 className="font-heading text-2xl font-semibold leading-snug">
+            Area riservata
+          </h1>
           <CardDescription>
             Accesso per docenti (admin) e studenti editor di {siteConfig.name}.
             Gli account si creano da Supabase; il primo admin si promuove con lo
