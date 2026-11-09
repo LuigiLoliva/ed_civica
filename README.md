@@ -12,12 +12,14 @@ Stack: **Next.js 15** (App Router) · TypeScript · Tailwind CSS · shadcn/ui ·
 
 | Fase | Contenuto | Stato |
 |------|-----------|--------|
-| 1 | Fondamenta (app, design system, schema DB/RLS) | In corso in questo repository |
-| 2 | Sito pubblico (home, articoli, progetto) | Da fare |
+| 1 | Fondamenta (app, design system, schema DB/RLS, auth) | Branch `cursor/voci-unite-fondamenta-1c73` (fonte di verità shell/token/Supabase) |
+| 2 | Sito pubblico (home, articoli, progetto) | PR parallela — **riallineare sulla fondazione**, vedi [`docs/REBASE-PR1.md`](docs/REBASE-PR1.md) |
 | 3 | Pannello admin / studenti | Da fare |
 | 4 | Commenti + anti-spam | Da fare |
 | 5 | Quiz e mini-giochi | Da fare |
 | 6 | Privacy, test, deploy finale | Da fare |
+
+> **Non mergiare alla cieca** la scaffold parallela del sito pubblico insieme a questa fondazione: usano due setup Next diversi. Merge prima la fondazione, poi rebase del sito pubblico come da guida.
 
 ---
 
@@ -84,7 +86,7 @@ set role = 'admin',
 where email = 'tua.email@scuola.it';
 ```
 
-3. Accedi da `/auth/login` (il form di login completo arriverà con la Fase 3; il middleware protegge già `/admin`).
+3. Accedi da `/auth/login` con email e password. Il middleware protegge `/admin`; dopo il login vedi ruolo e link di logout. Senza variabili Supabase, `/admin` resta ispezionabile in anteprima locale.
 
 ---
 
