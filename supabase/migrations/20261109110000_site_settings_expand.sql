@@ -56,7 +56,7 @@ alter table public.site_settings
   add column if not exists favicon_url text;
 
 alter table public.site_settings
-  add column if not exists student_registration_enabled boolean not null default false;
+  add column if not exists student_registration_enabled boolean not null default true;
 
 alter table public.site_settings
   add column if not exists created_at timestamptz not null default now();

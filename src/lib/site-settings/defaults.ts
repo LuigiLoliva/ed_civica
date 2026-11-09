@@ -30,7 +30,8 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   logoUrl: null,
   faviconUrl: null,
   commentsModerationEnabled: true,
-  studentRegistrationEnabled: false,
+  /** Default ON per uso scolastico: gli account restano pending fino all'approvazione. */
+  studentRegistrationEnabled: true,
 };
 
 /** Tag Next.js cache per `getSiteSettings` / `revalidateTag`. */

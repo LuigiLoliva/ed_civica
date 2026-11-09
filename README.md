@@ -79,11 +79,12 @@ Apri [http://localhost:3000](http://localhost:3000).
      4. `supabase/migrations/20261109000004_comments_fix_and_site_settings.sql`
      5. `supabase/migrations/20261109110000_site_settings_expand.sql`
      6. `supabase/migrations/20261109120000_profiles_registration_status.sql`
-     7. `supabase/seed/01_topics.sql`
-     8. `supabase/seed/03_site_settings.sql` (esempi scuola/docenti modificabili)
+     7. `supabase/migrations/20261109130000_student_registration_default_on.sql`
+     8. `supabase/seed/01_topics.sql`
+     9. `supabase/seed/03_site_settings.sql` (esempi scuola/docenti modificabili)
    - **Opzione B (CLI)**: `supabase login` → `supabase link --project-ref <REF>` → `supabase db push` → esegui i seed.
 4. In **Authentication → Providers** lascia attivo Email/Password. Consigliata la conferma email.
-5. Per la registrazione autonoma studenti: attiva l’interruttore in **Admin → Impostazioni**. Se vuoi solo account creati dal docente, lascia l’interruttore spento (Supabase può comunque avere “Allow new users” attivo: il sito forza comunque `role=studente` e `status=pending`).
+5. La **registrazione studenti** è **attiva di default** (pagina `/registrati`). Gli account restano `pending` finché un docente non li approva in **Utenti**. Per disattivarla: **Admin → Impostazioni** → interruttore «Registrazione studenti» → **Salva modifiche**. Il sito forza comunque `role=studente` e `status=pending` (nessuna escalation ad admin).
 6. Verifica in **Storage** i bucket pubblici `article-images` e `site-assets` (logo/favicon).
 7. (Produzione) Configura **URL Configuration** con il dominio Vercel e i redirect `/auth/callback` e `/auth/reset-password`.
 
@@ -107,7 +108,7 @@ where email = 'tua.email@scuola.it';
 
 ### Approvare gli studenti (guida docenti)
 
-1. In **Impostazioni** attiva **Registrazione studenti** se vuoi la pagina pubblica `/registrati`.
+1. Con registrazione attiva (default), gli studenti usano `/registrati`. Per spegnerla: **Impostazioni** → interruttore → **Salva**.
 2. Gli studenti si registrano → account in stato **pending** (non possono accedere al pannello).
 3. In **Utenti** (`/admin/utenti`) apri **Richieste di registrazione** (badge nel menu): **Approva**, **Rifiuta** (motivo opzionale), **Elimina**, oppure approva più richieste insieme.
 4. Dopo l’approvazione lo studente accede con email/password. Puoi **Sospendere** / **Riattivare** in qualsiasi momento, **creare studenti manualmente** (già attivi) o eliminare del tutto un account.

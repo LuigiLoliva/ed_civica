@@ -43,7 +43,7 @@ insert into public.site_settings (
   '<p>Progetto scolastico di Educazione Civica · Contenuti da verificare con i docenti. Modifica questo testo da <strong>Admin → Impostazioni</strong>.</p>',
   '<p>Vogliamo trasformare lo studio dell''ONU in un laboratorio digitale: articoli con fonti, commenti moderati, quiz e giochi che aiutino a capire pace, giustizia e partnership.</p><p><em>Testo di esempio — modifica da Admin → Impostazioni.</em></p>',
   true,
-  false
+  true
 )
 on conflict (id) do update set
   site_name = excluded.site_name,

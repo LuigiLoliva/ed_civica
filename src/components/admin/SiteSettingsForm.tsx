@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -26,7 +27,21 @@ interface SiteSettingsFormProps {
   initial: SiteSettings;
 }
 
+function toFormValues(settings: SiteSettings): SiteSettingsFormValues {
+  return {
+    ...settings,
+    contactEmail: settings.contactEmail ?? "",
+    socialLinks: {
+      instagram: settings.socialLinks.instagram ?? "",
+      schoolWebsite: settings.socialLinks.schoolWebsite ?? "",
+      facebook: settings.socialLinks.facebook ?? "",
+      youtube: settings.socialLinks.youtube ?? "",
+    },
+  };
+}
+
 export function SiteSettingsForm({ initial }: SiteSettingsFormProps) {
+  const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState<"logo" | "favicon" | null>(null);
 
@@ -36,19 +51,11 @@ export function SiteSettingsForm({ initial }: SiteSettingsFormProps) {
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors, isDirty },
   } = useForm<SiteSettingsFormValues>({
     resolver: zodResolver(siteSettingsSchema),
-    defaultValues: {
-      ...initial,
-      contactEmail: initial.contactEmail ?? "",
-      socialLinks: {
-        instagram: initial.socialLinks.instagram ?? "",
-        schoolWebsite: initial.socialLinks.schoolWebsite ?? "",
-        facebook: initial.socialLinks.facebook ?? "",
-        youtube: initial.socialLinks.youtube ?? "",
-      },
-    },
+    defaultValues: toFormValues(initial),
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -64,23 +71,34 @@ export function SiteSettingsForm({ initial }: SiteSettingsFormProps) {
   const schoolYear = watch("schoolYear");
   const logoUrl = watch("logoUrl");
   const faviconUrl = watch("faviconUrl");
+  const studentRegistrationEnabled = watch("studentRegistrationEnabled");
+  const commentsModerationEnabled = watch("commentsModerationEnabled");
 
-  const onSubmit = handleSubmit(async (values) => {
-    setSaving(true);
-    try {
-      const result = await saveSiteSettingsAction(values);
-      if (!result.ok) {
-        toast.error(result.message);
-        return;
+  const onSubmit = handleSubmit(
+    async (values) => {
+      setSaving(true);
+      try {
+        const result = await saveSiteSettingsAction(values);
+        if (!result.ok) {
+          toast.error(result.message);
+          return;
+        }
+        reset(toFormValues(result.settings));
+        router.refresh();
+        toast.success(result.message);
+      } catch (err) {
+        console.error(err);
+        toast.error("Errore imprevisto durante il salvataggio.");
+      } finally {
+        setSaving(false);
       }
-      toast.success(result.message);
-    } catch (err) {
-      console.error(err);
-      toast.error("Errore imprevisto durante il salvataggio.");
-    } finally {
-      setSaving(false);
-    }
-  });
+    },
+    () => {
+      toast.error(
+        "Controlla i campi evidenziati in rosso prima di salvare.",
+      );
+    },
+  );
 
   const uploadAsset = async (kind: "logo" | "favicon", file: File | null) => {
     if (!file) return;
@@ -451,6 +469,13 @@ export function SiteSettingsForm({ initial }: SiteSettingsFormProps) {
                   <p className="text-sm text-muted-foreground">
                     Se attiva, i commenti restano in attesa fino all&apos;approvazione.
                   </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Stato attuale:{" "}
+                    <strong>
+                      {commentsModerationEnabled ? "attiva" : "disattiva"}
+                    </strong>
+                    {isDirty ? " (non ancora salvato)" : ""}
+                  </p>
                 </div>
                 <Switch
                   checked={field.value}
@@ -472,6 +497,16 @@ export function SiteSettingsForm({ initial }: SiteSettingsFormProps) {
                     <code className="rounded bg-muted px-1">/registrati</code>;
                     restano in attesa finché un docente non li approva in Utenti.
                   </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Stato attuale:{" "}
+                    <strong>
+                      {studentRegistrationEnabled ? "attiva" : "disattiva"}
+                    </strong>
+                    {isDirty ? " (non ancora salvato)" : ""}
+                    . Dopo il salvataggio la pagina pubblica{" "}
+                    <code className="rounded bg-muted px-1">/registrati</code>{" "}
+                    si aggiorna subito.
+                  </p>
                 </div>
                 <Switch
                   checked={field.value}
@@ -487,7 +522,7 @@ export function SiteSettingsForm({ initial }: SiteSettingsFormProps) {
       <div className="sticky bottom-4 z-10 flex items-center justify-between gap-4 rounded-lg border border-border bg-card/95 p-4 shadow-sm backdrop-blur">
         <p className="text-sm text-muted-foreground">
           {isDirty
-            ? "Ci sono modifiche non salvate."
+            ? "Ci sono modifiche non salvate — premi «Salva modifiche»."
             : "Nessuna modifica da salvare."}
         </p>
         <Button type="submit" disabled={saving}>
