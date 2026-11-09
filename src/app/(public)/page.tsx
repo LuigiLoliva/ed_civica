@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { ArticleCard } from "@/components/articles/article-card";
+import { AnimatedStat } from "@/components/home/animated-stat";
 import {
   GlobeIcon,
   NetworkIcon,
@@ -15,9 +17,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  gamePreviews,
+  getFeaturedArticles,
+  getLatestArticles,
+  getTopicBySlug,
+  mockStats,
+} from "@/lib/mock-data";
 import { siteConfig } from "@/lib/site-config";
 
 export default function HomePage() {
+  const featured = getFeaturedArticles();
+  const latest = getLatestArticles(3);
+
   return (
     <div className="bg-partnership-pattern">
       <section className="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-center lg:py-24">
@@ -114,37 +126,84 @@ export default function HomePage() {
 
       <section className="border-y border-border bg-card/60">
         <div className="mx-auto grid max-w-6xl gap-6 px-4 py-12 sm:grid-cols-3 sm:px-6">
-          {[
-            { label: "Articoli pubblicati", value: "—" },
-            { label: "Autori", value: "—" },
-            { label: "Quiz disponibili", value: "—" },
-          ].map((stat) => (
-            <div key={stat.label} className="text-center">
-              <p className="font-heading text-4xl font-semibold text-primary">
-                {stat.value}
-              </p>
-              <p className="mt-1 text-sm text-muted-foreground">{stat.label}</p>
-            </div>
-          ))}
+          <AnimatedStat label="Articoli pubblicati" value={mockStats.articles} />
+          <AnimatedStat label="Autori" value={mockStats.authors} />
+          <AnimatedStat label="Quiz disponibili" value={mockStats.quizzes} />
         </div>
         <p className="pb-8 text-center text-xs text-muted-foreground">
-          I contatori si attiveranno dopo la connessione a Supabase e il
-          popolamento dei contenuti.
+          Contatori da dati dimostrativi (mock). Verranno collegati a Supabase
+          quando il progetto sarà configurato.
         </p>
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+        <div className="mb-8 flex items-end justify-between gap-4">
+          <div>
+            <h2 className="font-heading text-3xl font-semibold tracking-tight">
+              In evidenza
+            </h2>
+            <p className="mt-2 text-muted-foreground">
+              Letture scelte dalla redazione scolastica.
+            </p>
+          </div>
+          <Button
+            render={<Link href="/articoli" />}
+            variant="outline"
+            className="hidden sm:inline-flex"
+          >
+            Tutti gli articoli
+          </Button>
+        </div>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {featured.map((article) => (
+            <ArticleCard
+              key={article.slug}
+              article={article}
+              topic={getTopicBySlug(article.topicSlug)}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
+        <h2 className="font-heading text-3xl font-semibold tracking-tight">
+          Ultimi articoli
+        </h2>
+        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {latest.map((article) => (
+            <ArticleCard
+              key={article.slug}
+              article={article}
+              topic={getTopicBySlug(article.topicSlug)}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
         <div className="rounded-2xl border border-border bg-secondary/40 p-8 md:p-10">
-          <h2 className="font-heading text-2xl font-semibold">Prossimi passi</h2>
+          <h2 className="font-heading text-2xl font-semibold">Gioca e impara</h2>
           <p className="mt-2 max-w-2xl text-muted-foreground">
-            Questa è la fondazione del sito: design system, struttura delle
-            pagine e schema database. Gli articoli, i commenti, i quiz e i
-            giochi arriveranno nelle fasi successive.
+            Mini-giochi e quiz sull&apos;ONU e sull&apos;Agenda 2030. La shell è
+            pronta; i contenuti interattivi arriveranno con la Fase 5.
           </p>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            {gamePreviews.map((game) => (
+              <Card key={game.slug} size="sm">
+                <CardHeader>
+                  <Badge variant="outline" className="w-fit">
+                    {game.status === "coming-soon" ? "In arrivo" : "Disponibile"}
+                  </Badge>
+                  <CardTitle>{game.title}</CardTitle>
+                  <CardDescription>{game.description}</CardDescription>
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Button render={<Link href="/progetto" />}>Il progetto</Button>
-            <Button render={<Link href="/auth/login" />} variant="outline">
-              Accedi all&apos;area riservata
+            <Button render={<Link href="/gioca" />}>Vai a Gioca e impara</Button>
+            <Button render={<Link href="/progetto" />} variant="outline">
+              Il progetto
             </Button>
           </div>
         </div>
