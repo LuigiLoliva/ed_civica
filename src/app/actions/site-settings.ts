@@ -51,6 +51,73 @@ function normalizeForm(values: SiteSettingsFormValues): SiteSettings {
   };
 }
 
+function humanizeDbError(message: string): string {
+  const lower = message.toLowerCase();
+  if (
+    lower.includes("student_registration_enabled") ||
+    lower.includes("site_name") ||
+    lower.includes("column") ||
+    lower.includes("schema cache")
+  ) {
+    return "Mancano colonne su site_settings. Esegui le migrazioni SQL (site_settings_expand e successive) su Supabase.";
+  }
+  if (lower.includes("bucket") || lower.includes("not found")) {
+    return "Risorsa Storage mancante. Verifica il bucket site-assets nella migrazione site_settings_expand.";
+  }
+  if (lower.includes("row-level security") || lower.includes("rls")) {
+    return "Permesso negato (RLS). Serve un admin attivo oppure SUPABASE_SERVICE_ROLE_KEY sul server.";
+  }
+  return "Impossibile salvare le impostazioni. Riprova o controlla i log del server.";
+}
+
+async function upsertSiteSettingsRow(
+  settings: SiteSettings,
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  const payload = {
+    id: 1,
+    ...settingsToRow(settings),
+  };
+
+  const service = createServiceClient();
+  if (service) {
+    const { error } = await service.from("site_settings").upsert(payload, {
+      onConflict: "id",
+    });
+    if (!error) return { ok: true };
+    console.error("[site-settings] salvataggio service-role fallito:", error.message);
+    // Fallback sotto: sessione admin + policy RLS
+  } else {
+    console.warn(
+      "[site-settings] SUPABASE_SERVICE_ROLE_KEY assente: uso client autenticato (RLS admin).",
+    );
+  }
+
+  // Client tipizzato a mano: cast del payload (come service client untyped).
+  const supabase = await createClient();
+  const { error } = await supabase.from("site_settings").upsert(
+    payload as never,
+    { onConflict: "id" },
+  );
+
+  if (error) {
+    console.error("[site-settings] salvataggio autenticato fallito:", error.message);
+    return { ok: false, message: humanizeDbError(error.message) };
+  }
+
+  return { ok: true };
+}
+
+function revalidateSiteSettingsPaths() {
+  revalidateTag(SITE_SETTINGS_CACHE_TAG);
+  revalidatePath("/", "layout");
+  revalidatePath("/progetto");
+  revalidatePath("/privacy");
+  revalidatePath("/cookie");
+  revalidatePath("/registrati");
+  revalidatePath("/auth/login");
+  revalidatePath("/admin/impostazioni");
+}
+
 export async function saveSiteSettingsAction(
   raw: unknown,
 ): Promise<SiteSettingsActionResult> {
@@ -65,13 +132,21 @@ export async function saveSiteSettingsAction(
     };
   }
 
-  const settings = normalizeForm(parsed.data);
+  let settings: SiteSettings;
+  try {
+    settings = normalizeForm(parsed.data);
+  } catch (err) {
+    console.error("[site-settings] sanitizzazione HTML fallita:", err);
+    return {
+      ok: false,
+      message:
+        "Impossibile elaborare i testi HTML (footer / progetto). Controlla la formattazione e riprova.",
+    };
+  }
 
   if (!isSupabaseConfigured()) {
     await writeFileSettings(settings);
-    revalidateTag(SITE_SETTINGS_CACHE_TAG);
-    revalidatePath("/", "layout");
-    revalidatePath("/admin/impostazioni");
+    revalidateSiteSettingsPaths();
     return {
       ok: true,
       message: "Impostazioni salvate in locale (demo senza Supabase).",
@@ -79,39 +154,10 @@ export async function saveSiteSettingsAction(
     };
   }
 
-  // Service client (untyped): schema manuale non allineato a GenericSchema.
-  const supabase = createServiceClient();
-  if (!supabase) {
-    return {
-      ok: false,
-      message:
-        "Service role Supabase non disponibile. Imposta SUPABASE_SERVICE_ROLE_KEY.",
-    };
-  }
-  const row = settingsToRow(settings);
-  const { error } = await supabase.from("site_settings").upsert(
-    {
-      id: 1,
-      ...row,
-    },
-    { onConflict: "id" },
-  );
+  const saved = await upsertSiteSettingsRow(settings);
+  if (!saved.ok) return saved;
 
-  if (error) {
-    console.error("[site-settings] salvataggio fallito:", error.message);
-    return {
-      ok: false,
-      message:
-        "Impossibile salvare le impostazioni. Verifica di essere admin e che la migrazione sia applicata.",
-    };
-  }
-
-  revalidateTag(SITE_SETTINGS_CACHE_TAG);
-  revalidatePath("/", "layout");
-  revalidatePath("/progetto");
-  revalidatePath("/privacy");
-  revalidatePath("/cookie");
-  revalidatePath("/admin/impostazioni");
+  revalidateSiteSettingsPaths();
 
   return {
     ok: true,
@@ -172,7 +218,6 @@ export async function uploadSiteAssetAction(
     };
   }
 
-  const supabase = await createClient();
   const ext =
     file.type === "image/svg+xml"
       ? "svg"
@@ -181,20 +226,49 @@ export async function uploadSiteAssetAction(
         : "png";
   const path = `${kind}/${Date.now()}.${ext}`;
   const bytes = new Uint8Array(await file.arrayBuffer());
+  const uploadOpts = {
+    contentType: file.type,
+    upsert: true,
+  };
 
+  const service = createServiceClient();
+  if (service) {
+    const { error: uploadError } = await service.storage
+      .from("site-assets")
+      .upload(path, bytes, uploadOpts);
+
+    if (!uploadError) {
+      const { data } = service.storage.from("site-assets").getPublicUrl(path);
+      return {
+        ok: true,
+        url: data.publicUrl,
+        message: "File caricato.",
+      };
+    }
+
+    console.error("[site-settings] upload service-role fallito:", uploadError.message);
+    if (
+      uploadError.message.toLowerCase().includes("bucket") ||
+      uploadError.message.toLowerCase().includes("not found")
+    ) {
+      return {
+        ok: false,
+        message:
+          "Bucket site-assets assente. Esegui la migrazione site_settings_expand su Supabase.",
+      };
+    }
+  }
+
+  const supabase = await createClient();
   const { error: uploadError } = await supabase.storage
     .from("site-assets")
-    .upload(path, bytes, {
-      contentType: file.type,
-      upsert: true,
-    });
+    .upload(path, bytes, uploadOpts);
 
   if (uploadError) {
-    console.error("[site-settings] upload fallito:", uploadError.message);
+    console.error("[site-settings] upload autenticato fallito:", uploadError.message);
     return {
       ok: false,
-      message:
-        "Upload non riuscito. Verifica di essere admin e che il bucket site-assets esista.",
+      message: humanizeDbError(uploadError.message),
     };
   }
 

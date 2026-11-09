@@ -21,7 +21,7 @@ import { getCurrentProfile, isAdmin } from "@/lib/auth/roles";
 import { getClientIp, hashIp } from "@/lib/comments/ip";
 import { checkRateLimit } from "@/lib/comments/rate-limit";
 import { verifyTurnstileToken } from "@/lib/comments/turnstile";
-import { getSiteSettings } from "@/lib/site-settings";
+import { getSiteSettings } from "@/lib/site-settings/get-site-settings";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import type { ProfileStatus } from "@/types/database";

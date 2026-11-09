@@ -15,6 +15,10 @@ describe("siteSettingsSchema", () => {
     expect(parsed.success).toBe(true);
   });
 
+  it("registrazione studenti attiva di default (uso scolastico)", () => {
+    expect(DEFAULT_SITE_SETTINGS.studentRegistrationEnabled).toBe(true);
+  });
+
   it("rifiuta nome sito troppo corto", () => {
     const parsed = siteSettingsSchema.safeParse({
       ...DEFAULT_SITE_SETTINGS,
