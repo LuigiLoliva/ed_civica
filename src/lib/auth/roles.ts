@@ -1,11 +1,19 @@
 import type { User } from "@supabase/supabase-js";
 
-import { isAdminRole, normalizeRole } from "@/lib/auth/role-utils";
+import { normalizeRole } from "@/lib/auth/role-utils";
+import { normalizeProfileRow } from "@/lib/auth/session-user";
+import { isActiveStatus } from "@/lib/auth/status";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile, UserRole } from "@/types/database";
 
 export type SessionProfile = Profile;
 export { isAdminRole, normalizeRole } from "@/lib/auth/role-utils";
+export {
+  isActiveStatus,
+  loginBlockedMessage,
+  normalizeProfileStatus,
+  profileStatusLabel,
+} from "@/lib/auth/status";
 
 /**
  * Restituisce il profilo dell'utente autenticato, o null se non loggato /
@@ -34,11 +42,10 @@ export async function getCurrentProfile(): Promise<SessionProfile | null> {
 
   if (error || !profile) return null;
 
-  const row = profile as Profile;
-  const role = normalizeRole(row.role);
-  if (!role) return null;
+  const row = normalizeProfileRow(profile as Profile);
+  if (!normalizeRole(row.role)) return null;
 
-  return { ...row, role };
+  return row;
 }
 
 export async function getCurrentUser(): Promise<User | null> {
@@ -68,11 +75,14 @@ export function hasRole(
 }
 
 export function isAdmin(profile: SessionProfile | null): boolean {
-  return hasRole(profile, "admin");
+  return hasRole(profile, "admin") && isActiveStatus(profile?.status);
 }
 
 export function canAccessAdmin(profile: SessionProfile | null): boolean {
-  return hasRole(profile, ["admin", "studente"]);
+  return (
+    hasRole(profile, ["admin", "studente"]) &&
+    isActiveStatus(profile?.status)
+  );
 }
 
 export function isSupabaseConfigured(): boolean {
@@ -86,7 +96,7 @@ export function isSupabaseConfigured(): boolean {
 export function serverAdminAccess(
   profile: SessionProfile | null,
 ): boolean | null {
-  if (profile) return isAdminRole(profile.role);
+  if (profile) return isAdmin(profile);
   if (isSupabaseConfigured()) return false;
   return null;
 }

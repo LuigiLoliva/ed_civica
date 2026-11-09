@@ -7,9 +7,11 @@ import { AdminSubnav } from "@/components/admin/AdminSubnav";
 import { OliveBranchIcon } from "@/components/icons/onu-motifs";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
+import { countPendingRegistrations } from "@/lib/auth/profiles-store";
 import {
   canAccessAdmin,
   getCurrentProfile,
+  isActiveStatus,
   isSupabaseConfigured,
 } from "@/lib/auth/roles";
 import { profileToSessionUser } from "@/lib/auth/session-user";
@@ -26,10 +28,11 @@ export default async function AdminLayout({
   const profile = await getCurrentProfile();
   const settings = await getSiteSettings();
 
-  if (!canAccessAdmin(profile)) {
-    // Senza Supabase configurato mostriamo comunque la shell con avviso,
-    // così la struttura admin è ispezionabile in locale.
-    if (isSupabaseConfigured()) {
+  if (isSupabaseConfigured()) {
+    if (profile && !isActiveStatus(profile.status)) {
+      redirect(`/auth/pending?status=${profile.status}`);
+    }
+    if (!canAccessAdmin(profile)) {
       redirect("/auth/login?next=/admin");
     }
   }
@@ -39,6 +42,17 @@ export default async function AdminLayout({
     console.error("[admin] countPendingComments:", err);
     return 0;
   });
+  const pendingRegistrations = await countPendingRegistrations().catch(
+    (err) => {
+      console.error("[admin] countPendingRegistrations:", err);
+      return 0;
+    },
+  );
+
+  const displayName =
+    profile?.full_name ||
+    [profile?.first_name, profile?.last_name].filter(Boolean).join(" ") ||
+    profile?.email;
 
   return (
     <div className="min-h-dvh bg-warm-surface">
@@ -52,7 +66,7 @@ export default async function AdminLayout({
               </p>
               <p className="text-xs text-muted-foreground">
                 {profile
-                  ? `${profile.full_name || profile.email} · ${profile.role}`
+                  ? `${displayName} · ${profile.role}`
                   : "Anteprima locale (Supabase non configurato)"}
               </p>
             </div>
@@ -84,7 +98,10 @@ export default async function AdminLayout({
           key={sessionUser?.id ?? "demo"}
           sessionUser={sessionUser}
         >
-          <AdminSubnav pendingComments={pendingComments} />
+          <AdminSubnav
+            pendingComments={pendingComments}
+            pendingRegistrations={pendingRegistrations}
+          />
           {children}
         </AdminProviders>
       </div>

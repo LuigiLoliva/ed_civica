@@ -78,28 +78,40 @@ Apri [http://localhost:3000](http://localhost:3000).
      3. `supabase/migrations/20261109000003_quiz_fase5_columns.sql`
      4. `supabase/migrations/20261109000004_comments_fix_and_site_settings.sql`
      5. `supabase/migrations/20261109110000_site_settings_expand.sql`
-     6. `supabase/seed/01_topics.sql`
-     7. `supabase/seed/03_site_settings.sql` (esempi scuola/docenti modificabili)
+     6. `supabase/migrations/20261109120000_profiles_registration_status.sql`
+     7. `supabase/seed/01_topics.sql`
+     8. `supabase/seed/03_site_settings.sql` (esempi scuola/docenti modificabili)
    - **Opzione B (CLI)**: `supabase login` → `supabase link --project-ref <REF>` → `supabase db push` → esegui i seed.
-4. In **Authentication → Providers** lascia attivo Email/Password.
-5. Limita le registrazioni pubbliche se vuoi creare solo account da docente.
+4. In **Authentication → Providers** lascia attivo Email/Password. Consigliata la conferma email.
+5. Per la registrazione autonoma studenti: attiva l’interruttore in **Admin → Impostazioni**. Se vuoi solo account creati dal docente, lascia l’interruttore spento (Supabase può comunque avere “Allow new users” attivo: il sito forza comunque `role=studente` e `status=pending`).
 6. Verifica in **Storage** i bucket pubblici `article-images` e `site-assets` (logo/favicon).
-7. (Produzione) Configura **URL Configuration** con il dominio Vercel e il callback `/auth/callback`.
+7. (Produzione) Configura **URL Configuration** con il dominio Vercel e i redirect `/auth/callback` e `/auth/reset-password`.
 
 ### Creare il primo account admin
 
 1. **Authentication → Users → Add user** (email + password).
-2. Nel **SQL Editor** promuovi il profilo:
+2. Nel **SQL Editor** promuovi il profilo (ruolo **e** status attivo):
 
 ```sql
 update public.profiles
 set role = 'admin',
-    full_name = 'Nome Cognome Docente'
+    status = 'active',
+    full_name = 'Nome Cognome Docente',
+    first_name = 'Nome',
+    last_name = 'Cognome Docente'
 where email = 'tua.email@scuola.it';
 ```
 
-3. Accedi da `/auth/login`. Il middleware protegge `/admin`.
+3. Accedi da `/auth/login`. Solo account con `status = 'active'` entrano in `/admin`.
 4. Senza variabili Supabase, `/admin` resta ispezionabile in anteprima locale (mock).
+
+### Approvare gli studenti (guida docenti)
+
+1. In **Impostazioni** attiva **Registrazione studenti** se vuoi la pagina pubblica `/registrati`.
+2. Gli studenti si registrano → account in stato **pending** (non possono accedere al pannello).
+3. In **Utenti** (`/admin/utenti`) apri **Richieste di registrazione** (badge nel menu): **Approva**, **Rifiuta** (motivo opzionale), **Elimina**, oppure approva più richieste insieme.
+4. Dopo l’approvazione lo studente accede con email/password. Puoi **Sospendere** / **Riattivare** in qualsiasi momento, **creare studenti manualmente** (già attivi) o eliminare del tutto un account.
+5. Email di notifica (opzionali): se imposti `RESEND_API_KEY` (e opzionalmente `RESEND_FROM`) il sistema avvisa admin e studente; senza queste variabili il flusso funziona comunque con il badge in Utenti.
 
 ---
 
@@ -117,6 +129,8 @@ Vedi [`.env.example`](.env.example). Su Vercel imposta le stesse chiavi in **Pro
 | `TURNSTILE_SECRET_KEY` | Solo server | Obbligatoria in produzione; in locale senza chiave la verifica è saltata |
 | `TURNSTILE_BYPASS` | Server | Solo sviluppo (`true`); ignorato in produzione |
 | `COMMENT_IP_HASH_SALT` | Server | Sale per hash IP commenti |
+| `RESEND_API_KEY` | Solo server | Opzionale: email approvazione/registrazione |
+| `RESEND_FROM` | Solo server | Opzionale: mittente Resend (default onboarding@resend.dev) |
 
 **Non inventare e non condividere secret.** Se una chiave è stata esposta, ruotala subito dalla dashboard Supabase / Cloudflare.
 
@@ -147,8 +161,9 @@ Vedi [`.env.example`](.env.example). Su Vercel imposta le stesse chiavi in **Pro
 
 ### Studenti (ruolo `studente`)
 
-- Creano e modificano **solo i propri** articoli non pubblicati.
-- Inseriscono autori, fonti (≥1), immagini (max 4, con alt text e crediti).
+- Con registrazione attiva: `/registrati` → attesa approvazione docente → accesso.
+- Creano e modificano **solo i propri** articoli non pubblicati (solo se `status=active`).
+- Inseriscono autori (precompilati da nome/cognome del profilo), fonti (≥1), immagini (max 4, con alt text e crediti).
 - Inviaono l'articolo **in revisione**; la pubblicazione è riservata ai docenti.
 - Non gestiscono utenti, argomenti globali né moderazione commenti.
 

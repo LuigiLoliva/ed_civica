@@ -34,8 +34,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           </h1>
           <CardDescription>
             Accesso per docenti (admin) e studenti editor di {settings.siteName}.
-            Gli account si creano da Supabase; il primo admin si promuove con lo
-            SQL indicato nel README.
+            {settings.studentRegistrationEnabled
+              ? " Se non hai ancora un account, puoi richiedere la registrazione."
+              : " Gli account studenti vengono creati o approvati dai docenti."}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -44,7 +45,10 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               Autenticazione non riuscita. Riprova o contatta un docente.
             </p>
           ) : null}
-          <LoginForm nextPath={nextPath} />
+          <LoginForm
+            nextPath={nextPath}
+            registrationEnabled={settings.studentRegistrationEnabled}
+          />
         </CardContent>
       </Card>
     </div>
