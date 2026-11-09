@@ -3,15 +3,17 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { ArticleCard } from "@/components/articles/article-card";
+import { CommentsSection } from "@/components/comments/comments-section";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { listApprovedComments } from "@/lib/comments/store";
+import { authorFullName, formatDateIt } from "@/lib/format";
 import {
   articles,
   getArticleBySlug,
   getRelatedArticles,
   getTopicBySlug,
 } from "@/lib/mock-data";
-import { authorFullName, formatDateIt } from "@/lib/format";
 
 type ArticlePageProps = {
   params: Promise<{ slug: string }>;
@@ -47,6 +49,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   const topic = getTopicBySlug(article.topicSlug);
   const related = getRelatedArticles(article);
+  // Chiave commenti: slug mock finché non arrivano UUID da Supabase.
+  const comments = await listApprovedComments(article.slug);
 
   return (
     <article className="pb-16">
@@ -135,13 +139,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           </div>
         </section>
 
-        <section className="mt-12 rounded-xl border border-dashed border-border bg-muted/40 p-6">
-          <h2 className="font-heading text-2xl font-semibold">Commenti</h2>
-          <p className="mt-3 text-sm text-muted-foreground">
-            La sezione commenti arriverà con la Fase 4 (moderazione, anti-spam e
-            segnalazione). Per ora questa è solo una shell.
-          </p>
-        </section>
+        <CommentsSection articleId={article.slug} comments={comments} />
       </div>
 
       {related.length > 0 ? (

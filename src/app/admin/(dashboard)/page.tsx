@@ -27,7 +27,7 @@ const sections = [
     adminOnly: true,
   },
   {
-    href: "/admin",
+    href: "/admin/commenti",
     title: "Commenti",
     description: "Moderazione e segnalazioni (Fase 4).",
     adminOnly: true,
@@ -61,7 +61,10 @@ export default async function AdminDashboardPage() {
         {sections
           .filter((section) => admin || !section.adminOnly)
           .map((section) => (
-            <Card key={section.title} className="transition-colors hover:border-primary/40">
+            <Card
+              key={section.title}
+              className="transition-colors hover:border-primary/40"
+            >
               <CardHeader>
                 <CardTitle className="font-heading text-lg">
                   <Link href={section.href} className="hover:text-primary">
