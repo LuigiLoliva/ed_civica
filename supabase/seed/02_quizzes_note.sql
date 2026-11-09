@@ -1,0 +1,5 @@
+-- I tre quiz seed (ONU, Obiettivo 16, Obiettivo 17) vivono in TypeScript:
+--   src/data/quizzes/*.ts
+-- con needsTeacherReview = true.
+-- Dopo revisione docenti, migrare i contenuti in public.quizzes / quiz_questions / quiz_options
+-- e impostare published = true, needs_teacher_review = false.
