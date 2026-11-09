@@ -24,11 +24,34 @@ export const metadata: Metadata = {
   },
   description: siteConfig.description,
   metadataBase: new URL(siteConfig.url),
+  applicationName: siteConfig.name,
+  authors: [{ name: siteConfig.school.name }],
+  keywords: [
+    "ONU",
+    "Agenda 2030",
+    "Obiettivo 16",
+    "Obiettivo 17",
+    "Educazione Civica",
+    "Voci Unite",
+  ],
   openGraph: {
     title: siteConfig.name,
     description: siteConfig.description,
     locale: siteConfig.locale,
     type: "website",
+    siteName: siteConfig.name,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteConfig.name,
+    description: siteConfig.description,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: siteConfig.url,
   },
 };
 

@@ -58,9 +58,26 @@ export function SiteFooter() {
           </ul>
         </div>
       </div>
-      <div className="border-t border-border py-4 text-center text-xs text-muted-foreground">
-        Progetto scolastico di Educazione Civica · Contenuti da verificare con i
-        docenti
+      <div className="border-t border-border px-4 py-4 text-center text-xs text-muted-foreground">
+        <p>
+          Progetto scolastico di Educazione Civica · Contenuti da verificare con
+          i docenti
+        </p>
+        <p className="mt-1">
+          <Link
+            href="/privacy"
+            className="underline-offset-2 hover:text-primary hover:underline"
+          >
+            Privacy
+          </Link>
+          <span aria-hidden> · </span>
+          <Link
+            href="/cookie"
+            className="underline-offset-2 hover:text-primary hover:underline"
+          >
+            Cookie
+          </Link>
+        </p>
       </div>
     </footer>
   );
