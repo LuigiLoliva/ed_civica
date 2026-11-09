@@ -75,7 +75,7 @@ Apri [http://localhost:3000](http://localhost:3000).
    - **Opzione A (SQL Editor)**: esegui in ordine
      1. `supabase/migrations/20261109000001_init_schema.sql`
      2. `supabase/migrations/20261109000002_comment_reports.sql`
-     3. `supabase/migrations/20261109000002_quiz_fase5_columns.sql`
+     3. `supabase/migrations/20261109000003_quiz_fase5_columns.sql`
      4. `supabase/seed/01_topics.sql`
    - **Opzione B (CLI)**: `supabase login` → `supabase link --project-ref <REF>` → `supabase db push` → esegui il seed topics.
 4. In **Authentication → Providers** lascia attivo Email/Password.

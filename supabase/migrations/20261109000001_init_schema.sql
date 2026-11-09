@@ -21,31 +21,8 @@ create type public.quiz_question_type as enum (
 );
 
 -- -----------------------------------------------------------------------------
--- Funzioni helper (security definer) per RLS
+-- Funzioni helper (senza dipendenza da tabelle)
 -- -----------------------------------------------------------------------------
-create or replace function public.current_user_role()
-returns public.user_role
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select role from public.profiles where id = auth.uid();
-$$;
-
-create or replace function public.is_admin()
-returns boolean
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select exists (
-    select 1 from public.profiles
-    where id = auth.uid() and role = 'admin'
-  );
-$$;
-
 create or replace function public.set_updated_at()
 returns trigger
 language plpgsql
@@ -71,6 +48,30 @@ create table public.profiles (
 create trigger profiles_set_updated_at
   before update on public.profiles
   for each row execute function public.set_updated_at();
+
+-- Helper RLS: dopo profiles (LANGUAGE sql risolve le relazioni a CREATE time)
+create or replace function public.current_user_role()
+returns public.user_role
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select role from public.profiles where id = auth.uid();
+$$;
+
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.profiles
+    where id = auth.uid() and role = 'admin'
+  );
+$$;
 
 -- Alla registrazione crea il profilo (ruolo default: studente)
 create or replace function public.handle_new_user()
@@ -670,11 +671,13 @@ values (
 )
 on conflict (id) do nothing;
 
+drop policy if exists "Storage immagini: lettura pubblica" on storage.objects;
 create policy "Storage immagini: lettura pubblica"
   on storage.objects for select
   to anon, authenticated
   using (bucket_id = 'article-images');
 
+drop policy if exists "Storage immagini: upload autenticati" on storage.objects;
 create policy "Storage immagini: upload autenticati"
   on storage.objects for insert
   to authenticated
@@ -683,6 +686,7 @@ create policy "Storage immagini: upload autenticati"
     and (public.is_admin() or auth.uid()::text = (storage.foldername(name))[1])
   );
 
+drop policy if exists "Storage immagini: update owner/admin" on storage.objects;
 create policy "Storage immagini: update owner/admin"
   on storage.objects for update
   to authenticated
@@ -691,6 +695,7 @@ create policy "Storage immagini: update owner/admin"
     and (public.is_admin() or auth.uid()::text = (storage.foldername(name))[1])
   );
 
+drop policy if exists "Storage immagini: delete owner/admin" on storage.objects;
 create policy "Storage immagini: delete owner/admin"
   on storage.objects for delete
   to authenticated
