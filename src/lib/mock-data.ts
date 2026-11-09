@@ -45,13 +45,6 @@ export type MockArticle = {
   sources: MockSource[];
 };
 
-export type MockGamePreview = {
-  slug: string;
-  title: string;
-  description: string;
-  status: "coming-soon" | "ready";
-};
-
 export const topics: MockTopic[] = [
   {
     slug: "onu-storia-struttura",
@@ -258,34 +251,6 @@ export const articles: MockArticle[] = [
   },
 ];
 
-export const gamePreviews: MockGamePreview[] = [
-  {
-    slug: "memory-obiettivi",
-    title: "Memory degli Obiettivi",
-    description:
-      "Abbina simboli e parole chiave degli SDG, con focus su 16 e 17.",
-    status: "coming-soon",
-  },
-  {
-    slug: "vero-falso",
-    title: "Vero o Falso a scorrimento",
-    description: "Affermazioni sull'ONU: rispondi scorrendo o con le frecce.",
-    status: "coming-soon",
-  },
-  {
-    slug: "abbina-principio",
-    title: "Abbina il principio",
-    description: "Collega gli organi ONU alle loro funzioni.",
-    status: "coming-soon",
-  },
-  {
-    slug: "costruisci-partnership",
-    title: "Costruisci la partnership",
-    description: "Collega attori diversi per raggiungere un obiettivo comune.",
-    status: "coming-soon",
-  },
-];
-
 export function getTopicBySlug(slug: string) {
   return topics.find((topic) => topic.slug === slug);
 }
@@ -324,5 +289,4 @@ export const mockStats = {
       article.authors.map((author) => `${author.firstName}-${author.lastName}`),
     ),
   ).size,
-  quizzes: 3,
 };

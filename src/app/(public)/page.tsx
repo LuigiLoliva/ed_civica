@@ -17,8 +17,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { games } from "@/data/games";
+import { quizzes } from "@/data/quizzes";
 import {
-  gamePreviews,
   getFeaturedArticles,
   getLatestArticles,
   getTopicBySlug,
@@ -29,6 +30,7 @@ import { siteConfig } from "@/lib/site-config";
 export default function HomePage() {
   const featured = getFeaturedArticles();
   const latest = getLatestArticles(3);
+  const gameTeasers = games.slice(0, 4);
 
   return (
     <div className="bg-partnership-pattern">
@@ -128,11 +130,11 @@ export default function HomePage() {
         <div className="mx-auto grid max-w-6xl gap-6 px-4 py-12 sm:grid-cols-3 sm:px-6">
           <AnimatedStat label="Articoli pubblicati" value={mockStats.articles} />
           <AnimatedStat label="Autori" value={mockStats.authors} />
-          <AnimatedStat label="Quiz disponibili" value={mockStats.quizzes} />
+          <AnimatedStat label="Quiz disponibili" value={quizzes.length} />
         </div>
         <p className="pb-8 text-center text-xs text-muted-foreground">
-          Contatori da dati dimostrativi (mock). Verranno collegati a Supabase
-          quando il progetto sarà configurato.
+          Articoli/autori da mock Fase 2; quiz da seed Fase 5. Supabase
+          collegherà i conteggi reali quando il progetto sarà configurato.
         </p>
       </section>
 
@@ -184,17 +186,24 @@ export default function HomePage() {
         <div className="rounded-2xl border border-border bg-secondary/40 p-8 md:p-10">
           <h2 className="font-heading text-2xl font-semibold">Gioca e impara</h2>
           <p className="mt-2 max-w-2xl text-muted-foreground">
-            Mini-giochi e quiz sull&apos;ONU e sull&apos;Agenda 2030. La shell è
-            pronta; i contenuti interattivi arriveranno con la Fase 5.
+            Mini-giochi e quiz sull&apos;ONU e sull&apos;Agenda 2030 — già
+            disponibili nella sezione Gioca (seed da revisionare con i docenti).
           </p>
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            {gamePreviews.map((game) => (
+            {gameTeasers.map((game) => (
               <Card key={game.slug} size="sm">
                 <CardHeader>
                   <Badge variant="outline" className="w-fit">
-                    {game.status === "coming-soon" ? "In arrivo" : "Disponibile"}
+                    {game.badge} · ~{game.estimatedMinutes} min
                   </Badge>
-                  <CardTitle>{game.title}</CardTitle>
+                  <CardTitle>
+                    <Link
+                      href={`/gioca/giochi/${game.slug}`}
+                      className="hover:text-primary"
+                    >
+                      {game.title}
+                    </Link>
+                  </CardTitle>
                   <CardDescription>{game.description}</CardDescription>
                 </CardHeader>
               </Card>
