@@ -47,6 +47,12 @@ const sections = [
     description: "Editor quiz e seed da revisionare (Fase 5).",
     adminOnly: true,
   },
+  {
+    href: "/admin/impostazioni",
+    title: "Impostazioni",
+    description: "Nome sito, scuola, footer, logo e moderazione.",
+    adminOnly: true,
+  },
 ] as const;
 
 export default async function AdminDashboardPage() {

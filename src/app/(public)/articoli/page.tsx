@@ -4,12 +4,15 @@ import Link from "next/link";
 import { ArticleCard } from "@/components/articles/article-card";
 import { Badge } from "@/components/ui/badge";
 import { articles, getTopicBySlug, topics } from "@/lib/mock-data";
+import { getSiteSettings } from "@/lib/site-settings";
 
-export const metadata: Metadata = {
-  title: "Articoli",
-  description:
-    "Elenco degli articoli di Voci Unite su ONU, Agenda 2030, Obiettivo 16 e Obiettivo 17.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  return {
+    title: "Articoli",
+    description: `Elenco degli articoli di ${settings.siteName} su ONU, Agenda 2030, Obiettivo 16 e Obiettivo 17.`,
+  };
+}
 
 type ArticoliPageProps = {
   searchParams: Promise<{ argomento?: string }>;

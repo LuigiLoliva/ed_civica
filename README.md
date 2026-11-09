@@ -4,7 +4,7 @@ Blog scolastico di Educazione Civica su **ONU** e **Agenda 2030**, con approfond
 
 Stack: **Next.js 15** (App Router) · TypeScript · Tailwind CSS · shadcn/ui · Supabase · Vercel · Vitest · Playwright.
 
-> Nome e dati scuola sono configurabili in [`src/lib/site-config.ts`](src/lib/site-config.ts).
+> Nome, scuola, footer, logo e interruttori si modificano da **Admin → Impostazioni** (`/admin/impostazioni`). Nav/colori statici restano in [`src/lib/site-config.ts`](src/lib/site-config.ts).
 
 ---
 
@@ -77,11 +77,13 @@ Apri [http://localhost:3000](http://localhost:3000).
      2. `supabase/migrations/20261109000002_comment_reports.sql`
      3. `supabase/migrations/20261109000003_quiz_fase5_columns.sql`
      4. `supabase/migrations/20261109000004_comments_fix_and_site_settings.sql`
-     5. `supabase/seed/01_topics.sql`
-   - **Opzione B (CLI)**: `supabase login` → `supabase link --project-ref <REF>` → `supabase db push` → esegui il seed topics.
+     5. `supabase/migrations/20261109110000_site_settings_expand.sql`
+     6. `supabase/seed/01_topics.sql`
+     7. `supabase/seed/03_site_settings.sql` (esempi scuola/docenti modificabili)
+   - **Opzione B (CLI)**: `supabase login` → `supabase link --project-ref <REF>` → `supabase db push` → esegui i seed.
 4. In **Authentication → Providers** lascia attivo Email/Password.
 5. Limita le registrazioni pubbliche se vuoi creare solo account da docente.
-6. Verifica in **Storage** il bucket pubblico `article-images` (creato dalla migrazione).
+6. Verifica in **Storage** i bucket pubblici `article-images` e `site-assets` (logo/favicon).
 7. (Produzione) Configura **URL Configuration** con il dominio Vercel e il callback `/auth/callback`.
 
 ### Creare il primo account admin
@@ -140,7 +142,7 @@ Vedi [`.env.example`](.env.example). Su Vercel imposta le stesse chiavi in **Pro
 - Pubblicano / depubblicano articoli, gestiscono argomenti, utenti, commenti e quiz.
 - Flusso articolo: **bozza → in revisione → pubblicato**.
 - Moderano i commenti in `/admin/commenti` (approva, rifiuta, elimina, segnalazioni; badge nel menu).
-- Attivano/disattivano la moderazione commenti in `/admin/impostazioni`.
+- Aggiornano nome sito, scuola, indirizzo, docenti, social, footer, pagina «Il progetto», logo/favicon e interruttori (moderazione commenti, registrazione studenti) in `/admin/impostazioni`.
 - Validano Privacy/Cookie Policy e contenuti (testi, quiz, immagini) prima del lancio pubblico.
 
 ### Studenti (ruolo `studente`)
@@ -190,8 +192,8 @@ src/
   app/admin/        # Pannello riservato
   app/auth/         # Login e callback
   components/       # UI, layout, giochi, quiz, commenti
-  lib/              # site-config, supabase, validations, comments
-  data/             # Seed quiz e giochi
+  lib/              # site-config, site-settings, supabase, validations, comments
+  data/             # Seed quiz e giochi (+ fallback locale impostazioni)
 supabase/           # Migrazioni SQL + seed
 tests/              # Vitest
 e2e/                # Playwright
@@ -211,4 +213,4 @@ e2e/                # Playwright
 
 ## Licenza / progetto scolastico
 
-Progetto didattico. Aggiornare scuola, classe e docenti in `src/lib/site-config.ts` prima del lancio. I contenuti generati dall’IA vanno **verificati** su fonti ufficiali (un.org, sdgs.un.org, ASviS, MAECI).
+Progetto didattico. Aggiornare scuola, classe e docenti da **Admin → Impostazioni** prima del lancio. I contenuti generati dall’IA vanno **verificati** su fonti ufficiali (un.org, sdgs.un.org, ASviS, MAECI).

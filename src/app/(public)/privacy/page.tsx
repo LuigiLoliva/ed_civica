@@ -1,19 +1,27 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { siteConfig } from "@/lib/site-config";
+import {
+  formatTeachers,
+  getSiteSettings,
+} from "@/lib/site-settings";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy",
-  description:
-    "Informativa privacy di base del blog scolastico Voci Unite. Testo da far validare alla scuola.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  return {
+    title: "Privacy Policy",
+    description: `Informativa privacy di base del blog scolastico ${settings.siteName}. Testo da far validare alla scuola.`,
+  };
+}
 
 /**
  * Testo base italiano per progetto scolastico.
  * NON è una consulenza legale: va validato da dirigente/docente referente / DPO scolastico.
  */
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const settings = await getSiteSettings();
+  const teachers = formatTeachers(settings);
+
   return (
     <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
       <header className="space-y-3">
@@ -22,10 +30,10 @@ export default function PrivacyPage() {
           Privacy Policy
         </h1>
         <p className="text-muted-foreground text-pretty">
-          Questa pagina descrive in modo sintetico come {siteConfig.name} tratta i
+          Questa pagina descrive in modo sintetico come {settings.siteName} tratta i
           dati personali. Il sito è un progetto didattico di Educazione Civica (
-          {siteConfig.school.name}, {siteConfig.school.className}, a.s.{" "}
-          {siteConfig.school.year}). Il testo è una <strong>base da far validare</strong>{" "}
+          {settings.schoolName}, {settings.className}, a.s.{" "}
+          {settings.schoolYear}). Il testo è una <strong>base da far validare</strong>{" "}
           alla scuola prima della pubblicazione definitiva.
         </p>
       </header>
@@ -41,8 +49,22 @@ export default function PrivacyPage() {
               Il progetto
             </Link>
             . Per richieste relative ai dati personali contattare il docente
-            referente ({siteConfig.school.teachers.join(", ")}) o la segreteria
-            scolastica / DPO secondo le procedure interne della scuola.
+            referente ({teachers}) o la segreteria
+            scolastica / DPO secondo le procedure interne della scuola
+            {settings.contactEmail ? (
+              <>
+                {" "}
+                (
+                <a
+                  href={`mailto:${settings.contactEmail}`}
+                  className="text-primary underline-offset-2 hover:underline"
+                >
+                  {settings.contactEmail}
+                </a>
+                )
+              </>
+            ) : null}
+            .
           </p>
         </section>
 

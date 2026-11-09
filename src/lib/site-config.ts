@@ -1,22 +1,16 @@
 /**
- * Configurazione centrale del sito.
- * Modifica questi valori per rinominare il blog, aggiornare scuola/classe, ecc.
+ * Configurazione statica del sito (nav, colori, limiti).
+ * Nome scuola, slogan, footer, logo, moderazione, ecc. si modificano da
+ * Admin → Impostazioni (`getSiteSettings()`), non da questo file.
  */
 export const siteConfig = {
+  /** Fallback sincrono (metadata statici / test); preferire getSiteSettings(). */
   name: "Voci Unite",
   tagline: "Blog scolastico su ONU e Agenda 2030",
   description:
     "Progetto di Educazione Civica dedicato all'Organizzazione delle Nazioni Unite e agli Obiettivi di Sviluppo Sostenibile 16 e 17.",
   locale: "it-IT",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
-
-  /** Dati scolastici: da aggiornare con i dati reali della scuola */
-  school: {
-    name: "Nome della scuola",
-    className: "Classe",
-    year: "2025/2026",
-    teachers: ["Docente referente"],
-  },
 
   goals: {
     16: {
@@ -54,7 +48,10 @@ export const siteConfig = {
     { href: "https://sdgs.un.org/", label: "Agenda 2030", external: true },
   ],
 
-  /** Moderazione commenti: se true i commenti restano in attesa fino ad approvazione admin */
+  /**
+   * Fallback sincrono se `site_settings` non è ancora migrata.
+   * Fonte di verità: Admin → Impostazioni (`commentsModerationEnabled`).
+   */
   commentsRequireApproval: true,
 
   /** Limiti editoriali */

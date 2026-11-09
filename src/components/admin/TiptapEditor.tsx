@@ -25,6 +25,9 @@ interface TiptapEditorProps {
   onChange: (html: string) => void;
   disabled?: boolean;
   error?: string;
+  placeholder?: string;
+  hint?: string | null;
+  minHeightClass?: string;
 }
 
 export function TiptapEditor({
@@ -32,6 +35,9 @@ export function TiptapEditor({
   onChange,
   disabled,
   error,
+  placeholder = "Scrivi il corpo dell'articolo… Usa H2/H3 per i titoli.",
+  hint = "H2/H3, elenchi e citazioni. Le immagini si aggiungono sotto (max 4).",
+  minHeightClass = "min-h-[220px]",
 }: TiptapEditorProps) {
   const editor = useEditor({
     extensions: [
@@ -43,7 +49,7 @@ export function TiptapEditor({
         HTMLAttributes: { class: "text-primary underline" },
       }),
       Placeholder.configure({
-        placeholder: "Scrivi il corpo dell'articolo… Usa H2/H3 per i titoli.",
+        placeholder,
       }),
     ],
     content: value,
@@ -52,8 +58,7 @@ export function TiptapEditor({
     onUpdate: ({ editor: ed }) => onChange(ed.getHTML()),
     editorProps: {
       attributes: {
-        class:
-          "prose prose-slate max-w-none min-h-[220px] px-4 py-3 focus:outline-none",
+        class: `prose prose-slate max-w-none ${minHeightClass} px-4 py-3 focus:outline-none`,
       },
     },
   });
@@ -182,10 +187,9 @@ export function TiptapEditor({
         <EditorContent editor={editor} />
       </div>
       {error ? <p className="mt-1 text-sm text-destructive">{error}</p> : null}
-      <p className="mt-1 text-xs text-muted-foreground">
-        H2/H3, elenchi e citazioni. Le immagini si aggiungono sotto (max{" "}
-        {4}).
-      </p>
+      {hint ? (
+        <p className="mt-1 text-xs text-muted-foreground">{hint}</p>
+      ) : null}
     </div>
   );
 }

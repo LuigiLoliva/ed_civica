@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
 
 import { siteConfig } from "@/lib/site-config";
+import { getSiteSettings } from "@/lib/site-settings";
 
 import "./globals.css";
 
@@ -17,43 +18,51 @@ const fraunces = Fraunces({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: siteConfig.name,
-    template: `%s · ${siteConfig.name}`,
-  },
-  description: siteConfig.description,
-  metadataBase: new URL(siteConfig.url),
-  applicationName: siteConfig.name,
-  authors: [{ name: siteConfig.school.name }],
-  keywords: [
-    "ONU",
-    "Agenda 2030",
-    "Obiettivo 16",
-    "Obiettivo 17",
-    "Educazione Civica",
-    "Voci Unite",
-  ],
-  openGraph: {
-    title: siteConfig.name,
-    description: siteConfig.description,
-    locale: siteConfig.locale,
-    type: "website",
-    siteName: siteConfig.name,
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: siteConfig.name,
-    description: siteConfig.description,
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
-  alternates: {
-    canonical: siteConfig.url,
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const icons = settings.faviconUrl
+    ? { icon: [{ url: settings.faviconUrl }] }
+    : undefined;
+
+  return {
+    title: {
+      default: settings.siteName,
+      template: `%s · ${settings.siteName}`,
+    },
+    description: settings.description,
+    metadataBase: new URL(siteConfig.url),
+    applicationName: settings.siteName,
+    authors: [{ name: settings.schoolName }],
+    keywords: [
+      "ONU",
+      "Agenda 2030",
+      "Obiettivo 16",
+      "Obiettivo 17",
+      "Educazione Civica",
+      settings.siteName,
+    ],
+    openGraph: {
+      title: settings.siteName,
+      description: settings.description,
+      locale: siteConfig.locale,
+      type: "website",
+      siteName: settings.siteName,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: settings.siteName,
+      description: settings.description,
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+    alternates: {
+      canonical: siteConfig.url,
+    },
+    icons,
+  };
+}
 
 export default function RootLayout({
   children,

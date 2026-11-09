@@ -7,7 +7,7 @@ import {
   CardDescription,
   CardHeader,
 } from "@/components/ui/card";
-import { siteConfig } from "@/lib/site-config";
+import { getSiteSettings } from "@/lib/site-settings";
 
 export const metadata: Metadata = {
   title: "Accedi",
@@ -19,6 +19,7 @@ type LoginPageProps = {
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams;
+  const settings = await getSiteSettings();
   const nextPath =
     params.next && params.next.startsWith("/") && !params.next.startsWith("//")
       ? params.next
@@ -32,7 +33,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             Area riservata
           </h1>
           <CardDescription>
-            Accesso per docenti (admin) e studenti editor di {siteConfig.name}.
+            Accesso per docenti (admin) e studenti editor di {settings.siteName}.
             Gli account si creano da Supabase; il primo admin si promuove con lo
             SQL indicato nel README.
           </CardDescription>

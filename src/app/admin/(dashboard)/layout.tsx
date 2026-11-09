@@ -6,6 +6,7 @@ import { AdminProviders } from "@/components/admin/AdminProviders";
 import { AdminSubnav } from "@/components/admin/AdminSubnav";
 import { OliveBranchIcon } from "@/components/icons/onu-motifs";
 import { Button } from "@/components/ui/button";
+import { Toaster } from "@/components/ui/sonner";
 import {
   canAccessAdmin,
   getCurrentProfile,
@@ -13,7 +14,7 @@ import {
 } from "@/lib/auth/roles";
 import { profileToSessionUser } from "@/lib/auth/session-user";
 import { countPendingComments } from "@/lib/comments/store";
-import { siteConfig } from "@/lib/site-config";
+import { getSiteSettings } from "@/lib/site-settings";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,7 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const profile = await getCurrentProfile();
+  const settings = await getSiteSettings();
 
   if (!canAccessAdmin(profile)) {
     // Senza Supabase configurato mostriamo comunque la shell con avviso,
@@ -46,7 +48,7 @@ export default async function AdminLayout({
             <OliveBranchIcon className="size-6 text-primary" />
             <div>
               <p className="text-sm font-semibold leading-none">
-                {siteConfig.name} · Admin
+                {settings.siteName} · Admin
               </p>
               <p className="text-xs text-muted-foreground">
                 {profile
@@ -86,6 +88,7 @@ export default async function AdminLayout({
           {children}
         </AdminProviders>
       </div>
+      <Toaster theme="light" richColors closeButton />
     </div>
   );
 }
