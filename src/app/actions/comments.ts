@@ -260,6 +260,9 @@ export async function updateCommentsModerationAction(
     };
   }
 
+  const { revalidateTag } = await import("next/cache");
+  const { SITE_SETTINGS_CACHE_TAG } = await import("@/lib/site-settings");
+  revalidateTag(SITE_SETTINGS_CACHE_TAG);
   revalidatePath("/admin/impostazioni");
   revalidatePath("/admin/commenti");
   revalidatePath("/articoli");
