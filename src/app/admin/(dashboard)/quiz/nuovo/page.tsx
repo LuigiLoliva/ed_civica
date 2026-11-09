@@ -1,12 +1,17 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { QuizEditorStub } from "@/components/admin/QuizEditorStub";
+import { requireAdminOrDemo } from "@/lib/auth/require-admin";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Nuovo quiz",
 };
 
-export default function AdminQuizNewPage() {
+export default async function AdminQuizNewPage() {
+  await requireAdminOrDemo();
+
   return (
     <div className="space-y-4">
       <Link

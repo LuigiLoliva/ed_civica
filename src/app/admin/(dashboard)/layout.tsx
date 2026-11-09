@@ -6,9 +6,15 @@ import { AdminProviders } from "@/components/admin/AdminProviders";
 import { AdminSubnav } from "@/components/admin/AdminSubnav";
 import { OliveBranchIcon } from "@/components/icons/onu-motifs";
 import { Button } from "@/components/ui/button";
-import { canAccessAdmin, getCurrentProfile } from "@/lib/auth/roles";
+import {
+  canAccessAdmin,
+  getCurrentProfile,
+  isSupabaseConfigured,
+} from "@/lib/auth/roles";
 import { profileToSessionUser } from "@/lib/auth/session-user";
 import { siteConfig } from "@/lib/site-config";
+
+export const dynamic = "force-dynamic";
 
 export default async function AdminLayout({
   children,
@@ -20,11 +26,7 @@ export default async function AdminLayout({
   if (!canAccessAdmin(profile)) {
     // Senza Supabase configurato mostriamo comunque la shell con avviso,
     // così la struttura admin è ispezionabile in locale.
-    const supabaseConfigured = Boolean(
-      process.env.NEXT_PUBLIC_SUPABASE_URL &&
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    );
-    if (supabaseConfigured) {
+    if (isSupabaseConfigured()) {
       redirect("/auth/login?next=/admin");
     }
   }
@@ -71,7 +73,10 @@ export default async function AdminLayout({
         </div>
       </header>
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-        <AdminProviders sessionUser={sessionUser}>
+        <AdminProviders
+          key={sessionUser?.id ?? "demo"}
+          sessionUser={sessionUser}
+        >
           <AdminSubnav />
           {children}
         </AdminProviders>

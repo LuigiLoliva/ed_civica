@@ -1,9 +1,11 @@
 import type { User } from "@supabase/supabase-js";
 
+import { isAdminRole, normalizeRole } from "@/lib/auth/role-utils";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile, UserRole } from "@/types/database";
 
 export type SessionProfile = Profile;
+export { isAdminRole, normalizeRole } from "@/lib/auth/role-utils";
 
 /**
  * Restituisce il profilo dell'utente autenticato, o null se non loggato /
@@ -31,7 +33,12 @@ export async function getCurrentProfile(): Promise<SessionProfile | null> {
     .maybeSingle();
 
   if (error || !profile) return null;
-  return profile;
+
+  const row = profile as Profile;
+  const role = normalizeRole(row.role);
+  if (!role) return null;
+
+  return { ...row, role };
 }
 
 export async function getCurrentUser(): Promise<User | null> {
@@ -54,8 +61,10 @@ export function hasRole(
   roles: UserRole | UserRole[],
 ): boolean {
   if (!profile) return false;
+  const current = normalizeRole(profile.role);
+  if (!current) return false;
   const allowed = Array.isArray(roles) ? roles : [roles];
-  return allowed.includes(profile.role);
+  return allowed.includes(current);
 }
 
 export function isAdmin(profile: SessionProfile | null): boolean {
@@ -64,4 +73,20 @@ export function isAdmin(profile: SessionProfile | null): boolean {
 
 export function canAccessAdmin(profile: SessionProfile | null): boolean {
   return hasRole(profile, ["admin", "studente"]);
+}
+
+export function isSupabaseConfigured(): boolean {
+  return Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  );
+}
+
+/** Usato da pagine admin: true se admin reale, null se modalità demo locale. */
+export function serverAdminAccess(
+  profile: SessionProfile | null,
+): boolean | null {
+  if (profile) return isAdminRole(profile.role);
+  if (isSupabaseConfigured()) return false;
+  return null;
 }

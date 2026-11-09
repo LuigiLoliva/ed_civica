@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 import { fetchAdminModerationData } from "@/app/actions/comments";
-import { getCurrentProfile, isAdmin } from "@/lib/auth/roles";
+import { requireAdminOrDemo } from "@/lib/auth/require-admin";
 import { siteConfig } from "@/lib/site-config";
 
 import { ModerationClient } from "./moderation-client";
@@ -15,16 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminCommentiPage() {
-  const profile = await getCurrentProfile();
-  const supabaseConfigured = Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-  );
-
-  // Solo admin; in locale senza Supabase resta ispezionabile.
-  if (supabaseConfigured && !isAdmin(profile)) {
-    redirect("/admin");
-  }
+  await requireAdminOrDemo();
 
   const { comments, reports } = await fetchAdminModerationData();
 

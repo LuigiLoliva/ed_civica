@@ -121,7 +121,7 @@ export function resetMockData(): void {
 }
 
 export function canEditArticle(user: MockUser, article: MockArticle): boolean {
-  if (user.role === "admin") return true;
+  if (user.role.trim().toLowerCase() === "admin") return true;
   return (
     article.authorUserId === user.id &&
     (article.status === "bozza" || article.status === "in_revisione")
@@ -129,11 +129,11 @@ export function canEditArticle(user: MockUser, article: MockArticle): boolean {
 }
 
 export function canPublish(user: MockUser): boolean {
-  return user.role === "admin";
+  return user.role.trim().toLowerCase() === "admin";
 }
 
 export function visibleArticlesFor(user: MockUser): MockArticle[] {
   const all = getArticles();
-  if (user.role === "admin") return all;
+  if (user.role.trim().toLowerCase() === "admin") return all;
   return all.filter((a) => a.authorUserId === user.id);
 }

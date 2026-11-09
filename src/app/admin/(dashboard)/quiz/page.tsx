@@ -1,13 +1,18 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { quizzes } from "@/data/quizzes";
+import { requireAdminOrDemo } from "@/lib/auth/require-admin";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Gestione quiz",
   description: "Stub admin per creare e modificare i quiz.",
 };
 
-export default function AdminQuizListPage() {
+export default async function AdminQuizListPage() {
+  await requireAdminOrDemo();
+
   return (
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
