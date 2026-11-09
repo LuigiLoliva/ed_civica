@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 import { getCurrentProfile, isAdmin } from "@/lib/auth/roles";
 import { getClientIp, hashIp } from "@/lib/comments/ip";
@@ -8,6 +8,7 @@ import {
   getCommentsModerationEnabled,
   setCommentsModerationEnabled,
 } from "@/lib/comments/moderation-settings";
+import { SITE_SETTINGS_CACHE_TAG } from "@/lib/site-settings";
 import { checkOffensiveOrSpam } from "@/lib/comments/offensive-filter";
 import { checkRateLimit } from "@/lib/comments/rate-limit";
 import {
@@ -260,8 +261,6 @@ export async function updateCommentsModerationAction(
     };
   }
 
-  const { revalidateTag } = await import("next/cache");
-  const { SITE_SETTINGS_CACHE_TAG } = await import("@/lib/site-settings");
   revalidateTag(SITE_SETTINGS_CACHE_TAG);
   revalidatePath("/admin/impostazioni");
   revalidatePath("/admin/commenti");
