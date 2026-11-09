@@ -1,10 +1,8 @@
 import Link from "next/link";
 
 import { siteConfig } from "@/lib/site-config";
-import {
-  formatSchoolLocation,
-  type SiteSettings,
-} from "@/lib/site-settings";
+import { formatSchoolLocation } from "@/lib/site-settings/map";
+import type { SiteSettings } from "@/lib/site-settings/types";
 
 interface SiteFooterProps {
   settings: SiteSettings;

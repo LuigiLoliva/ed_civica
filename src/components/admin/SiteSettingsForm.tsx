@@ -18,9 +18,9 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import {
   siteSettingsSchema,
-  type SiteSettings,
   type SiteSettingsFormValues,
-} from "@/lib/site-settings";
+} from "@/lib/site-settings/schema";
+import type { SiteSettings } from "@/lib/site-settings/types";
 
 interface SiteSettingsFormProps {
   initial: SiteSettings;
@@ -468,8 +468,9 @@ export function SiteSettingsForm({ initial }: SiteSettingsFormProps) {
                 <div>
                   <p className="text-sm font-medium">Registrazione studenti</p>
                   <p className="text-sm text-muted-foreground">
-                    Se attiva, gli studenti possono richiedere un account (funzione
-                    successiva).
+                    Se attiva, gli studenti possono richiedere un account su{" "}
+                    <code className="rounded bg-muted px-1">/registrati</code>;
+                    restano in attesa finché un docente non li approva in Utenti.
                   </p>
                 </div>
                 <Switch

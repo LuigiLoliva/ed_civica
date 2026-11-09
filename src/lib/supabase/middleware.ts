@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 /**
  * Aggiorna la sessione Auth sui cookie della request.
  * Usato da `src/middleware.ts`.
+ * Su /admin richiede sessione + profilo status active (via redirect a pending).
  */
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -38,20 +39,45 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
-  const isLoginRoute = request.nextUrl.pathname.startsWith("/auth/login");
+  const pathname = request.nextUrl.pathname;
+  const isAdminRoute = pathname.startsWith("/admin");
+  const isLoginRoute = pathname.startsWith("/auth/login");
+  const isPendingRoute = pathname.startsWith("/auth/pending");
+  const isRegisterRoute = pathname.startsWith("/registrati");
 
   if (isAdminRoute && !user) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/auth/login";
-    redirectUrl.searchParams.set("next", request.nextUrl.pathname);
+    redirectUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(redirectUrl);
   }
 
-  if (isLoginRoute && user) {
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/admin";
-    return NextResponse.redirect(redirectUrl);
+  if (user && (isAdminRoute || isLoginRoute || isRegisterRoute)) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("status")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    const status =
+      typeof profile?.status === "string" ? profile.status : "active";
+
+    if (status !== "active" && isAdminRoute) {
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = "/auth/pending";
+      redirectUrl.searchParams.set("status", status);
+      return NextResponse.redirect(redirectUrl);
+    }
+
+    if (status === "active" && (isLoginRoute || isRegisterRoute)) {
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = "/admin";
+      return NextResponse.redirect(redirectUrl);
+    }
+
+    if (status !== "active" && isLoginRoute && !isPendingRoute) {
+      // lascia passare login (per mostrare messaggio) — già gestito dall'action
+    }
   }
 
   return supabaseResponse;

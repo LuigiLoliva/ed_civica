@@ -13,9 +13,13 @@ const initialState: LoginState = {};
 
 type LoginFormProps = {
   nextPath?: string;
+  registrationEnabled?: boolean;
 };
 
-export function LoginForm({ nextPath = "/admin" }: LoginFormProps) {
+export function LoginForm({
+  nextPath = "/admin",
+  registrationEnabled = false,
+}: LoginFormProps) {
   const [state, formAction, pending] = useActionState(loginAction, initialState);
 
   return (
@@ -64,11 +68,29 @@ export function LoginForm({ nextPath = "/admin" }: LoginFormProps) {
         {pending ? "Accesso in corso…" : "Accedi"}
       </Button>
 
-      <p className="text-center text-sm text-muted-foreground">
-        <Link href="/" className="text-primary hover:underline">
-          Torna al sito
-        </Link>
-      </p>
+      <div className="space-y-2 text-center text-sm text-muted-foreground">
+        <p>
+          <Link
+            href="/auth/forgot-password"
+            className="text-primary hover:underline"
+          >
+            Password dimenticata?
+          </Link>
+        </p>
+        {registrationEnabled ? (
+          <p>
+            Non hai un account?{" "}
+            <Link href="/registrati" className="text-primary hover:underline">
+              Registrati
+            </Link>
+          </p>
+        ) : null}
+        <p>
+          <Link href="/" className="text-primary hover:underline">
+            Torna al sito
+          </Link>
+        </p>
+      </div>
     </form>
   );
 }

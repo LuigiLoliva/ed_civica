@@ -5,6 +5,12 @@
 
 export type UserRole = "admin" | "studente";
 
+export type ProfileStatus =
+  | "pending"
+  | "active"
+  | "rejected"
+  | "suspended";
+
 export type ArticleStatus = "bozza" | "in_revisione" | "pubblicato";
 
 export type CommentStatus = "in_attesa" | "approvato" | "rifiutato";
@@ -20,7 +26,12 @@ export interface Profile {
   id: string;
   email: string;
   full_name: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  class_name: string | null;
   role: UserRole;
+  status: ProfileStatus;
+  rejection_reason: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -289,6 +300,7 @@ export interface Database {
     Functions: Record<string, never>;
     Enums: {
       user_role: UserRole;
+      profile_status: ProfileStatus;
       article_status: ArticleStatus;
       comment_status: CommentStatus;
       quiz_difficulty: QuizDifficulty;

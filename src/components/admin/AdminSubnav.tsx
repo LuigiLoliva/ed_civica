@@ -8,7 +8,11 @@ const links = [
   { href: "/admin", label: "Dashboard", exact: true },
   { href: "/admin/articoli/nuovo", label: "Nuovo articolo" },
   { href: "/admin/argomenti", label: "Argomenti" },
-  { href: "/admin/utenti", label: "Utenti" },
+  {
+    href: "/admin/utenti",
+    label: "Utenti",
+    badgeKey: "pendingRegistrations" as const,
+  },
   {
     href: "/admin/commenti",
     label: "Commenti",
@@ -20,9 +24,13 @@ const links = [
 
 type Props = {
   pendingComments?: number;
+  pendingRegistrations?: number;
 };
 
-export function AdminSubnav({ pendingComments = 0 }: Props) {
+export function AdminSubnav({
+  pendingComments = 0,
+  pendingRegistrations = 0,
+}: Props) {
   const pathname = usePathname();
 
   return (
@@ -31,10 +39,16 @@ export function AdminSubnav({ pendingComments = 0 }: Props) {
         const active = link.exact
           ? pathname === link.href
           : pathname.startsWith(link.href);
-        const badge =
-          link.badgeKey === "pendingComments" && pendingComments > 0
-            ? pendingComments
-            : null;
+        let badge: number | null = null;
+        if (link.badgeKey === "pendingComments" && pendingComments > 0) {
+          badge = pendingComments;
+        }
+        if (
+          link.badgeKey === "pendingRegistrations" &&
+          pendingRegistrations > 0
+        ) {
+          badge = pendingRegistrations;
+        }
         return (
           <Link
             key={link.href}
@@ -55,7 +69,11 @@ export function AdminSubnav({ pendingComments = 0 }: Props) {
                     ? "bg-primary-foreground/20 text-primary-foreground"
                     : "bg-amber-100 text-amber-950 dark:bg-amber-950 dark:text-amber-100",
                 )}
-                aria-label={`${badge} commenti in attesa`}
+                aria-label={
+                  link.badgeKey === "pendingRegistrations"
+                    ? `${badge} richieste di registrazione`
+                    : `${badge} commenti in attesa`
+                }
               >
                 {badge > 99 ? "99+" : badge}
               </span>
