@@ -84,7 +84,7 @@ export function CommentForm({
           <input
             type="text"
             autoComplete="nickname"
-            maxLength={80}
+            maxLength={50}
             className="w-full rounded-md border bg-background px-3 py-2"
             {...form.register("authorName")}
           />
@@ -119,7 +119,7 @@ export function CommentForm({
         <span className="mb-1 block font-medium">Commento *</span>
         <textarea
           rows={compact ? 3 : 5}
-          maxLength={2000}
+          maxLength={1000}
           className="w-full rounded-md border bg-background px-3 py-2"
           {...form.register("body")}
         />

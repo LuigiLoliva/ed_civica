@@ -19,7 +19,7 @@ export function sanitizeCommentText(raw: string): string {
 }
 
 export function sanitizeDisplayName(raw: string): string {
-  return sanitizeCommentText(raw).slice(0, 80);
+  return sanitizeCommentText(raw).slice(0, 50);
 }
 
 /** Escape per rendering sicuro in HTML (se non usiamo textContent). */

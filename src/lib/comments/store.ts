@@ -3,6 +3,7 @@ import { promises as fs } from "fs";
 import path from "path";
 
 import { resolveArticleUuid } from "@/lib/articles/resolve-id";
+import { getCommentsModerationEnabled } from "@/lib/comments/moderation-settings";
 import { siteConfig } from "@/lib/site-config";
 import {
   createServiceClient,
@@ -56,6 +57,18 @@ function nestApproved(comments: CommentRecord[]): PublicComment[] {
   }));
 }
 
+function normalizeArticleJoin(
+  articles:
+    | { slug: string; title: string }
+    | { slug: string; title: string }[]
+    | null
+    | undefined,
+): { slug: string; title: string } | null {
+  if (!articles) return null;
+  if (Array.isArray(articles)) return articles[0] ?? null;
+  return articles;
+}
+
 function mapRow(row: {
   id: string;
   article_id: string;
@@ -68,7 +81,12 @@ function mapRow(row: {
   ip_hash: string | null;
   created_at: string;
   updated_at: string;
+  articles?:
+    | { slug: string; title: string }
+    | { slug: string; title: string }[]
+    | null;
 }): CommentRecord {
+  const article = normalizeArticleJoin(row.articles);
   return {
     id: row.id,
     articleId: row.article_id,
@@ -81,11 +99,24 @@ function mapRow(row: {
     ipHash: row.ip_hash,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    articleSlug: article?.slug ?? null,
+    articleTitle: article?.title ?? null,
   };
 }
 
 const SELECT_COLS =
   "id, article_id, parent_id, author_name, author_email, body, status, reported, ip_hash, created_at, updated_at";
+
+const SELECT_COLS_ADMIN = `${SELECT_COLS}, articles ( slug, title )`;
+
+async function sameArticle(
+  parentArticleId: string,
+  inputArticleId: string,
+): Promise<boolean> {
+  if (parentArticleId === inputArticleId) return true;
+  const resolved = await resolveArticleUuid(inputArticleId);
+  return resolved !== null && resolved === parentArticleId;
+}
 
 export async function listApprovedComments(
   articleId: string,
@@ -102,7 +133,10 @@ export async function listApprovedComments(
         .eq("article_id", articleUuid)
         .eq("status", "approvato")
         .order("created_at", { ascending: true });
-      if (error) throw new Error(error.message);
+      if (error) {
+        console.error("[comments] listApprovedComments:", error.message);
+        throw new Error(error.message);
+      }
       return nestApproved((data ?? []).map(mapRow));
     }
   }
@@ -117,14 +151,34 @@ export async function listAllCommentsForAdmin(): Promise<CommentRecord[]> {
     if (client) {
       const { data, error } = await client
         .from("comments")
-        .select(SELECT_COLS)
+        .select(SELECT_COLS_ADMIN)
         .order("created_at", { ascending: false });
-      if (error) throw new Error(error.message);
+      if (error) {
+        console.error("[comments] listAllCommentsForAdmin:", error.message);
+        throw new Error(error.message);
+      }
       return (data ?? []).map(mapRow);
     }
   }
   const db = await readFileDb();
-  return [...db.comments].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  return [...db.comments].sort((a, b) =>
+    b.createdAt.localeCompare(a.createdAt),
+  );
+}
+
+export async function countPendingComments(): Promise<number> {
+  if (isSupabaseConfigured()) {
+    const client = createServiceClient();
+    if (client) {
+      const { count, error } = await client
+        .from("comments")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "in_attesa");
+      if (!error && typeof count === "number") return count;
+    }
+  }
+  const db = await readFileDb();
+  return db.comments.filter((c) => c.status === "in_attesa").length;
 }
 
 export async function getCommentById(
@@ -138,7 +192,10 @@ export async function getCommentById(
         .select(SELECT_COLS)
         .eq("id", id)
         .maybeSingle();
-      if (error) throw new Error(error.message);
+      if (error) {
+        console.error("[comments] getCommentById:", error.message);
+        throw new Error(error.message);
+      }
       return data ? mapRow(data) : null;
     }
   }
@@ -162,15 +219,17 @@ export async function insertComment(input: {
     if (parent.parentId) {
       throw new Error("Sono consentite solo risposte a un livello");
     }
-    if (parent.articleId !== input.articleId) {
+    // Confronta UUID risolto vs slug pubblico (bug tipico risposte).
+    if (!(await sameArticle(parent.articleId, input.articleId))) {
       throw new Error("La risposta deve essere sullo stesso articolo");
     }
   }
 
   const now = new Date().toISOString();
+  const moderationOn = await getCommentsModerationEnabled();
   const status: CommentStatus = input.forceApproved
     ? "approvato"
-    : siteConfig.commentsRequireApproval
+    : moderationOn
       ? "in_attesa"
       : "approvato";
 
@@ -207,7 +266,10 @@ export async function insertComment(input: {
         })
         .select(SELECT_COLS)
         .single();
-      if (error) throw new Error(error.message);
+      if (error) {
+        console.error("[comments] insertComment:", error.message);
+        throw new Error(error.message);
+      }
       return mapRow(data);
     }
   }
@@ -230,7 +292,10 @@ export async function moderateComment(
           .from("comments")
           .delete()
           .eq("id", commentId);
-        if (error) throw new Error(error.message);
+        if (error) {
+          console.error("[comments] delete:", error.message);
+          throw new Error(error.message);
+        }
         return;
       }
     }
@@ -253,7 +318,10 @@ export async function moderateComment(
         .from("comments")
         .update({ status })
         .eq("id", commentId);
-      if (error) throw new Error(error.message);
+      if (error) {
+        console.error("[comments] moderate:", error.message);
+        throw new Error(error.message);
+      }
       return;
     }
   }
@@ -292,7 +360,10 @@ export async function insertReport(input: {
         .from("comments")
         .update({ reported: true })
         .eq("id", input.commentId);
-      if (flagError) throw new Error(flagError.message);
+      if (flagError) {
+        console.error("[comments] flag reported:", flagError.message);
+        throw new Error(flagError.message);
+      }
 
       const { error: reportError } = await client
         .from("comment_reports")
@@ -303,7 +374,11 @@ export async function insertReport(input: {
           reporter_ip_hash: input.ipHash,
         });
       // Se la migration additiva non è ancora applicata, resta solo `reported`.
-      if (reportError && !/relation .*comment_reports/i.test(reportError.message)) {
+      if (
+        reportError &&
+        !/relation .*comment_reports/i.test(reportError.message)
+      ) {
+        console.error("[comments] insertReport:", reportError.message);
         throw new Error(reportError.message);
       }
       return report;
@@ -351,7 +426,9 @@ export async function listReports(): Promise<CommentReport[]> {
     }
   }
   const db = await readFileDb();
-  return [...db.reports].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  return [...db.reports].sort((a, b) =>
+    b.createdAt.localeCompare(a.createdAt),
+  );
 }
 
 export async function adminReplyToComment(input: {

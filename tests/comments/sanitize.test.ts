@@ -34,8 +34,8 @@ describe("sanitizeCommentText", () => {
 });
 
 describe("sanitizeDisplayName", () => {
-  it("taglia a 80 caratteri", () => {
-    expect(sanitizeDisplayName("a".repeat(100)).length).toBe(80);
+  it("taglia a 50 caratteri", () => {
+    expect(sanitizeDisplayName("a".repeat(100)).length).toBe(50);
   });
 });
 

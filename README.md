@@ -76,7 +76,8 @@ Apri [http://localhost:3000](http://localhost:3000).
      1. `supabase/migrations/20261109000001_init_schema.sql`
      2. `supabase/migrations/20261109000002_comment_reports.sql`
      3. `supabase/migrations/20261109000003_quiz_fase5_columns.sql`
-     4. `supabase/seed/01_topics.sql`
+     4. `supabase/migrations/20261109000004_comments_fix_and_site_settings.sql`
+     5. `supabase/seed/01_topics.sql`
    - **Opzione B (CLI)**: `supabase login` → `supabase link --project-ref <REF>` → `supabase db push` → esegui il seed topics.
 4. In **Authentication → Providers** lascia attivo Email/Password.
 5. Limita le registrazioni pubbliche se vuoi creare solo account da docente.
@@ -111,8 +112,8 @@ Vedi [`.env.example`](.env.example). Su Vercel imposta le stesse chiavi in **Pro
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Client/Server | Chiave anon (RLS attiva) |
 | `SUPABASE_SERVICE_ROLE_KEY` | Solo server | Bypass RLS: solo in Server Actions controllate |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Client | Cloudflare Turnstile (opzionale in locale) |
-| `TURNSTILE_SECRET_KEY` | Solo server | Verifica Turnstile |
-| `TURNSTILE_BYPASS` | Server | `true` in locale senza Turnstile |
+| `TURNSTILE_SECRET_KEY` | Solo server | Obbligatoria in produzione; in locale senza chiave la verifica è saltata |
+| `TURNSTILE_BYPASS` | Server | Solo sviluppo (`true`); ignorato in produzione |
 | `COMMENT_IP_HASH_SALT` | Server | Sale per hash IP commenti |
 
 **Non inventare e non condividere secret.** Se una chiave è stata esposta, ruotala subito dalla dashboard Supabase / Cloudflare.
@@ -138,7 +139,8 @@ Vedi [`.env.example`](.env.example). Su Vercel imposta le stesse chiavi in **Pro
 - Accedono da **Area riservata** (`/auth/login`).
 - Pubblicano / depubblicano articoli, gestiscono argomenti, utenti, commenti e quiz.
 - Flusso articolo: **bozza → in revisione → pubblicato**.
-- Moderano i commenti in `/admin/commenti` (approva, rifiuta, elimina, segnalazioni).
+- Moderano i commenti in `/admin/commenti` (approva, rifiuta, elimina, segnalazioni; badge nel menu).
+- Attivano/disattivano la moderazione commenti in `/admin/impostazioni`.
 - Validano Privacy/Cookie Policy e contenuti (testi, quiz, immagini) prima del lancio pubblico.
 
 ### Studenti (ruolo `studente`)

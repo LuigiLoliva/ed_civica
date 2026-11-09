@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const createCommentSchema = z.object({
-  /** UUID (Supabase) oppure slug mock Fase 2. */
+  /** UUID (Supabase) oppure slug mock/pubblico. */
   articleId: z
     .string()
     .trim()
@@ -17,8 +17,8 @@ export const createCommentSchema = z.object({
   authorName: z
     .string()
     .trim()
-    .min(1, "Inserisci un nome o nickname")
-    .max(80, "Massimo 80 caratteri"),
+    .min(2, "Il nome deve avere almeno 2 caratteri")
+    .max(50, "Massimo 50 caratteri"),
   authorEmail: z
     .string()
     .trim()
@@ -31,13 +31,13 @@ export const createCommentSchema = z.object({
   body: z
     .string()
     .trim()
-    .min(1, "Scrivi un commento")
-    .max(2000, "Massimo 2000 caratteri"),
+    .min(2, "Il commento deve avere almeno 2 caratteri")
+    .max(1000, "Massimo 1000 caratteri"),
   turnstileToken: z.string().optional().nullable(),
 });
 
 export const reportCommentSchema = z.object({
-  commentId: z.string().uuid(),
+  commentId: z.string().uuid("Commento non valido"),
   reason: z
     .string()
     .trim()
@@ -46,7 +46,7 @@ export const reportCommentSchema = z.object({
 });
 
 export const moderateCommentSchema = z.object({
-  commentId: z.string().uuid(),
+  commentId: z.string().uuid("Commento non valido"),
   action: z.enum(["approve", "reject", "delete"]),
 });
 

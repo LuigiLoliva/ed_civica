@@ -12,6 +12,7 @@ import {
   isSupabaseConfigured,
 } from "@/lib/auth/roles";
 import { profileToSessionUser } from "@/lib/auth/session-user";
+import { countPendingComments } from "@/lib/comments/store";
 import { siteConfig } from "@/lib/site-config";
 
 export const dynamic = "force-dynamic";
@@ -32,6 +33,10 @@ export default async function AdminLayout({
   }
 
   const sessionUser = profile ? profileToSessionUser(profile) : null;
+  const pendingComments = await countPendingComments().catch((err) => {
+    console.error("[admin] countPendingComments:", err);
+    return 0;
+  });
 
   return (
     <div className="min-h-dvh bg-warm-surface">
@@ -77,7 +82,7 @@ export default async function AdminLayout({
           key={sessionUser?.id ?? "demo"}
           sessionUser={sessionUser}
         >
-          <AdminSubnav />
+          <AdminSubnav pendingComments={pendingComments} />
           {children}
         </AdminProviders>
       </div>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import type { PublicComment } from "@/lib/comments/types";
+import { formatRelativeTimeIt } from "@/lib/format";
 
 import { CommentForm } from "./comment-form";
 import { ReportButton } from "./report-button";
@@ -12,17 +13,6 @@ type Props = {
   comments: PublicComment[];
   onChanged?: () => void;
 };
-
-function formatDate(iso: string) {
-  try {
-    return new Intl.DateTimeFormat("it-IT", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
-}
 
 function CommentNode({
   comment,
@@ -44,8 +34,9 @@ function CommentNode({
           <time
             dateTime={comment.createdAt}
             className="text-xs text-muted-foreground"
+            title={new Date(comment.createdAt).toLocaleString("it-IT")}
           >
-            {formatDate(comment.createdAt)}
+            {formatRelativeTimeIt(comment.createdAt)}
           </time>
         </header>
         <p className="whitespace-pre-wrap text-foreground">{comment.body}</p>

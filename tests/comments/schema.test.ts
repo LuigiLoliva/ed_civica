@@ -7,7 +7,7 @@ import {
 } from "@/lib/comments/schema";
 
 describe("createCommentSchema", () => {
-  it("accetta commento minimo", () => {
+  it("accetta commento minimo (nome ≥2, body ≥2)", () => {
     const result = createCommentSchema.safeParse({
       articleId: "articolo-demo",
       authorName: "Marco",
@@ -19,11 +19,38 @@ describe("createCommentSchema", () => {
     }
   });
 
-  it("rifiuta body troppo lungo", () => {
+  it("rifiuta nome troppo corto", () => {
+    const result = createCommentSchema.safeParse({
+      articleId: "articolo-demo",
+      authorName: "A",
+      body: "Commento valido",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rifiuta nome oltre 50 caratteri", () => {
+    const result = createCommentSchema.safeParse({
+      articleId: "articolo-demo",
+      authorName: "a".repeat(51),
+      body: "Commento valido",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rifiuta body troppo corto", () => {
     const result = createCommentSchema.safeParse({
       articleId: "articolo-demo",
       authorName: "Marco",
-      body: "x".repeat(2001),
+      body: "x",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rifiuta body troppo lungo (>1000)", () => {
+    const result = createCommentSchema.safeParse({
+      articleId: "articolo-demo",
+      authorName: "Marco",
+      body: "x".repeat(1001),
     });
     expect(result.success).toBe(false);
   });
