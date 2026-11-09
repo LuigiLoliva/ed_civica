@@ -95,6 +95,16 @@ export interface Comment {
   updated_at: string;
 }
 
+/** Tabella additiva Fase 4: dettaglio segnalazioni (oltre a comments.reported). */
+export interface CommentReportRow {
+  id: string;
+  comment_id: string;
+  reason: string;
+  reporter_ip_hash: string | null;
+  created_at: string;
+  resolved_at: string | null;
+}
+
 export interface Quiz {
   id: string;
   title: string;
@@ -135,30 +145,35 @@ export interface GameContent {
   updated_at: string;
 }
 
+type TableDef<Row, Insert = Partial<Row>, Update = Partial<Row>> = {
+  Row: Row;
+  Insert: Insert;
+  Update: Update;
+  Relationships: [];
+};
+
 /** Schema tipizzato per il client Supabase (versione manuale) */
 export interface Database {
   public: {
     Tables: {
-      profiles: {
-        Row: Profile;
-        Insert: Omit<Profile, "created_at" | "updated_at"> & {
+      profiles: TableDef<
+        Profile,
+        Omit<Profile, "created_at" | "updated_at"> & {
           created_at?: string;
           updated_at?: string;
-        };
-        Update: Partial<Profile>;
-      };
-      topics: {
-        Row: Topic;
-        Insert: Omit<Topic, "id" | "created_at" | "updated_at"> & {
+        }
+      >;
+      topics: TableDef<
+        Topic,
+        Omit<Topic, "id" | "created_at" | "updated_at"> & {
           id?: string;
           created_at?: string;
           updated_at?: string;
-        };
-        Update: Partial<Topic>;
-      };
-      articles: {
-        Row: Article;
-        Insert: Omit<
+        }
+      >;
+      articles: TableDef<
+        Article,
+        Omit<
           Article,
           "id" | "created_at" | "updated_at" | "reading_time_minutes"
         > & {
@@ -166,64 +181,73 @@ export interface Database {
           reading_time_minutes?: number;
           created_at?: string;
           updated_at?: string;
-        };
-        Update: Partial<Article>;
-      };
-      article_authors: {
-        Row: ArticleAuthor;
-        Insert: Omit<ArticleAuthor, "id"> & { id?: string };
-        Update: Partial<ArticleAuthor>;
-      };
-      article_images: {
-        Row: ArticleImage;
-        Insert: Omit<ArticleImage, "id" | "created_at"> & {
+        }
+      >;
+      article_authors: TableDef<
+        ArticleAuthor,
+        Omit<ArticleAuthor, "id"> & { id?: string }
+      >;
+      article_images: TableDef<
+        ArticleImage,
+        Omit<ArticleImage, "id" | "created_at"> & {
           id?: string;
           created_at?: string;
-        };
-        Update: Partial<ArticleImage>;
-      };
-      article_sources: {
-        Row: ArticleSource;
-        Insert: Omit<ArticleSource, "id"> & { id?: string };
-        Update: Partial<ArticleSource>;
-      };
-      comments: {
-        Row: Comment;
-        Insert: Omit<Comment, "id" | "created_at" | "updated_at" | "reported"> & {
+        }
+      >;
+      article_sources: TableDef<
+        ArticleSource,
+        Omit<ArticleSource, "id"> & { id?: string }
+      >;
+      comments: TableDef<
+        Comment,
+        Omit<Comment, "id" | "created_at" | "updated_at" | "reported"> & {
           id?: string;
           reported?: boolean;
           created_at?: string;
           updated_at?: string;
-        };
-        Update: Partial<Comment>;
-      };
-      quizzes: {
-        Row: Quiz;
-        Insert: Omit<Quiz, "id" | "created_at" | "updated_at"> & {
+        }
+      >;
+      comment_reports: TableDef<
+        CommentReportRow,
+        Omit<CommentReportRow, "id" | "created_at" | "resolved_at"> & {
+          id?: string;
+          created_at?: string;
+          resolved_at?: string | null;
+        }
+      >;
+      quizzes: TableDef<
+        Quiz,
+        Omit<Quiz, "id" | "created_at" | "updated_at"> & {
           id?: string;
           created_at?: string;
           updated_at?: string;
-        };
-        Update: Partial<Quiz>;
-      };
-      quiz_questions: {
-        Row: QuizQuestion;
-        Insert: Omit<QuizQuestion, "id"> & { id?: string };
-        Update: Partial<QuizQuestion>;
-      };
-      quiz_options: {
-        Row: QuizOption;
-        Insert: Omit<QuizOption, "id"> & { id?: string };
-        Update: Partial<QuizOption>;
-      };
-      game_content: {
-        Row: GameContent;
-        Insert: Omit<GameContent, "id" | "updated_at"> & {
+        }
+      >;
+      quiz_questions: TableDef<
+        QuizQuestion,
+        Omit<QuizQuestion, "id"> & { id?: string }
+      >;
+      quiz_options: TableDef<
+        QuizOption,
+        Omit<QuizOption, "id"> & { id?: string }
+      >;
+      game_content: TableDef<
+        GameContent,
+        Omit<GameContent, "id" | "updated_at"> & {
           id?: string;
           updated_at?: string;
-        };
-        Update: Partial<GameContent>;
-      };
+        }
+      >;
     };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
+    Enums: {
+      user_role: UserRole;
+      article_status: ArticleStatus;
+      comment_status: CommentStatus;
+      quiz_difficulty: QuizDifficulty;
+      quiz_question_type: QuizQuestionType;
+    };
+    CompositeTypes: Record<string, never>;
   };
 }
