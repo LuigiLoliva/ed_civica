@@ -49,7 +49,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   const topic = getTopicBySlug(article.topicSlug);
   const related = getRelatedArticles(article);
-  // Chiave commenti: slug mock finché non arrivano UUID da Supabase.
+  // Chiave pubblica = slug (testo). Lo store risolve a UUID solo se l'articolo
+  // esiste in Supabase; altrimenti resta sul file store (mai slug → colonna uuid).
   const comments = await listApprovedComments(article.slug);
 
   return (
