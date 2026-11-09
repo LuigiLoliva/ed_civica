@@ -11,6 +11,7 @@ import {
   type SiteSettings,
   type SiteSettingsFormValues,
 } from "@/lib/site-settings";
+
 import { sanitizeSiteHtml } from "@/lib/site-settings/sanitize-html";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
@@ -78,8 +79,15 @@ export async function saveSiteSettingsAction(
     };
   }
 
-  // Service client: tipizzazione lasca dello schema manuale; gate admin già sopra.
-  const supabase = createServiceClient() ?? (await createClient());
+  // Service client (untyped): schema manuale non allineato a GenericSchema.
+  const supabase = createServiceClient();
+  if (!supabase) {
+    return {
+      ok: false,
+      message:
+        "Service role Supabase non disponibile. Imposta SUPABASE_SERVICE_ROLE_KEY.",
+    };
+  }
   const row = settingsToRow(settings);
   const { error } = await supabase.from("site_settings").upsert(
     {

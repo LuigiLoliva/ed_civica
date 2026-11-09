@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import {
-  formatTeachers,
-  getSiteSettings,
-} from "@/lib/site-settings";
+import { getSiteSettings } from "@/lib/site-settings/get-site-settings";
+import { formatTeachers } from "@/lib/site-settings";
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();

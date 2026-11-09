@@ -6,10 +6,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { getSiteSettings } from "@/lib/site-settings/get-site-settings";
 import {
   formatSchoolLocation,
   formatTeachers,
-  getSiteSettings,
 } from "@/lib/site-settings";
 
 export async function generateMetadata(): Promise<Metadata> {

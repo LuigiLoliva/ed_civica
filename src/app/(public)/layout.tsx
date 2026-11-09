@@ -2,7 +2,7 @@ import { CookieNotice } from "@/components/layout/cookie-notice";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SkipLink } from "@/components/layout/skip-link";
-import { getSiteSettings } from "@/lib/site-settings";
+import { getSiteSettings } from "@/lib/site-settings/get-site-settings";
 
 export default async function PublicLayout({
   children,

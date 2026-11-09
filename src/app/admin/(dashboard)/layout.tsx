@@ -16,7 +16,7 @@ import {
 } from "@/lib/auth/roles";
 import { profileToSessionUser } from "@/lib/auth/session-user";
 import { countPendingComments } from "@/lib/comments/store";
-import { getSiteSettings } from "@/lib/site-settings";
+import { getSiteSettings } from "@/lib/site-settings/get-site-settings";
 
 export const dynamic = "force-dynamic";
 

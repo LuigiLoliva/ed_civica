@@ -26,7 +26,7 @@ import {
   mockStats,
 } from "@/lib/mock-data";
 import { siteConfig } from "@/lib/site-config";
-import { getSiteSettings } from "@/lib/site-settings";
+import { getSiteSettings } from "@/lib/site-settings/get-site-settings";
 
 export default async function HomePage() {
   const settings = await getSiteSettings();
