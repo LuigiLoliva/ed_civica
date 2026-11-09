@@ -1,20 +1,92 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+
+import { ArticleCard } from "@/components/articles/article-card";
+import { Badge } from "@/components/ui/badge";
+import { articles, getTopicBySlug, topics } from "@/lib/mock-data";
 
 export const metadata: Metadata = {
   title: "Articoli",
-  description: "Elenco degli articoli su ONU e Agenda 2030.",
+  description:
+    "Elenco degli articoli di Voci Unite su ONU, Agenda 2030, Obiettivo 16 e Obiettivo 17.",
 };
 
-export default function ArticoliPage() {
+type ArticoliPageProps = {
+  searchParams: Promise<{ argomento?: string }>;
+};
+
+export default async function ArticoliPage({ searchParams }: ArticoliPageProps) {
+  const params = await searchParams;
+  const selected = params.argomento;
+  const filtered = selected
+    ? articles.filter((article) => article.topicSlug === selected)
+    : articles;
+  const sorted = [...filtered].sort((a, b) =>
+    b.publishedAt.localeCompare(a.publishedAt),
+  );
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-      <h1 className="font-heading text-3xl font-semibold tracking-tight">
-        Articoli
-      </h1>
-      <p className="mt-2 max-w-2xl text-muted-foreground">
-        Qui compariranno gli articoli filtrabili per argomento. La lista sarà
-        collegata a Supabase nella Fase 2.
+      <header className="max-w-3xl">
+        <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
+          Articoli
+        </h1>
+        <p className="mt-3 max-w-2xl text-muted-foreground">
+          Approfondimenti della classe sull&apos;ONU e sull&apos;Agenda 2030.
+          Filtra per argomento o apri la pagina dedicata di ciascun tema.
+        </p>
+      </header>
+
+      <div
+        className="mt-8 flex flex-wrap gap-2"
+        role="list"
+        aria-label="Filtri argomento"
+      >
+        <Badge
+          variant={!selected ? "default" : "outline"}
+          render={<Link href="/articoli" />}
+          className="h-8 px-3"
+        >
+          Tutti
+        </Badge>
+        {topics.map((topic) => {
+          const active = selected === topic.slug;
+          return (
+            <Badge
+              key={topic.slug}
+              variant={active ? "default" : "outline"}
+              render={<Link href={`/articoli?argomento=${topic.slug}`} />}
+              className="h-8 px-3"
+            >
+              {topic.name}
+            </Badge>
+          );
+        })}
+      </div>
+
+      <p className="mt-6 text-sm text-muted-foreground">
+        {sorted.length} articol{sorted.length === 1 ? "o" : "i"}
+        {selected ? ` in “${getTopicBySlug(selected)?.name ?? selected}”` : ""}
       </p>
+
+      {sorted.length > 0 ? (
+        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {sorted.map((article) => (
+            <ArticleCard
+              key={article.slug}
+              article={article}
+              topic={getTopicBySlug(article.topicSlug)}
+            />
+          ))}
+        </div>
+      ) : (
+        <p className="mt-10 rounded-xl border border-dashed border-border bg-card p-8 text-center text-muted-foreground">
+          Nessun articolo per questo filtro.{" "}
+          <Link href="/articoli" className="font-medium text-primary">
+            Mostra tutti
+          </Link>
+        </p>
+      )}
     </div>
   );
 }
