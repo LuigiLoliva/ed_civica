@@ -15,6 +15,9 @@ export type CommentRecord = {
   ipHash: string | null;
   createdAt: string;
   updatedAt: string;
+  /** Presenti in moderazione admin quando disponibili. */
+  articleSlug?: string | null;
+  articleTitle?: string | null;
 };
 
 export type PublicComment = {

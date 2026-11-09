@@ -4,6 +4,10 @@ import { revalidatePath } from "next/cache";
 
 import { getCurrentProfile, isAdmin } from "@/lib/auth/roles";
 import { getClientIp, hashIp } from "@/lib/comments/ip";
+import {
+  getCommentsModerationEnabled,
+  setCommentsModerationEnabled,
+} from "@/lib/comments/moderation-settings";
 import { checkOffensiveOrSpam } from "@/lib/comments/offensive-filter";
 import { checkRateLimit } from "@/lib/comments/rate-limit";
 import {
@@ -25,7 +29,6 @@ import {
   moderateComment,
 } from "@/lib/comments/store";
 import { verifyTurnstileToken } from "@/lib/comments/turnstile";
-import { siteConfig } from "@/lib/site-config";
 import { isSupabaseConfigured } from "@/lib/supabase/service";
 
 async function requireAdminForModeration(): Promise<ActionResult | null> {
@@ -35,6 +38,20 @@ async function requireAdminForModeration(): Promise<ActionResult | null> {
     return { ok: false, message: "Solo gli admin possono moderare i commenti." };
   }
   return null;
+}
+
+function userFacingError(err: unknown, fallback: string): string {
+  if (!(err instanceof Error)) return fallback;
+  const msg = err.message;
+  // Messaggi già pensati per l'utente (validazioni di dominio).
+  if (
+    /commento padre|un solo livello|stesso articolo|non trovato|site_settings|Supabase/i.test(
+      msg,
+    )
+  ) {
+    return msg;
+  }
+  return fallback;
 }
 
 export type ActionResult =
@@ -74,7 +91,7 @@ export async function submitCommentAction(
     ? sanitizeCommentText(parsed.data.authorEmail).toLowerCase()
     : null;
 
-  if (!authorName || !body) {
+  if (!authorName || authorName.length < 2 || !body || body.length < 2) {
     return { ok: false, message: "Nome e testo sono obbligatori." };
   }
 
@@ -83,7 +100,9 @@ export async function submitCommentAction(
     return { ok: false, message: filter.reason };
   }
 
+  let moderationOn = true;
   try {
+    moderationOn = await getCommentsModerationEnabled();
     await insertComment({
       articleId: parsed.data.articleId,
       parentId: parsed.data.parentId ?? null,
@@ -93,19 +112,24 @@ export async function submitCommentAction(
       ipHash,
     });
   } catch (err) {
+    console.error("[comments] submitCommentAction fallita:", err);
     return {
       ok: false,
-      message: err instanceof Error ? err.message : "Errore nel salvataggio",
+      message: userFacingError(
+        err,
+        "Non è stato possibile salvare il commento. Riprova tra poco.",
+      ),
     };
   }
 
+  revalidatePath(`/articoli/${parsed.data.articleId}`);
   revalidatePath("/articoli");
   revalidatePath("/admin/commenti");
 
   return {
     ok: true,
-    message: siteConfig.commentsRequireApproval
-      ? "Commento inviato: sarà visibile dopo l'approvazione della redazione."
+    message: moderationOn
+      ? "Grazie! Il tuo commento sarà visibile dopo l'approvazione dei docenti"
       : "Commento pubblicato.",
   };
 }
@@ -139,9 +163,13 @@ export async function reportCommentAction(
       ipHash,
     });
   } catch (err) {
+    console.error("[comments] reportCommentAction fallita:", err);
     return {
       ok: false,
-      message: err instanceof Error ? err.message : "Errore nella segnalazione",
+      message: userFacingError(
+        err,
+        "Non è stato possibile inviare la segnalazione. Riprova.",
+      ),
     };
   }
 
@@ -163,9 +191,10 @@ export async function moderateCommentAction(
   try {
     await moderateComment(parsed.data.commentId, parsed.data.action);
   } catch (err) {
+    console.error("[comments] moderateCommentAction fallita:", err);
     return {
       ok: false,
-      message: err instanceof Error ? err.message : "Errore moderazione",
+      message: userFacingError(err, "Operazione di moderazione non riuscita."),
     };
   }
 
@@ -191,7 +220,9 @@ export async function adminReplyAction(raw: {
   if (denied) return denied;
 
   const body = sanitizeCommentText(raw.body);
-  if (!body) return { ok: false, message: "Testo obbligatorio" };
+  if (!body || body.length < 2) {
+    return { ok: false, message: "Testo obbligatorio (minimo 2 caratteri)" };
+  }
   try {
     await adminReplyToComment({
       articleId: raw.articleId,
@@ -199,14 +230,45 @@ export async function adminReplyAction(raw: {
       body,
     });
   } catch (err) {
+    console.error("[comments] adminReplyAction fallita:", err);
     return {
       ok: false,
-      message: err instanceof Error ? err.message : "Errore risposta",
+      message: userFacingError(err, "Non è stato possibile pubblicare la risposta."),
     };
   }
   revalidatePath("/admin/commenti");
   revalidatePath("/articoli");
   return { ok: true, message: "Risposta pubblicata" };
+}
+
+export async function updateCommentsModerationAction(
+  enabled: boolean,
+): Promise<ActionResult> {
+  const denied = await requireAdminForModeration();
+  if (denied) return denied;
+
+  try {
+    await setCommentsModerationEnabled(enabled);
+  } catch (err) {
+    console.error("[comments] updateCommentsModerationAction fallita:", err);
+    return {
+      ok: false,
+      message: userFacingError(
+        err,
+        "Impossibile aggiornare la moderazione commenti.",
+      ),
+    };
+  }
+
+  revalidatePath("/admin/impostazioni");
+  revalidatePath("/admin/commenti");
+  revalidatePath("/articoli");
+  return {
+    ok: true,
+    message: enabled
+      ? "Moderazione commenti attiva: i nuovi commenti restano in attesa."
+      : "Moderazione commenti disattivata: i nuovi commenti sono pubblicati subito.",
+  };
 }
 
 export async function fetchApprovedComments(articleId: string) {
