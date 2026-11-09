@@ -2,6 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { logoutAction } from "@/app/auth/login/actions";
+import { AdminProviders } from "@/components/admin/AdminProviders";
+import { AdminSubnav } from "@/components/admin/AdminSubnav";
 import { OliveBranchIcon } from "@/components/icons/onu-motifs";
 import { Button } from "@/components/ui/button";
 import { canAccessAdmin, getCurrentProfile } from "@/lib/auth/roles";
@@ -65,7 +67,12 @@ export default async function AdminLayout({
           </div>
         </div>
       </header>
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">{children}</div>
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+        <AdminProviders>
+          <AdminSubnav />
+          {children}
+        </AdminProviders>
+      </div>
     </div>
   );
 }
