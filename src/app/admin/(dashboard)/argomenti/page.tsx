@@ -12,7 +12,7 @@ import { slugify } from "@/lib/format";
 
 /** Stub gestione argomenti — solo admin. Persistenza mock locale. */
 export default function ArgomentiPage() {
-  const { user, ready } = useMockAuth();
+  const { user, ready, usingDemo } = useMockAuth();
   const [topics, setTopics] = useState<MockTopic[]>([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -30,8 +30,10 @@ export default function ArgomentiPage() {
   if (user?.role !== "admin") {
     return (
       <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-950">
-        Solo gli admin possono gestire gli argomenti. Usa il selettore ruolo
-        demo nella dashboard articoli.
+        Solo gli admin possono gestire gli argomenti.
+        {usingDemo
+          ? " Usa il selettore ruolo demo nella dashboard articoli."
+          : null}
       </div>
     );
   }
