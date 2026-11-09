@@ -2,13 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { QuizEditorStub } from "@/components/admin/QuizEditorStub";
-import { getQuizById, quizzes } from "@/data/quizzes";
+import { getQuizById } from "@/data/quizzes";
+import { requireAdminOrDemo } from "@/lib/auth/require-admin";
+
+export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ id: string }> };
-
-export function generateStaticParams() {
-  return quizzes.map((q) => ({ id: q.id }));
-}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
@@ -17,6 +16,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function AdminQuizEditPage({ params }: Props) {
+  await requireAdminOrDemo();
+
   const { id } = await params;
   const quiz = getQuizById(id);
   if (!quiz) notFound();

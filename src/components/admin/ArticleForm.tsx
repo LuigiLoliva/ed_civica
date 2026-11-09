@@ -59,7 +59,7 @@ function emptyDefaults(
 }
 
 export function ArticleForm({ article }: ArticleFormProps) {
-  const { user } = useMockAuth();
+  const { user, ready, isAdmin } = useMockAuth();
   const router = useRouter();
   const topics = useMemo(() => getTopics(), []);
   const [slugManual, setSlugManual] = useState(Boolean(article));
@@ -126,7 +126,7 @@ export function ArticleForm({ article }: ArticleFormProps) {
       status,
       authorUserId: article?.authorUserId ?? user.id,
       featured:
-        user.role === "admin" ? data.featured : (article?.featured ?? false),
+        isAdmin ? data.featured : (article?.featured ?? false),
       createdAt: article?.createdAt ?? now,
       updatedAt: now,
       publishedAt:
@@ -136,7 +136,7 @@ export function ArticleForm({ article }: ArticleFormProps) {
 
   useEffect(() => {
     if (!editable || !user || !isDirty) return;
-    if (article?.status === "pubblicato" && user.role !== "admin") return;
+    if (article?.status === "pubblicato" && !isAdmin) return;
 
     if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
     autosaveTimer.current = setTimeout(() => {
@@ -187,7 +187,9 @@ export function ArticleForm({ article }: ArticleFormProps) {
     router.push("/admin");
   });
 
-  if (!user) return null;
+  if (!ready || !user) {
+    return <p className="text-muted-foreground">Caricamento sessione…</p>;
+  }
 
   if (article && !editable) {
     return (
@@ -318,7 +320,7 @@ export function ArticleForm({ article }: ArticleFormProps) {
               </p>
             ) : null}
           </div>
-          {user.role === "admin" ? (
+          {isAdmin ? (
             <label className="inline-flex items-center gap-2 text-sm">
               <input type="checkbox" {...register("featured")} />
               Articolo in evidenza (home)

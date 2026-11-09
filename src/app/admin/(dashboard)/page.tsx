@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/card";
 import { getCurrentProfile, isAdmin } from "@/lib/auth/roles";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Dashboard admin",
 };

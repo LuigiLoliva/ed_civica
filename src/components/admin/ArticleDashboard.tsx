@@ -26,7 +26,7 @@ const STATUSES: Array<ArticleStatus | "tutti"> = [
 ];
 
 export function ArticleDashboard() {
-  const { user } = useMockAuth();
+  const { user, ready, usingDemo, isAdmin } = useMockAuth();
   const [statusFilter, setStatusFilter] = useState<ArticleStatus | "tutti">(
     "tutti",
   );
@@ -58,8 +58,12 @@ export function ArticleDashboard() {
     });
   }, [user, tick, statusFilter, topicFilter, authorFilter]);
 
-  if (!user) {
-    return <p className="text-muted-foreground">Caricamento sessione demo…</p>;
+  if (!ready || !user) {
+    return (
+      <p className="text-muted-foreground">
+        {usingDemo ? "Caricamento sessione demo…" : "Caricamento sessione…"}
+      </p>
+    );
   }
 
   const topicName = (id: string) =>
@@ -86,9 +90,9 @@ export function ArticleDashboard() {
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Flusso: bozza → in revisione → pubblicato
-            {user.role === "studente"
-              ? " · vedi solo i tuoi articoli"
-              : " · vista completa admin"}
+            {isAdmin
+              ? " · vista completa admin"
+              : " · vedi solo i tuoi articoli"}
           </p>
         </div>
         <Button render={<Link href="/admin/articoli/nuovo" />}>
