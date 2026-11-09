@@ -1,0 +1,184 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/**
+ * Design tokens Voci Unite
+ * Palette istituzionale ONU + accenti Goal 16 / Goal 17.
+ */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+  --font-mono: var(--font-mono);
+  --font-heading: var(--font-serif);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-onu: var(--onu);
+  --color-goal-16: var(--goal-16);
+  --color-goal-17: var(--goal-17);
+  --color-warm-gray: var(--warm-gray);
+  --color-warm-surface: var(--warm-surface);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  /* Blu ONU ufficiale */
+  --onu: #009edb;
+  --goal-16: #00689d;
+  --goal-17: #19486a;
+  --warm-gray: #6b6560;
+  --warm-surface: #f7f5f2;
+
+  --background: #f7f5f2;
+  --foreground: #1a2332;
+  --card: #ffffff;
+  --card-foreground: #1a2332;
+  --popover: #ffffff;
+  --popover-foreground: #1a2332;
+  --primary: #009edb;
+  --primary-foreground: #ffffff;
+  --secondary: #e8f6fb;
+  --secondary-foreground: #00689d;
+  --muted: #efece7;
+  --muted-foreground: #6b6560;
+  --accent: #e8f6fb;
+  --accent-foreground: #19486a;
+  --destructive: #b42318;
+  --border: #ddd6cc;
+  --input: #ddd6cc;
+  --ring: #009edb;
+  --chart-1: #009edb;
+  --chart-2: #00689d;
+  --chart-3: #19486a;
+  --chart-4: #4a9bb8;
+  --chart-5: #7ec8e3;
+  --radius: 0.625rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1a2332;
+  --sidebar-primary: #009edb;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e8f6fb;
+  --sidebar-accent-foreground: #00689d;
+  --sidebar-border: #ddd6cc;
+  --sidebar-ring: #009edb;
+}
+
+.dark {
+  --onu: #33b4e4;
+  --goal-16: #3d8fb8;
+  --goal-17: #6a9bb8;
+  --warm-gray: #a8a29e;
+  --warm-surface: #121820;
+
+  --background: #0f1419;
+  --foreground: #f2f0eb;
+  --card: #1a2332;
+  --card-foreground: #f2f0eb;
+  --popover: #1a2332;
+  --popover-foreground: #f2f0eb;
+  --primary: #33b4e4;
+  --primary-foreground: #0f1419;
+  --secondary: #1e3a4a;
+  --secondary-foreground: #c5e8f5;
+  --muted: #243040;
+  --muted-foreground: #a8a29e;
+  --accent: #1e3a4a;
+  --accent-foreground: #c5e8f5;
+  --destructive: #f97066;
+  --border: rgb(255 255 255 / 12%);
+  --input: rgb(255 255 255 / 15%);
+  --ring: #33b4e4;
+  --chart-1: #33b4e4;
+  --chart-2: #3d8fb8;
+  --chart-3: #6a9bb8;
+  --chart-4: #7ec8e3;
+  --chart-5: #c5e8f5;
+  --sidebar: #1a2332;
+  --sidebar-foreground: #f2f0eb;
+  --sidebar-primary: #33b4e4;
+  --sidebar-primary-foreground: #0f1419;
+  --sidebar-accent: #1e3a4a;
+  --sidebar-accent-foreground: #c5e8f5;
+  --sidebar-border: rgb(255 255 255 / 12%);
+  --sidebar-ring: #33b4e4;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  html {
+    @apply font-sans scroll-smooth;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-heading {
+    font-family: var(--font-serif), ui-serif, Georgia, serif;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Motivo leggero di sfondo (rete di nodi / partnership) */
+.bg-partnership-pattern {
+  background-image:
+    radial-gradient(circle at 20% 20%, rgb(0 158 219 / 8%), transparent 40%),
+    radial-gradient(circle at 80% 10%, rgb(0 104 157 / 10%), transparent 35%),
+    radial-gradient(circle at 60% 80%, rgb(25 72 106 / 8%), transparent 40%);
+}
