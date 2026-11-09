@@ -28,14 +28,28 @@ interface SiteSettingsFormProps {
 }
 
 function toFormValues(settings: SiteSettings): SiteSettingsFormValues {
+  const social = settings.socialLinks ?? {
+    instagram: "",
+    schoolWebsite: "",
+    facebook: "",
+    youtube: "",
+  };
   return {
     ...settings,
     contactEmail: settings.contactEmail ?? "",
+    teachers:
+      settings.teachers?.length > 0
+        ? settings.teachers
+        : [{ name: "Docente referente", role: "Referente di progetto" }],
+    logoUrl: settings.logoUrl ?? null,
+    faviconUrl: settings.faviconUrl ?? null,
+    commentsModerationEnabled: Boolean(settings.commentsModerationEnabled),
+    studentRegistrationEnabled: Boolean(settings.studentRegistrationEnabled),
     socialLinks: {
-      instagram: settings.socialLinks.instagram ?? "",
-      schoolWebsite: settings.socialLinks.schoolWebsite ?? "",
-      facebook: settings.socialLinks.facebook ?? "",
-      youtube: settings.socialLinks.youtube ?? "",
+      instagram: social.instagram ?? "",
+      schoolWebsite: social.schoolWebsite ?? "",
+      facebook: social.facebook ?? "",
+      youtube: social.youtube ?? "",
     },
   };
 }

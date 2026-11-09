@@ -64,6 +64,9 @@ describe("rowToSiteSettings", () => {
     expect(settings.commentsModerationEnabled).toBe(false);
     expect(settings.siteName).toBe(DEFAULT_SITE_SETTINGS.siteName);
     expect(settings.teachers.length).toBeGreaterThan(0);
+    expect(settings.logoUrl).toBeNull();
+    expect(settings.faviconUrl).toBeNull();
+    expect(settings.studentRegistrationEnabled).toBe(true);
   });
 });
 
