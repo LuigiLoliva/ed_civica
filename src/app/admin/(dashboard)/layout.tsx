@@ -7,6 +7,7 @@ import { AdminSubnav } from "@/components/admin/AdminSubnav";
 import { OliveBranchIcon } from "@/components/icons/onu-motifs";
 import { Button } from "@/components/ui/button";
 import { canAccessAdmin, getCurrentProfile } from "@/lib/auth/roles";
+import { profileToSessionUser } from "@/lib/auth/session-user";
 import { siteConfig } from "@/lib/site-config";
 
 export default async function AdminLayout({
@@ -27,6 +28,8 @@ export default async function AdminLayout({
       redirect("/auth/login?next=/admin");
     }
   }
+
+  const sessionUser = profile ? profileToSessionUser(profile) : null;
 
   return (
     <div className="min-h-dvh bg-warm-surface">
@@ -68,7 +71,7 @@ export default async function AdminLayout({
         </div>
       </header>
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-        <AdminProviders>
+        <AdminProviders sessionUser={sessionUser}>
           <AdminSubnav />
           {children}
         </AdminProviders>

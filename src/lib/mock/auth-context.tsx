@@ -21,22 +21,34 @@ interface MockAuthContextValue {
   user: MockUser | null;
   users: MockUser[];
   ready: boolean;
+  /** True solo senza sessione Supabase: il selettore demo è attivo. */
+  usingDemo: boolean;
   login: (userId: string) => void;
   refresh: () => void;
 }
 
 const MockAuthContext = createContext<MockAuthContextValue | null>(null);
 
-/** Sessione mock per demo ruoli finché Supabase Auth non è configurato. */
-export function MockAuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<MockUser | null>(null);
+/**
+ * Sessione admin: preferisce il profilo Supabase reale.
+ * Il cookie/localStorage demo resta solo fallback quando non c'è sessione.
+ */
+export function MockAuthProvider({
+  children,
+  sessionUser = null,
+}: {
+  children: ReactNode;
+  sessionUser?: MockUser | null;
+}) {
+  const [demoUser, setDemoUser] = useState<MockUser | null>(null);
   const [users, setUsers] = useState<MockUser[]>([]);
   const [ready, setReady] = useState(false);
+  const usingDemo = !sessionUser;
 
   const refresh = useCallback(() => {
     ensureSeeded();
     setUsers(getUsers());
-    setUser(getSessionUser());
+    setDemoUser(getSessionUser());
   }, []);
 
   useEffect(() => {
@@ -44,13 +56,19 @@ export function MockAuthProvider({ children }: { children: ReactNode }) {
     setReady(true);
   }, [refresh]);
 
-  const login = useCallback((userId: string) => {
-    setUser(loginAs(userId));
-  }, []);
+  const login = useCallback(
+    (userId: string) => {
+      if (!usingDemo) return;
+      setDemoUser(loginAs(userId));
+    },
+    [usingDemo],
+  );
+
+  const user = sessionUser ?? demoUser;
 
   const value = useMemo(
-    () => ({ user, users, ready, login, refresh }),
-    [user, users, ready, login, refresh],
+    () => ({ user, users, ready, usingDemo, login, refresh }),
+    [user, users, ready, usingDemo, login, refresh],
   );
 
   return (

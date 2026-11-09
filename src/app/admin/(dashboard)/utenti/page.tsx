@@ -5,7 +5,7 @@ import { getUsers } from "@/lib/mock/store";
 
 /** Stub gestione utenti — solo admin. Account reali da Supabase Auth. */
 export default function UtentiPage() {
-  const { user, ready } = useMockAuth();
+  const { user, ready, usingDemo } = useMockAuth();
   const users = getUsers();
 
   if (!ready) {
@@ -16,6 +16,9 @@ export default function UtentiPage() {
     return (
       <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-950">
         Solo gli admin possono gestire gli utenti.
+        {usingDemo
+          ? " Usa il selettore ruolo demo nella dashboard articoli."
+          : null}
       </div>
     );
   }
