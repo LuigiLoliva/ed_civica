@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { SiteSettingsForm } from "@/components/admin/SiteSettingsForm";
 import { requireAdminOrDemo } from "@/lib/auth/require-admin";
-import { getCommentsModerationEnabled } from "@/lib/comments/moderation-settings";
+import { getSiteSettingsFresh } from "@/lib/site-settings";
 import { siteConfig } from "@/lib/site-config";
-
-import { ModerationSettingsClient } from "./moderation-settings-client";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +14,7 @@ export const metadata: Metadata = {
 
 export default async function AdminImpostazioniPage() {
   await requireAdminOrDemo();
-  const moderationEnabled = await getCommentsModerationEnabled();
+  const settings = await getSiteSettingsFresh();
 
   return (
     <div className="space-y-8">
@@ -26,17 +25,17 @@ export default async function AdminImpostazioniPage() {
         <span aria-hidden="true"> / </span>
         <span>Impostazioni</span>
       </nav>
-      <header>
+      <header className="space-y-2">
         <h1 className="font-heading text-3xl font-semibold tracking-tight">
           Impostazioni del sito
         </h1>
-        <p className="mt-2 text-muted-foreground">
-          Per ora è disponibile l&apos;interruttore di moderazione commenti.
-          Gli altri campi (scuola, logo, footer, ecc.) arriveranno con
-          l&apos;aggiornamento successivo.
+        <p className="max-w-2xl text-muted-foreground">
+          Modifica nome, scuola, footer, logo e interruttori senza toccare il
+          codice. Le modifiche si riflettono sul sito pubblico dopo il
+          salvataggio.
         </p>
       </header>
-      <ModerationSettingsClient initialEnabled={moderationEnabled} />
+      <SiteSettingsForm initial={settings} />
     </div>
   );
 }

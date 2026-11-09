@@ -145,6 +145,43 @@ export interface GameContent {
   updated_at: string;
 }
 
+export interface SiteTeacher {
+  name: string;
+  role: string;
+}
+
+export interface SiteSocialLinks {
+  instagram?: string;
+  schoolWebsite?: string;
+  facebook?: string;
+  youtube?: string;
+}
+
+/** Riga singleton `site_settings` (id = 1). */
+export interface SiteSettingsRow {
+  id: number;
+  site_name: string;
+  tagline: string;
+  description: string;
+  school_name: string;
+  school_address: string;
+  school_city: string;
+  school_province: string;
+  class_name: string;
+  school_year: string;
+  teachers: SiteTeacher[];
+  contact_email: string | null;
+  social_links: SiteSocialLinks;
+  footer_html: string;
+  project_html: string;
+  logo_url: string | null;
+  favicon_url: string | null;
+  comments_moderation_enabled: boolean;
+  student_registration_enabled: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 type TableDef<Row, Insert = Partial<Row>, Update = Partial<Row>> = {
   Row: Row;
   Insert: Insert;
@@ -237,6 +274,15 @@ export interface Database {
           id?: string;
           updated_at?: string;
         }
+      >;
+      site_settings: TableDef<
+        SiteSettingsRow,
+        Partial<Omit<SiteSettingsRow, "id" | "created_at" | "updated_at">> & {
+          id?: number;
+          created_at?: string;
+          updated_at?: string;
+        },
+        Partial<Omit<SiteSettingsRow, "id" | "created_at">>
       >;
     };
     Views: Record<string, never>;

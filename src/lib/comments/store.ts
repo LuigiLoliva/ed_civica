@@ -4,7 +4,7 @@ import path from "path";
 
 import { resolveArticleUuid } from "@/lib/articles/resolve-id";
 import { getCommentsModerationEnabled } from "@/lib/comments/moderation-settings";
-import { siteConfig } from "@/lib/site-config";
+import { getSiteSettings } from "@/lib/site-settings";
 import {
   createServiceClient,
   isSupabaseConfigured,
@@ -437,10 +437,11 @@ export async function adminReplyToComment(input: {
   body: string;
   authorName?: string;
 }): Promise<CommentRecord> {
+  const settings = await getSiteSettings();
   return insertComment({
     articleId: input.articleId,
     parentId: input.parentId,
-    authorName: input.authorName ?? `${siteConfig.name} (redazione)`,
+    authorName: input.authorName ?? `${settings.siteName} (redazione)`,
     authorEmail: null,
     body: input.body,
     ipHash: null,

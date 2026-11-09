@@ -1,18 +1,50 @@
 import Link from "next/link";
 
 import { siteConfig } from "@/lib/site-config";
+import {
+  formatSchoolLocation,
+  type SiteSettings,
+} from "@/lib/site-settings";
 
-export function SiteFooter() {
+interface SiteFooterProps {
+  settings: SiteSettings;
+}
+
+export function SiteFooter({ settings }: SiteFooterProps) {
+  const location = formatSchoolLocation(settings);
+  const socialEntries = [
+    { key: "instagram", label: "Instagram", href: settings.socialLinks.instagram },
+    {
+      key: "schoolWebsite",
+      label: "Sito della scuola",
+      href: settings.socialLinks.schoolWebsite,
+    },
+    { key: "facebook", label: "Facebook", href: settings.socialLinks.facebook },
+    { key: "youtube", label: "YouTube", href: settings.socialLinks.youtube },
+  ].filter((item) => Boolean(item.href));
+
   return (
     <footer className="border-t border-border bg-card">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-3">
         <div className="space-y-2">
-          <p className="font-heading text-lg font-semibold">{siteConfig.name}</p>
-          <p className="text-sm text-muted-foreground">{siteConfig.tagline}</p>
+          <p className="font-heading text-lg font-semibold">{settings.siteName}</p>
+          <p className="text-sm text-muted-foreground">{settings.tagline}</p>
           <p className="text-sm text-muted-foreground">
-            {siteConfig.school.name} · {siteConfig.school.className} ·{" "}
-            {siteConfig.school.year}
+            {settings.schoolName} · {settings.className} · {settings.schoolYear}
           </p>
+          {location ? (
+            <p className="text-sm text-muted-foreground">{location}</p>
+          ) : null}
+          {settings.contactEmail ? (
+            <p className="text-sm text-muted-foreground">
+              <a
+                href={`mailto:${settings.contactEmail}`}
+                className="underline-offset-2 hover:text-primary hover:underline"
+              >
+                {settings.contactEmail}
+              </a>
+            </p>
+          ) : null}
         </div>
 
         <div>
@@ -55,15 +87,27 @@ export function SiteFooter() {
                 )}
               </li>
             ))}
+            {socialEntries.map((item) => (
+              <li key={item.key}>
+                <a
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground transition-colors hover:text-primary"
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))}
           </ul>
         </div>
       </div>
       <div className="border-t border-border px-4 py-4 text-center text-xs text-muted-foreground">
-        <p>
-          Progetto scolastico di Educazione Civica · Contenuti da verificare con
-          i docenti
-        </p>
-        <p className="mt-1">
+        <div
+          className="prose prose-sm mx-auto max-w-none text-muted-foreground [&_p]:my-0"
+          dangerouslySetInnerHTML={{ __html: settings.footerHtml }}
+        />
+        <p className="mt-2">
           <Link
             href="/privacy"
             className="underline-offset-2 hover:text-primary hover:underline"

@@ -9,9 +9,13 @@ const links = [
   { href: "/admin/articoli/nuovo", label: "Nuovo articolo" },
   { href: "/admin/argomenti", label: "Argomenti" },
   { href: "/admin/utenti", label: "Utenti" },
-  { href: "/admin/commenti", label: "Commenti", badgeKey: "pendingComments" as const },
-  { href: "/admin/impostazioni", label: "Impostazioni" },
+  {
+    href: "/admin/commenti",
+    label: "Commenti",
+    badgeKey: "pendingComments" as const,
+  },
   { href: "/admin/quiz", label: "Quiz" },
+  { href: "/admin/impostazioni", label: "Impostazioni" },
 ];
 
 type Props = {

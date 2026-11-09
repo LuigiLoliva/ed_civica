@@ -15,7 +15,12 @@ import {
 } from "@/components/ui/sheet";
 import { siteConfig } from "@/lib/site-config";
 
-export function SiteHeader() {
+interface SiteHeaderProps {
+  siteName: string;
+  logoUrl?: string | null;
+}
+
+export function SiteHeader({ siteName, logoUrl }: SiteHeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -25,9 +30,18 @@ export function SiteHeader() {
           href="/"
           className="flex items-center gap-2 text-foreground transition-opacity hover:opacity-80"
         >
-          <OliveBranchIcon className="size-8 text-primary" />
+          {logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={logoUrl}
+              alt=""
+              className="h-8 w-auto max-w-[2.5rem] object-contain"
+            />
+          ) : (
+            <OliveBranchIcon className="size-8 text-primary" />
+          )}
           <span className="font-heading text-xl font-semibold tracking-tight">
-            {siteConfig.name}
+            {siteName}
           </span>
         </Link>
 
@@ -68,7 +82,7 @@ export function SiteHeader() {
             </SheetTrigger>
             <SheetContent side="right" className="w-[min(100%,20rem)]">
               <SheetHeader>
-                <SheetTitle className="font-heading">{siteConfig.name}</SheetTitle>
+                <SheetTitle className="font-heading">{siteName}</SheetTitle>
               </SheetHeader>
               <nav
                 aria-label="Menu mobile"

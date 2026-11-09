@@ -49,8 +49,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# store locale commenti (fallback senza Supabase)
+# store locale commenti / impostazioni (fallback senza Supabase)
 /data/comments-store.json
+/data/site-settings.json
 
 # Force-track example env
 !.env.example

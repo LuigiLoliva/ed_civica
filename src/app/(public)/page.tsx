@@ -26,8 +26,10 @@ import {
   mockStats,
 } from "@/lib/mock-data";
 import { siteConfig } from "@/lib/site-config";
+import { getSiteSettings } from "@/lib/site-settings";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const settings = await getSiteSettings();
   const featured = getFeaturedArticles();
   const latest = getLatestArticles(3);
   const gameTeasers = games.slice(0, 4);
@@ -41,7 +43,7 @@ export default function HomePage() {
             Educazione Civica · Agenda 2030
           </Badge>
           <h1 className="font-heading text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-6xl">
-            {siteConfig.name}
+            {settings.siteName}
           </h1>
           <p className="max-w-xl text-lg text-muted-foreground text-pretty">
             Esploriamo l&apos;ONU e gli Obiettivi di Sviluppo Sostenibile{" "}

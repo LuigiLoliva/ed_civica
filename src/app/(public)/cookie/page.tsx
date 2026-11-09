@@ -1,19 +1,24 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { siteConfig } from "@/lib/site-config";
+import { formatTeachers, getSiteSettings } from "@/lib/site-settings";
 
-export const metadata: Metadata = {
-  title: "Cookie Policy",
-  description:
-    "Informativa cookie di base del blog scolastico Voci Unite. Testo da far validare alla scuola.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  return {
+    title: "Cookie Policy",
+    description: `Informativa cookie di base del blog scolastico ${settings.siteName}. Testo da far validare alla scuola.`,
+  };
+}
 
 /**
  * Testo base italiano per progetto scolastico.
  * NON è una consulenza legale: va validato da dirigente/docente referente / DPO scolastico.
  */
-export default function CookiePage() {
+export default async function CookiePage() {
+  const settings = await getSiteSettings();
+  const teachers = formatTeachers(settings);
+
   return (
     <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
       <header className="space-y-3">
@@ -22,7 +27,7 @@ export default function CookiePage() {
           Cookie Policy
         </h1>
         <p className="text-muted-foreground text-pretty">
-          {siteConfig.name} utilizza un numero minimo di cookie e tecnologie
+          {settings.siteName} utilizza un numero minimo di cookie e tecnologie
           simili, necessari al funzionamento del sito. Questo testo è una{" "}
           <strong>base da far validare</strong> alla scuola.
         </p>
@@ -117,7 +122,7 @@ export default function CookiePage() {
             5. Contatti e aggiornamenti
           </h2>
           <p>
-            Per domande: docente referente ({siteConfig.school.teachers.join(", ")}
+            Per domande: docente referente ({teachers}
             ). Ultimo aggiornamento bozza: novembre 2026.
           </p>
         </section>

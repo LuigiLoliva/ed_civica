@@ -1,4 +1,6 @@
 import { siteConfig } from "@/lib/site-config";
+import { DEFAULT_SITE_SETTINGS } from "@/lib/site-settings/defaults";
+import { readFileSettings, writeFileSettings } from "@/lib/site-settings/file-store";
 import {
   createServiceClient,
   isSupabaseConfigured,
@@ -6,8 +8,8 @@ import {
 
 /**
  * Flag moderazione commenti.
- * Legge `site_settings.comments_moderation_enabled` se disponibile,
- * altrimenti fallback a `siteConfig.commentsRequireApproval`.
+ * Preferisce `site_settings.comments_moderation_enabled`, poi file store demo,
+ * infine `siteConfig.commentsRequireApproval`.
  */
 export async function getCommentsModerationEnabled(): Promise<boolean> {
   if (isSupabaseConfigured()) {
@@ -19,26 +21,41 @@ export async function getCommentsModerationEnabled(): Promise<boolean> {
         .eq("id", 1)
         .maybeSingle();
 
-      if (!error && data && typeof data.comments_moderation_enabled === "boolean") {
+      if (
+        !error &&
+        data &&
+        typeof data.comments_moderation_enabled === "boolean"
+      ) {
         return data.comments_moderation_enabled;
       }
-      // Tabella assente / non migrata: fallback silenzioso al config locale.
       if (error && !/relation .*site_settings/i.test(error.message)) {
-        console.error("[comments] lettura site_settings fallita:", error.message);
+        console.error(
+          "[comments] lettura site_settings fallita:",
+          error.message,
+        );
       }
     }
+  } else {
+    const local = await readFileSettings();
+    return local.commentsModerationEnabled;
   }
 
-  return siteConfig.commentsRequireApproval;
+  return (
+    siteConfig.commentsRequireApproval ??
+    DEFAULT_SITE_SETTINGS.commentsModerationEnabled
+  );
 }
 
 export async function setCommentsModerationEnabled(
   enabled: boolean,
 ): Promise<void> {
   if (!isSupabaseConfigured()) {
-    throw new Error(
-      "Supabase non configurato: imposta commentsRequireApproval in site-config per lo sviluppo locale.",
-    );
+    const current = await readFileSettings();
+    await writeFileSettings({
+      ...current,
+      commentsModerationEnabled: enabled,
+    });
+    return;
   }
 
   const client = createServiceClient();
@@ -55,7 +72,7 @@ export async function setCommentsModerationEnabled(
   );
 
   if (error) {
-    console.error("[comments] salvataggio moderazione fallito:", error.message);
+    console.error("[comments] salvataggio moderazione fallita:", error.message);
     if (/relation .*site_settings/i.test(error.message)) {
       throw new Error(
         "Tabella site_settings assente. Applica la migration 20261109000004.",
