@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { ArticleDashboard } from "@/components/admin/ArticleDashboard";
 import {
   Card,
   CardDescription,
@@ -17,13 +18,19 @@ const sections = [
   {
     href: "/admin",
     title: "Articoli",
-    description: "Bozze, revisione e pubblicazione (Fase 3).",
+    description: "Bozze, revisione e pubblicazione (sotto).",
     adminOnly: false,
   },
   {
-    href: "/admin",
+    href: "/admin/argomenti",
     title: "Argomenti",
-    description: "Categorie del blog (Fase 3).",
+    description: "Categorie del blog.",
+    adminOnly: true,
+  },
+  {
+    href: "/admin/utenti",
+    title: "Utenti",
+    description: "Ruoli docenti e studenti (stub).",
     adminOnly: true,
   },
   {
@@ -46,20 +53,9 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">
-          Dashboard
-        </h1>
-        <p className="mt-2 max-w-2xl text-muted-foreground">
-          Area riservata per docenti e studenti. I moduli CRUD arriveranno in
-          Fase 3; ruoli e gate di accesso sono già definiti nello schema e nelle
-          policy RLS.
-        </p>
-      </div>
-
       <div className="grid gap-4 sm:grid-cols-2">
         {sections
-          .filter((section) => admin || !section.adminOnly)
+          .filter((section) => admin || !section.adminOnly || !profile)
           .map((section) => (
             <Card
               key={section.title}
@@ -79,11 +75,13 @@ export default async function AdminDashboardPage() {
 
       {!profile ? (
         <p className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
-          Per attivare login e ruoli: crea un progetto Supabase, applica le
-          migrazioni in <code>supabase/migrations</code>, compila{" "}
-          <code>.env.local</code> e promuovi il primo admin come da README.
+          Supabase non configurato: usa il selettore ruolo demo sotto per
+          provare il flusso articoli. Per login reale: migrazioni in{" "}
+          <code>supabase/migrations</code> e <code>.env.local</code>.
         </p>
       ) : null}
+
+      <ArticleDashboard />
     </div>
   );
 }
