@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { Fraunces, Inter } from "next/font/google";
+import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 
 import { siteConfig } from "@/lib/site-config";
 import { getSiteSettings } from "@/lib/site-settings/get-site-settings";
 
 import "./globals.css";
 
-const inter = Inter({
+const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-sans",
   subsets: ["latin"],
   display: "swap",
@@ -16,6 +16,7 @@ const fraunces = Fraunces({
   variable: "--font-serif",
   subsets: ["latin"],
   display: "swap",
+  axes: ["SOFT", "WONK"],
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -71,7 +72,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="it" suppressHydrationWarning>
-      <body className={`${inter.variable} ${fraunces.variable} font-sans antialiased`}>
+      <body
+        className={`${plusJakarta.variable} ${fraunces.variable} font-sans antialiased`}
+      >
         {children}
       </body>
     </html>

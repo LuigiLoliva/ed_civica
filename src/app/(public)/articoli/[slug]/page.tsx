@@ -54,8 +54,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   const comments = await listApprovedComments(article.slug);
 
   return (
-    <article className="pb-16">
-      <header className="border-b border-border bg-card/60">
+    <article className="bg-partnership-pattern pb-16">
+      <header className="bg-page-banner border-b border-border/60">
         <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
           {topic ? (
             <Badge
@@ -65,10 +65,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               {topic.name}
             </Badge>
           ) : null}
-          <h1 className="mt-4 font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl lg:text-5xl">
+          <h1 className="font-heading mt-4 text-3xl font-semibold tracking-tight text-balance sm:text-4xl lg:text-5xl">
             {article.title}
           </h1>
-          <p className="mt-4 text-lg text-muted-foreground">{article.summary}</p>
+          <p className="mt-4 text-lg text-muted-foreground text-pretty">
+            {article.summary}
+          </p>
           <div className="mt-6 flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
             <span>{article.authors.map(authorFullName).join(", ")}</span>
             <time dateTime={article.publishedAt}>
@@ -80,7 +82,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       </header>
 
       <div
-        className={`h-36 bg-gradient-to-br ${article.coverGradient}`}
+        className={`h-40 bg-gradient-to-br ${article.coverGradient} sm:h-48`}
         aria-hidden
       />
 
