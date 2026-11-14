@@ -22,16 +22,30 @@ describe("verifyTurnstileToken", () => {
     expect(warn).toHaveBeenCalled();
   });
 
-  it("in produzione senza secret fallisce", async () => {
+  it("in produzione senza secret degrada in modo sicuro (stub + rate-limit)", async () => {
     vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("VERCEL_ENV", "production");
     vi.stubEnv("TURNSTILE_SECRET_KEY", "");
     vi.stubEnv("TURNSTILE_BYPASS", "");
 
-    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     const { verifyTurnstileToken } = await import(
       "../../src/lib/comments/turnstile"
     );
-    const result = await verifyTurnstileToken("any");
+    const result = await verifyTurnstileToken(null);
+    expect(result).toEqual({ ok: true, stub: true });
+    expect(warn).toHaveBeenCalled();
+  });
+
+  it("in produzione con secret richiede il token", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("TURNSTILE_SECRET_KEY", "test-secret");
+    vi.stubEnv("TURNSTILE_BYPASS", "");
+
+    const { verifyTurnstileToken } = await import(
+      "../../src/lib/comments/turnstile"
+    );
+    const result = await verifyTurnstileToken(null);
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.error).toMatch(/anti-spam/i);

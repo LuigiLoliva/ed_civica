@@ -66,6 +66,9 @@ function humanizeDbError(message: string): string {
   if (lower.includes("row-level security") || lower.includes("rls")) {
     return "Permesso negato (RLS). Serve un admin attivo oppure SUPABASE_SERVICE_ROLE_KEY sul server.";
   }
+  if (lower.includes("jwt") || lower.includes("not authenticated")) {
+    return "Sessione scaduta. Esci, accedi di nuovo e riprova a salvare.";
+  }
   return "Impossibile salvare le impostazioni. Riprova o controlla i log del server.";
 }
 
@@ -120,51 +123,62 @@ function revalidateSiteSettingsPaths() {
 export async function saveSiteSettingsAction(
   raw: unknown,
 ): Promise<SiteSettingsActionResult> {
-  const gate = await assertAdminOrDemo();
-  if (!gate.ok) return gate;
-
-  const parsed = siteSettingsSchema.safeParse(raw);
-  if (!parsed.success) {
-    return {
-      ok: false,
-      message: parsed.error.issues[0]?.message ?? "Dati non validi",
-    };
-  }
-
-  let settings: SiteSettings;
   try {
-    settings = normalizeForm(parsed.data);
+    const gate = await assertAdminOrDemo();
+    if (!gate.ok) return gate;
+
+    const parsed = siteSettingsSchema.safeParse(raw);
+    if (!parsed.success) {
+      return {
+        ok: false,
+        message: parsed.error.issues[0]?.message ?? "Dati non validi",
+      };
+    }
+
+    let settings: SiteSettings;
+    try {
+      settings = normalizeForm(parsed.data);
+    } catch (err) {
+      console.error("[site-settings] sanitizzazione HTML fallita:", err);
+      return {
+        ok: false,
+        message:
+          "Impossibile elaborare i testi HTML (footer / progetto). Controlla la formattazione e riprova.",
+      };
+    }
+
+    if (!isSupabaseConfigured()) {
+      // Import dinamico: evita di caricare `fs` / `server-only` al GET della pagina.
+      const { writeFileSettings } = await import(
+        "@/lib/site-settings/file-store"
+      );
+      await writeFileSettings(settings);
+      revalidateSiteSettingsPaths();
+      return {
+        ok: true,
+        message: "Impostazioni salvate in locale (demo senza Supabase).",
+        settings,
+      };
+    }
+
+    const saved = await upsertSiteSettingsRow(settings);
+    if (!saved.ok) return saved;
+
+    revalidateSiteSettingsPaths();
+
+    return {
+      ok: true,
+      message: "Impostazioni salvate correttamente.",
+      settings,
+    };
   } catch (err) {
-    console.error("[site-settings] sanitizzazione HTML fallita:", err);
+    console.error("[site-settings] saveSiteSettingsAction eccezione:", err);
     return {
       ok: false,
       message:
-        "Impossibile elaborare i testi HTML (footer / progetto). Controlla la formattazione e riprova.",
+        "Non è stato possibile salvare le impostazioni. Controlla le migrazioni SQL e SUPABASE_SERVICE_ROLE_KEY, poi riprova.",
     };
   }
-
-  if (!isSupabaseConfigured()) {
-    // Import dinamico: evita di caricare `fs` / `server-only` al GET della pagina.
-    const { writeFileSettings } = await import("@/lib/site-settings/file-store");
-    await writeFileSettings(settings);
-    revalidateSiteSettingsPaths();
-    return {
-      ok: true,
-      message: "Impostazioni salvate in locale (demo senza Supabase).",
-      settings,
-    };
-  }
-
-  const saved = await upsertSiteSettingsRow(settings);
-  if (!saved.ok) return saved;
-
-  revalidateSiteSettingsPaths();
-
-  return {
-    ok: true,
-    message: "Impostazioni salvate correttamente.",
-    settings,
-  };
 }
 
 const ALLOWED_ASSET_TYPES = new Set([

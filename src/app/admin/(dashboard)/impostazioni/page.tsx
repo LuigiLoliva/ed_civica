@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import {
+  saveSiteSettingsAction,
+  uploadSiteAssetAction,
+} from "@/app/actions/site-settings";
 import { SiteSettingsFormLoader } from "@/components/admin/SiteSettingsFormLoader";
 import { requireAdminOrDemo } from "@/lib/auth/require-admin";
 import { getSiteSettingsFresh } from "@/lib/site-settings/get-site-settings";
@@ -43,7 +47,11 @@ export default async function AdminImpostazioniPage() {
           salvataggio.
         </p>
       </header>
-      <SiteSettingsFormLoader initial={settings} />
+      <SiteSettingsFormLoader
+        initial={settings}
+        saveAction={saveSiteSettingsAction}
+        uploadAction={uploadSiteAssetAction}
+      />
     </div>
   );
 }

@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { PlusIcon, Trash2Icon } from "lucide-react";
 
-import {
+import type {
   saveSiteSettingsAction,
   uploadSiteAssetAction,
 } from "@/app/actions/site-settings";
@@ -25,6 +25,8 @@ import type { SiteSettings } from "@/lib/site-settings/types";
 
 interface SiteSettingsFormProps {
   initial: SiteSettings;
+  saveAction: typeof saveSiteSettingsAction;
+  uploadAction: typeof uploadSiteAssetAction;
 }
 
 function toFormValues(settings: SiteSettings): SiteSettingsFormValues {
@@ -54,7 +56,11 @@ function toFormValues(settings: SiteSettings): SiteSettingsFormValues {
   };
 }
 
-export function SiteSettingsForm({ initial }: SiteSettingsFormProps) {
+export function SiteSettingsForm({
+  initial,
+  saveAction,
+  uploadAction,
+}: SiteSettingsFormProps) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState<"logo" | "favicon" | null>(null);
@@ -92,7 +98,7 @@ export function SiteSettingsForm({ initial }: SiteSettingsFormProps) {
     async (values) => {
       setSaving(true);
       try {
-        const result = await saveSiteSettingsAction(values);
+        const result = await saveAction(values);
         if (!result.ok) {
           toast.error(result.message);
           return;
@@ -102,7 +108,14 @@ export function SiteSettingsForm({ initial }: SiteSettingsFormProps) {
         toast.success(result.message);
       } catch (err) {
         console.error(err);
-        toast.error("Errore imprevisto durante il salvataggio.");
+        const msg = err instanceof Error ? err.message : "";
+        toast.error(
+          /fetch|network|failed to find server action|unexpected response/i.test(
+            msg,
+          )
+            ? "Salvataggio interrotto (azione server non raggiungibile). Ricarica la pagina e riprova."
+            : "Errore imprevisto durante il salvataggio. Riprova.",
+        );
       } finally {
         setSaving(false);
       }
@@ -121,7 +134,7 @@ export function SiteSettingsForm({ initial }: SiteSettingsFormProps) {
       const fd = new FormData();
       fd.set("kind", kind);
       fd.set("file", file);
-      const result = await uploadSiteAssetAction(fd);
+      const result = await uploadAction(fd);
       if (!result.ok) {
         toast.error(result.message);
         return;

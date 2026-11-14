@@ -80,8 +80,9 @@ Apri [http://localhost:3000](http://localhost:3000).
      5. `supabase/migrations/20261109110000_site_settings_expand.sql`
      6. `supabase/migrations/20261109120000_profiles_registration_status.sql`
      7. `supabase/migrations/20261109130000_student_registration_default_on.sql`
-     8. `supabase/seed/01_topics.sql`
-     9. `supabase/seed/03_site_settings.sql` (esempi scuola/docenti modificabili)
+     8. `supabase/migrations/20261114000001_comments_public_slug_rls.sql` (commenti su articoli mock + RPC)
+     9. `supabase/seed/01_topics.sql`
+     10. `supabase/seed/03_site_settings.sql` (esempi scuola/docenti modificabili)
    - **Opzione B (CLI)**: `supabase login` → `supabase link --project-ref <REF>` → `supabase db push` → esegui i seed.
 4. In **Authentication → Providers** lascia attivo Email/Password. Consigliata la conferma email.
 5. La **registrazione studenti** è **attiva di default** (pagina `/registrati`). Gli account restano `pending` finché un docente non li approva in **Utenti**. Per disattivarla: **Admin → Impostazioni** → interruttore «Registrazione studenti» → **Salva modifiche**. Il sito forza comunque `role=studente` e `status=pending` (nessuna escalation ad admin).
@@ -126,8 +127,8 @@ Vedi [`.env.example`](.env.example). Su Vercel imposta le stesse chiavi in **Pro
 | `NEXT_PUBLIC_SUPABASE_URL` | Client/Server | URL progetto Supabase |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Client/Server | Chiave anon (RLS attiva) |
 | `SUPABASE_SERVICE_ROLE_KEY` | Solo server | Bypass RLS: solo in Server Actions controllate |
-| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Client | Cloudflare Turnstile (opzionale in locale) |
-| `TURNSTILE_SECRET_KEY` | Solo server | Obbligatoria in produzione; in locale senza chiave la verifica è saltata |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Client | Cloudflare Turnstile (opzionale) |
+| `TURNSTILE_SECRET_KEY` | Solo server | Opzionale: senza chiave la verifica è saltata (rate-limit attivo) |
 | `TURNSTILE_BYPASS` | Server | Solo sviluppo (`true`); ignorato in produzione |
 | `COMMENT_IP_HASH_SALT` | Server | Sale per hash IP commenti |
 | `RESEND_API_KEY` | Solo server | Opzionale: email approvazione/registrazione |

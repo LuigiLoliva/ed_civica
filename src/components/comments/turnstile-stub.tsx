@@ -25,15 +25,25 @@ declare global {
 
 const SCRIPT_ID = "cf-turnstile-script";
 
-/** Widget Cloudflare Turnstile (reale se site key presente, stub in sviluppo). */
+/**
+ * Widget Cloudflare Turnstile se la site key è presente.
+ * Senza chiavi: nessun blocco UX — il server applica rate-limit.
+ */
 export function TurnstileStub({ onToken }: Props) {
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? null;
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
   const [scriptReady, setScriptReady] = useState(false);
 
+  const onTokenRef = useRef(onToken);
+  onTokenRef.current = onToken;
+
   useEffect(() => {
-    if (!siteKey) return;
+    if (!siteKey) {
+      // Token stub: il server salta la verifica se SECRET assente.
+      onTokenRef.current(`no-turnstile-${Date.now()}`);
+      return;
+    }
 
     if (window.turnstile) {
       setScriptReady(true);
@@ -48,14 +58,12 @@ export function TurnstileStub({ onToken }: Props) {
 
     const script = document.createElement("script");
     script.id = SCRIPT_ID;
-    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    script.src =
+      "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
     script.async = true;
     script.onload = () => setScriptReady(true);
     document.head.appendChild(script);
   }, [siteKey]);
-
-  const onTokenRef = useRef(onToken);
-  onTokenRef.current = onToken;
 
   useEffect(() => {
     if (!siteKey || !scriptReady || !containerRef.current || !window.turnstile) {
@@ -99,26 +107,16 @@ export function TurnstileStub({ onToken }: Props) {
 
   return (
     <div
-      className="rounded-md border border-dashed border-primary/40 bg-muted/40 p-3 text-sm text-muted-foreground"
-      role="group"
-      aria-label="Verifica anti-spam"
+      className="rounded-md border border-border bg-muted/30 p-3 text-sm text-muted-foreground"
+      role="status"
+      aria-label="Protezione anti-spam"
     >
-      <p className="mb-2 font-medium text-foreground">
-        Protezione anti-spam (sviluppo)
-      </p>
-      <p>
-        Nessuna chiave Turnstile configurata: in locale la verifica viene
-        saltata dal server. Imposta{" "}
+      <p className="font-medium text-foreground">Protezione anti-spam attiva</p>
+      <p className="mt-1">
+        Limite di invii per dispositivo. Per Cloudflare Turnstile imposta{" "}
         <code>NEXT_PUBLIC_TURNSTILE_SITE_KEY</code> e{" "}
-        <code>TURNSTILE_SECRET_KEY</code> in produzione.
+        <code>TURNSTILE_SECRET_KEY</code> su Vercel.
       </p>
-      <button
-        type="button"
-        className="mt-2 rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground transition hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-        onClick={() => onToken(`stub-token-${Date.now()}`)}
-      >
-        Continua senza widget (dev)
-      </button>
     </div>
   );
 }
