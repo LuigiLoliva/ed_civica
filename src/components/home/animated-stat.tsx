@@ -36,11 +36,13 @@ export function AnimatedStat({ label, value, suffix = "" }: AnimatedStatProps) {
 
   return (
     <div className="text-center">
-      <p className="font-heading text-4xl font-semibold text-primary">
+      <p className="font-heading text-4xl font-semibold tracking-tight text-goal-17 sm:text-5xl">
         {display}
         {suffix}
       </p>
-      <p className="mt-1 text-sm text-muted-foreground">{label}</p>
+      <p className="mt-2 text-sm font-medium tracking-wide text-muted-foreground uppercase">
+        {label}
+      </p>
     </div>
   );
 }

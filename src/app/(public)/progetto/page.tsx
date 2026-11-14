@@ -1,11 +1,6 @@
 import type { Metadata } from "next";
 
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { PageBanner } from "@/components/layout/page-banner";
 import { getSiteSettings } from "@/lib/site-settings/get-site-settings";
 import {
   formatSchoolLocation,
@@ -25,58 +20,53 @@ export default async function ProgettoPage() {
   const location = formatSchoolLocation(settings);
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
-      <header>
-        <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
-          Il progetto
-        </h1>
-        <p className="mt-4 text-muted-foreground">{settings.description}</p>
-      </header>
+    <div className="bg-partnership-pattern">
+      <PageBanner title="Il progetto" description={settings.description} />
 
-      <div className="mt-10 grid gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-heading text-xl">Perché esiste</CardTitle>
-          </CardHeader>
+      <div className="mx-auto max-w-3xl space-y-10 px-4 py-12 sm:px-6">
+        <section>
+          <h2 className="font-heading text-2xl font-semibold tracking-tight">
+            Perché esiste
+          </h2>
           <div
-            className="prose prose-slate max-w-none px-4 pb-4 text-sm leading-relaxed text-muted-foreground sm:px-6"
+            className="prose prose-slate mt-4 max-w-none text-sm leading-relaxed text-muted-foreground sm:text-base"
             dangerouslySetInnerHTML={{ __html: settings.projectHtml }}
           />
-        </Card>
+        </section>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-heading text-xl">Scuola e classe</CardTitle>
-          </CardHeader>
-          <dl className="space-y-4 px-4 pb-4 text-sm sm:px-6">
+        <section className="rounded-2xl border border-border/80 bg-card/90 px-5 py-6 sm:px-7">
+          <h2 className="font-heading text-2xl font-semibold tracking-tight">
+            Scuola e classe
+          </h2>
+          <dl className="mt-5 grid gap-5 text-sm sm:grid-cols-2">
             <div>
-              <dt className="font-semibold">Scuola</dt>
-              <dd className="text-muted-foreground">{settings.schoolName}</dd>
+              <dt className="font-semibold text-foreground">Scuola</dt>
+              <dd className="mt-1 text-muted-foreground">{settings.schoolName}</dd>
             </div>
             {location ? (
               <div>
-                <dt className="font-semibold">Indirizzo</dt>
-                <dd className="text-muted-foreground">{location}</dd>
+                <dt className="font-semibold text-foreground">Indirizzo</dt>
+                <dd className="mt-1 text-muted-foreground">{location}</dd>
               </div>
             ) : null}
             <div>
-              <dt className="font-semibold">Classe</dt>
-              <dd className="text-muted-foreground">{settings.className}</dd>
+              <dt className="font-semibold text-foreground">Classe</dt>
+              <dd className="mt-1 text-muted-foreground">{settings.className}</dd>
             </div>
             <div>
-              <dt className="font-semibold">Anno scolastico</dt>
-              <dd className="text-muted-foreground">{settings.schoolYear}</dd>
+              <dt className="font-semibold text-foreground">Anno scolastico</dt>
+              <dd className="mt-1 text-muted-foreground">{settings.schoolYear}</dd>
             </div>
-            <div>
-              <dt className="font-semibold">Docenti</dt>
-              <dd className="text-muted-foreground">
+            <div className="sm:col-span-2">
+              <dt className="font-semibold text-foreground">Docenti</dt>
+              <dd className="mt-1 text-muted-foreground">
                 {formatTeachers(settings)}
               </dd>
             </div>
             {settings.contactEmail ? (
-              <div>
-                <dt className="font-semibold">Email</dt>
-                <dd className="text-muted-foreground">
+              <div className="sm:col-span-2">
+                <dt className="font-semibold text-foreground">Email</dt>
+                <dd className="mt-1 text-muted-foreground">
                   <a
                     href={`mailto:${settings.contactEmail}`}
                     className="text-primary underline-offset-2 hover:underline"
@@ -87,34 +77,30 @@ export default async function ProgettoPage() {
               </div>
             ) : null}
           </dl>
-        </Card>
+        </section>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Card className="border-goal-16/30">
-            <CardHeader>
-              <CardTitle className="text-goal-16">Docenti (admin)</CardTitle>
-              <CardDescription>
-                Revisione contenuti, pubblicazione articoli, moderazione
-                commenti, gestione utenti e quiz.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-          <Card className="border-goal-17/30">
-            <CardHeader>
-              <CardTitle className="text-goal-17">Studenti (editor)</CardTitle>
-              <CardDescription>
-                Scrivono bozze, aggiungono fonti e immagini, inviano gli articoli
-                in revisione.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
+        <section className="grid gap-4 sm:grid-cols-2">
+          <div className="rounded-2xl bg-goal-16 px-5 py-6 text-white">
+            <h3 className="font-heading text-lg font-semibold">Docenti (admin)</h3>
+            <p className="mt-2 text-sm text-white/80">
+              Revisione contenuti, pubblicazione articoli, moderazione commenti,
+              gestione utenti e quiz.
+            </p>
+          </div>
+          <div className="rounded-2xl bg-goal-17 px-5 py-6 text-white">
+            <h3 className="font-heading text-lg font-semibold">Studenti (editor)</h3>
+            <p className="mt-2 text-sm text-white/80">
+              Scrivono bozze, aggiungono fonti e immagini, inviano gli articoli in
+              revisione.
+            </p>
+          </div>
+        </section>
 
-        <p className="rounded-lg border border-border bg-muted/50 p-4 text-sm text-muted-foreground">
+        <p className="rounded-xl border border-border/80 bg-card/70 px-4 py-3 text-sm text-muted-foreground">
           Aggiorna scuola, docenti e testi da{" "}
-          <strong>Admin → Impostazioni</strong>. I testi dimostrativi degli
-          articoli sono marcati come segnaposto e vanno verificati su fonti
-          ufficiali.
+          <strong className="text-foreground">Admin → Impostazioni</strong>. I testi
+          dimostrativi degli articoli sono marcati come segnaposto e vanno
+          verificati su fonti ufficiali.
         </p>
       </div>
     </div>
