@@ -1,25 +1,14 @@
 "use client";
 
-import dynamic from "next/dynamic";
-
+import { SiteSettingsForm } from "@/components/admin/SiteSettingsForm";
 import type { SiteSettings } from "@/lib/site-settings/types";
 
-const SiteSettingsForm = dynamic(
-  () =>
-    import("@/components/admin/SiteSettingsForm").then((m) => m.SiteSettingsForm),
-  {
-    ssr: false,
-    loading: () => (
-      <div
-        className="rounded-lg border border-border bg-card/50 p-8 text-sm text-muted-foreground"
-        role="status"
-      >
-        Caricamento impostazioni…
-      </div>
-    ),
-  },
-);
-
+/**
+ * Wrapper client per il form impostazioni.
+ * Import statico (non dynamic ssr:false): altrimenti su Vercel le Server Action
+ * di salvataggio/upload non risultano registrate e il client mostra
+ * «Non è possibile farlo attualmente».
+ */
 export function SiteSettingsFormLoader({ initial }: { initial: SiteSettings }) {
   return <SiteSettingsForm initial={initial} />;
 }

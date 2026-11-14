@@ -6,6 +6,11 @@ import { resolveArticleUuid } from "@/lib/articles/resolve-id";
 import { getCommentsModerationEnabled } from "@/lib/comments/moderation-settings";
 import { getSiteSettings } from "@/lib/site-settings/get-site-settings";
 import {
+  createAnonClient,
+  createReadClient,
+  createWriteClient,
+} from "@/lib/supabase/clients";
+import {
   createServiceClient,
   isSupabaseConfigured,
 } from "@/lib/supabase/service";
@@ -71,7 +76,8 @@ function normalizeArticleJoin(
 
 function mapRow(row: {
   id: string;
-  article_id: string;
+  article_id: string | null;
+  public_slug?: string | null;
   parent_id: string | null;
   author_name: string;
   author_email: string | null;
@@ -87,9 +93,11 @@ function mapRow(row: {
     | null;
 }): CommentRecord {
   const article = normalizeArticleJoin(row.articles);
+  const publicSlug = row.public_slug?.trim() || null;
+  const articleId = row.article_id ?? publicSlug ?? "";
   return {
     id: row.id,
-    articleId: row.article_id,
+    articleId,
     parentId: row.parent_id,
     authorName: row.author_name,
     authorEmail: row.author_email,
@@ -99,13 +107,13 @@ function mapRow(row: {
     ipHash: row.ip_hash,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
-    articleSlug: article?.slug ?? null,
+    articleSlug: article?.slug ?? publicSlug,
     articleTitle: article?.title ?? null,
   };
 }
 
 const SELECT_COLS =
-  "id, article_id, parent_id, author_name, author_email, body, status, reported, ip_hash, created_at, updated_at";
+  "id, article_id, public_slug, parent_id, author_name, author_email, body, status, reported, ip_hash, created_at, updated_at";
 
 const SELECT_COLS_ADMIN = `${SELECT_COLS}, articles ( slug, title )`;
 
@@ -118,42 +126,107 @@ async function sameArticle(
   return resolved !== null && resolved === parentArticleId;
 }
 
+function matchesArticleKey(
+  row: CommentRecord,
+  articleKey: string,
+  articleUuid: string | null,
+): boolean {
+  if (row.articleId === articleKey) return true;
+  if (row.articleSlug === articleKey) return true;
+  if (articleUuid && row.articleId === articleUuid) return true;
+  return false;
+}
+
 export async function listApprovedComments(
   articleId: string,
 ): Promise<PublicComment[]> {
-  // Mock/seed passano lo slug: risolvi a UUID solo se esiste in Supabase.
-  // Mai passare valori non-UUID a `comments.article_id`.
   if (isSupabaseConfigured()) {
     const articleUuid = await resolveArticleUuid(articleId);
-    const client = articleUuid ? createServiceClient() : null;
-    if (client && articleUuid) {
-      const { data, error } = await client
+    const client = await createReadClient();
+    if (client) {
+      const base = client
         .from("comments")
         .select(SELECT_COLS)
-        .eq("article_id", articleUuid)
-        .eq("status", "approvato")
-        .order("created_at", { ascending: true });
+        .eq("status", "approvato");
+
+      const filtered = articleUuid
+        ? base.or(
+            `article_id.eq.${articleUuid},public_slug.eq.${articleId}`,
+          )
+        : base.eq("public_slug", articleId);
+
+      const { data, error } = await filtered.order("created_at", {
+        ascending: true,
+      });
       if (error) {
+        // Colonna public_slug assente → migrazione non applicata: prova solo UUID.
+        if (articleUuid && /public_slug/i.test(error.message)) {
+          const fallback = await client
+            .from("comments")
+            .select(
+              "id, article_id, parent_id, author_name, author_email, body, status, reported, ip_hash, created_at, updated_at",
+            )
+            .eq("article_id", articleUuid)
+            .eq("status", "approvato")
+            .order("created_at", { ascending: true });
+          if (fallback.error) {
+            console.error(
+              "[comments] listApprovedComments:",
+              fallback.error.message,
+            );
+            throw new Error(
+              "Impossibile caricare i commenti. Verifica le migrazioni SQL su Supabase.",
+            );
+          }
+          return nestApproved(
+            (fallback.data ?? []).map((row) =>
+              mapRow({ ...row, public_slug: null }),
+            ),
+          );
+        }
         console.error("[comments] listApprovedComments:", error.message);
-        throw new Error(error.message);
+        throw new Error(
+          "Impossibile caricare i commenti. Riprova tra poco.",
+        );
       }
       return nestApproved((data ?? []).map(mapRow));
     }
   }
 
   const db = await readFileDb();
-  return nestApproved(db.comments.filter((c) => c.articleId === articleId));
+  const articleUuid = isUuid(articleId) ? articleId : null;
+  return nestApproved(
+    db.comments.filter((c) => matchesArticleKey(c, articleId, articleUuid)),
+  );
 }
 
 export async function listAllCommentsForAdmin(): Promise<CommentRecord[]> {
   if (isSupabaseConfigured()) {
-    const client = createServiceClient();
-    if (client) {
-      const { data, error } = await client
+    const write = await createWriteClient();
+    if (write) {
+      const { data, error } = await write.client
         .from("comments")
         .select(SELECT_COLS_ADMIN)
         .order("created_at", { ascending: false });
       if (error) {
+        if (/public_slug/i.test(error.message)) {
+          const fallback = await write.client
+            .from("comments")
+            .select(
+              "id, article_id, parent_id, author_name, author_email, body, status, reported, ip_hash, created_at, updated_at, articles ( slug, title )",
+            )
+            .order("created_at", { ascending: false });
+          if (fallback.error) {
+            console.error(
+              "[comments] listAllCommentsForAdmin:",
+              fallback.error.message,
+            );
+            throw new Error(fallback.error.message);
+          }
+          return (fallback.data ?? []).map((row) =>
+            mapRow({ ...row, public_slug: null }),
+          );
+        }
         console.error("[comments] listAllCommentsForAdmin:", error.message);
         throw new Error(error.message);
       }
@@ -168,13 +241,22 @@ export async function listAllCommentsForAdmin(): Promise<CommentRecord[]> {
 
 export async function countPendingComments(): Promise<number> {
   if (isSupabaseConfigured()) {
-    const client = createServiceClient();
+    const client = await createReadClient();
     if (client) {
       const { count, error } = await client
         .from("comments")
         .select("id", { count: "exact", head: true })
         .eq("status", "in_attesa");
+      // Anon non vede in_attesa: prova service/session
       if (!error && typeof count === "number") return count;
+      const write = await createWriteClient();
+      if (write) {
+        const res = await write.client
+          .from("comments")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "in_attesa");
+        if (!res.error && typeof res.count === "number") return res.count;
+      }
     }
   }
   const db = await readFileDb();
@@ -185,7 +267,9 @@ export async function getCommentById(
   id: string,
 ): Promise<CommentRecord | null> {
   if (isSupabaseConfigured() && isUuid(id)) {
-    const client = createServiceClient();
+    // Preferisci client con privilegi (pending nascosti all'anon).
+    const write = await createWriteClient();
+    const client = write?.client ?? (await createReadClient());
     if (client) {
       const { data, error } = await client
         .from("comments")
@@ -193,6 +277,22 @@ export async function getCommentById(
         .eq("id", id)
         .maybeSingle();
       if (error) {
+        if (/public_slug/i.test(error.message)) {
+          const fallback = await client
+            .from("comments")
+            .select(
+              "id, article_id, parent_id, author_name, author_email, body, status, reported, ip_hash, created_at, updated_at",
+            )
+            .eq("id", id)
+            .maybeSingle();
+          if (fallback.error) {
+            console.error("[comments] getCommentById:", fallback.error.message);
+            throw new Error(fallback.error.message);
+          }
+          return fallback.data
+            ? mapRow({ ...fallback.data, public_slug: null })
+            : null;
+        }
         console.error("[comments] getCommentById:", error.message);
         throw new Error(error.message);
       }
@@ -219,9 +319,14 @@ export async function insertComment(input: {
     if (parent.parentId) {
       throw new Error("Sono consentite solo risposte a un livello");
     }
-    // Confronta UUID risolto vs slug pubblico (bug tipico risposte).
     if (!(await sameArticle(parent.articleId, input.articleId))) {
-      throw new Error("La risposta deve essere sullo stesso articolo");
+      // Confronta anche via slug pubblico del padre
+      if (
+        parent.articleSlug !== input.articleId &&
+        parent.articleId !== input.articleId
+      ) {
+        throw new Error("La risposta deve essere sullo stesso articolo");
+      }
     }
   }
 
@@ -245,33 +350,125 @@ export async function insertComment(input: {
     ipHash: input.ipHash,
     createdAt: now,
     updatedAt: now,
+    articleSlug: isUuid(input.articleId) ? null : input.articleId,
   };
 
   if (isSupabaseConfigured()) {
     const articleUuid = await resolveArticleUuid(input.articleId);
-    const client = articleUuid ? createServiceClient() : null;
-    if (client && articleUuid) {
-      const { data, error } = await client
+    const publicSlug = articleUuid
+      ? isUuid(input.articleId)
+        ? null
+        : input.articleId
+      : input.articleId;
+
+    // Preferisci RPC (rispetta moderazione senza service role).
+    if (!input.forceApproved) {
+      const anon = createAnonClient() ?? createServiceClient();
+      if (anon) {
+        const { data, error } = await anon.rpc("submit_public_comment", {
+          p_article_id: articleUuid,
+          p_public_slug: publicSlug,
+          p_parent_id: record.parentId,
+          p_author_name: record.authorName,
+          p_author_email: record.authorEmail,
+          p_body: record.body,
+          p_ip_hash: record.ipHash,
+        });
+        if (!error && data) {
+          const row = Array.isArray(data) ? data[0] : data;
+          return mapRow(row as Parameters<typeof mapRow>[0]);
+        }
+        if (error && !/submit_public_comment|Could not find the function/i.test(error.message)) {
+          console.error("[comments] insertComment RPC:", error.message);
+          throw new Error(
+            "Non è stato possibile salvare il commento. Se il problema continua, chiedi di applicare la migrazione SQL dei commenti su Supabase.",
+          );
+        }
+        // RPC assente: fallback insert diretto sotto.
+        if (error) {
+          console.warn(
+            "[comments] RPC submit_public_comment assente, fallback insert:",
+            error.message,
+          );
+        }
+      }
+    }
+
+    const write = await createWriteClient();
+    if (write) {
+      const payload: Record<string, unknown> = {
+        id: record.id,
+        article_id: articleUuid,
+        parent_id: record.parentId,
+        author_name: record.authorName,
+        author_email: record.authorEmail,
+        body: record.body,
+        status: record.status,
+        reported: false,
+        ip_hash: record.ipHash,
+      };
+      if (publicSlug) payload.public_slug = publicSlug;
+
+      // Senza service role l'insert anon consente solo in_attesa.
+      if (write.mode === "anon" && record.status === "approvato") {
+        payload.status = "in_attesa";
+      }
+
+      const { data, error } = await write.client
         .from("comments")
-        .insert({
-          id: record.id,
-          article_id: articleUuid,
-          parent_id: record.parentId,
-          author_name: record.authorName,
-          author_email: record.authorEmail,
-          body: record.body,
-          status: record.status,
-          reported: false,
-          ip_hash: record.ipHash,
-        })
+        .insert(payload)
         .select(SELECT_COLS)
         .single();
+
       if (error) {
+        // Schema senza public_slug: richiede UUID articolo reale.
+        if (/public_slug/i.test(error.message)) {
+          if (!articleUuid) {
+            throw new Error(
+              "Per i commenti sugli articoli del sito applica la migrazione SQL 20261114000001 (public_slug) su Supabase.",
+            );
+          }
+          const { data: d2, error: e2 } = await write.client
+            .from("comments")
+            .insert({
+              id: record.id,
+              article_id: articleUuid,
+              parent_id: record.parentId,
+              author_name: record.authorName,
+              author_email: record.authorEmail,
+              body: record.body,
+              status:
+                write.mode === "anon" && record.status === "approvato"
+                  ? "in_attesa"
+                  : record.status,
+              reported: false,
+              ip_hash: record.ipHash,
+            })
+            .select(
+              "id, article_id, parent_id, author_name, author_email, body, status, reported, ip_hash, created_at, updated_at",
+            )
+            .single();
+          if (e2) {
+            console.error("[comments] insertComment:", e2.message);
+            throw new Error(e2.message);
+          }
+          return mapRow({ ...d2, public_slug: null });
+        }
+
+        if (/row-level security|rls|permission|policy/i.test(error.message)) {
+          throw new Error(
+            "Permesso negato sui commenti. Imposta SUPABASE_SERVICE_ROLE_KEY su Vercel oppure applica la migrazione RLS commenti.",
+          );
+        }
         console.error("[comments] insertComment:", error.message);
         throw new Error(error.message);
       }
       return mapRow(data);
     }
+
+    throw new Error(
+      "Supabase configurato ma nessun client disponibile per salvare i commenti.",
+    );
   }
 
   const db = await readFileDb();
@@ -286,9 +483,9 @@ export async function moderateComment(
 ): Promise<void> {
   if (action === "delete") {
     if (isSupabaseConfigured() && isUuid(commentId)) {
-      const client = createServiceClient();
-      if (client) {
-        const { error } = await client
+      const write = await createWriteClient();
+      if (write) {
+        const { error } = await write.client
           .from("comments")
           .delete()
           .eq("id", commentId);
@@ -312,9 +509,9 @@ export async function moderateComment(
     action === "approve" ? "approvato" : "rifiutato";
 
   if (isSupabaseConfigured() && isUuid(commentId)) {
-    const client = createServiceClient();
-    if (client) {
-      const { error } = await client
+    const write = await createWriteClient();
+    if (write) {
+      const { error } = await write.client
         .from("comments")
         .update({ status })
         .eq("id", commentId);
@@ -354,7 +551,8 @@ export async function insertReport(input: {
   };
 
   if (isSupabaseConfigured() && isUuid(input.commentId)) {
-    const client = createServiceClient();
+    const write = await createWriteClient();
+    const client = write?.client ?? createAnonClient();
     if (client) {
       const { error: flagError } = await client
         .from("comments")
@@ -373,7 +571,6 @@ export async function insertReport(input: {
           reason: report.reason,
           reporter_ip_hash: input.ipHash,
         });
-      // Se la migration additiva non è ancora applicata, resta solo `reported`.
       if (
         reportError &&
         !/relation .*comment_reports/i.test(reportError.message)
@@ -397,9 +594,9 @@ export async function insertReport(input: {
 
 export async function listReports(): Promise<CommentReport[]> {
   if (isSupabaseConfigured()) {
-    const client = createServiceClient();
-    if (client) {
-      const { data, error } = await client
+    const write = await createWriteClient();
+    if (write) {
+      const { data, error } = await write.client
         .from("comment_reports")
         .select("id, comment_id, reason, created_at, resolved_at")
         .order("created_at", { ascending: false });
@@ -412,7 +609,6 @@ export async function listReports(): Promise<CommentReport[]> {
           resolvedAt: row.resolved_at,
         }));
       }
-      // Fallback: commenti segnalati senza dettaglio motivo
       const flagged = await listAllCommentsForAdmin();
       return flagged
         .filter((c) => c.reported)

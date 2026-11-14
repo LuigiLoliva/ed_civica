@@ -1,9 +1,11 @@
 /**
  * Verifica Cloudflare Turnstile.
  * - Chiavi presenti → verifica verso siteverify
- * - Chiavi assenti in sviluppo → skip + console.warn
- * - Chiavi assenti in produzione → obbligatoria (errore utente)
+ * - Chiavi assenti → skip sicuro con rate-limit applicativo (scuola / Free Vercel)
  * - TURNSTILE_BYPASS=true consentito solo fuori produzione
+ *
+ * In produzione senza chiavi la registrazione e i commenti restano usabili:
+ * non blocchiamo il flusso scolastico, ma loggiamo un avviso chiaro.
  */
 export type TurnstileResult =
   | { ok: true; stub: boolean }
@@ -16,6 +18,10 @@ function isProductionRuntime(): boolean {
   );
 }
 
+export function isTurnstileConfigured(): boolean {
+  return Boolean(process.env.TURNSTILE_SECRET_KEY?.trim());
+}
+
 export async function verifyTurnstileToken(
   token: string | null | undefined,
   remoteIp?: string | null,
@@ -25,19 +31,10 @@ export async function verifyTurnstileToken(
   const production = isProductionRuntime();
 
   if (!configured) {
-    if (production) {
-      console.error(
-        "[turnstile] TURNSTILE_SECRET_KEY mancante: in produzione la verifica è obbligatoria.",
-      );
-      return {
-        ok: false,
-        error:
-          "La verifica anti-spam non è disponibile al momento. Riprova più tardi.",
-        stub: false,
-      };
-    }
     console.warn(
-      "[turnstile] Chiavi assenti: verifica anti-spam saltata in sviluppo.",
+      production
+        ? "[turnstile] TURNSTILE_SECRET_KEY assente in produzione: verifica saltata (rate-limit attivo). Imposta le chiavi Cloudflare su Vercel per l'anti-spam completo."
+        : "[turnstile] Chiavi assenti: verifica anti-spam saltata in sviluppo.",
     );
     return { ok: true, stub: true };
   }

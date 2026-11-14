@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,7 +12,6 @@ import {
   saveSiteSettingsAction,
   uploadSiteAssetAction,
 } from "@/app/actions/site-settings";
-import { TiptapEditor } from "@/components/admin/TiptapEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,6 +22,20 @@ import {
   type SiteSettingsFormValues,
 } from "@/lib/site-settings/schema";
 import type { SiteSettings } from "@/lib/site-settings/types";
+
+/** Solo TipTap è lazy: le Server Action restano import statici (vedi #16/#17). */
+const TiptapEditor = dynamic(
+  () =>
+    import("@/components/admin/TiptapEditor").then((m) => m.TiptapEditor),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="rounded-md border border-border bg-muted/40 p-4 text-sm text-muted-foreground">
+        Caricamento editor…
+      </div>
+    ),
+  },
+);
 
 interface SiteSettingsFormProps {
   initial: SiteSettings;
@@ -102,7 +116,14 @@ export function SiteSettingsForm({ initial }: SiteSettingsFormProps) {
         toast.success(result.message);
       } catch (err) {
         console.error(err);
-        toast.error("Errore imprevisto durante il salvataggio.");
+        const msg = err instanceof Error ? err.message : "";
+        toast.error(
+          /fetch|network|failed to find server action|unexpected response/i.test(
+            msg,
+          )
+            ? "Salvataggio interrotto (azione server non raggiungibile). Ricarica la pagina e riprova."
+            : "Errore imprevisto durante il salvataggio. Riprova.",
+        );
       } finally {
         setSaving(false);
       }

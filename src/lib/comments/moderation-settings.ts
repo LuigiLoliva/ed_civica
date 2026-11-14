@@ -1,10 +1,7 @@
 import { siteConfig } from "@/lib/site-config";
 import { DEFAULT_SITE_SETTINGS } from "@/lib/site-settings/defaults";
-import { readFileSettings, writeFileSettings } from "@/lib/site-settings/file-store";
-import {
-  createServiceClient,
-  isSupabaseConfigured,
-} from "@/lib/supabase/service";
+import { createWriteClient, createReadClient } from "@/lib/supabase/clients";
+import { isSupabaseConfigured } from "@/lib/supabase/service";
 
 /**
  * Flag moderazione commenti.
@@ -13,7 +10,7 @@ import {
  */
 export async function getCommentsModerationEnabled(): Promise<boolean> {
   if (isSupabaseConfigured()) {
-    const client = createServiceClient();
+    const client = await createReadClient();
     if (client) {
       const { data, error } = await client
         .from("site_settings")
@@ -36,6 +33,9 @@ export async function getCommentsModerationEnabled(): Promise<boolean> {
       }
     }
   } else {
+    const { readFileSettings } = await import(
+      "@/lib/site-settings/file-store"
+    );
     const local = await readFileSettings();
     return local.commentsModerationEnabled;
   }
@@ -50,6 +50,9 @@ export async function setCommentsModerationEnabled(
   enabled: boolean,
 ): Promise<void> {
   if (!isSupabaseConfigured()) {
+    const { readFileSettings, writeFileSettings } = await import(
+      "@/lib/site-settings/file-store"
+    );
     const current = await readFileSettings();
     await writeFileSettings({
       ...current,
@@ -58,12 +61,14 @@ export async function setCommentsModerationEnabled(
     return;
   }
 
-  const client = createServiceClient();
-  if (!client) {
-    throw new Error("Service role Supabase non disponibile.");
+  const write = await createWriteClient();
+  if (!write) {
+    throw new Error(
+      "Client Supabase non disponibile per salvare la moderazione.",
+    );
   }
 
-  const { error } = await client.from("site_settings").upsert(
+  const { error } = await write.client.from("site_settings").upsert(
     {
       id: 1,
       comments_moderation_enabled: enabled,

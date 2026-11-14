@@ -1,3 +1,4 @@
+import { createAnonClient } from "@/lib/supabase/clients";
 import {
   createServiceClient,
   isSupabaseConfigured,
@@ -9,8 +10,8 @@ import { isUuid } from "@/lib/uuid";
  * Supabase. Non passa mai uno slug a colonne `uuid`.
  *
  * - Se `key` è già UUID → lo restituisce.
- * - Altrimenti cerca `articles.slug = key` (testo) e restituisce `id`.
- * - Se non trovato / Supabase non configurato → `null` (usare store file).
+ * - Altrimenti cerca `articles.slug = key` (service role o anon).
+ * - Se non trovato / Supabase non configurato → `null` (usare `public_slug`).
  */
 export async function resolveArticleUuid(
   key: string,
@@ -20,7 +21,8 @@ export async function resolveArticleUuid(
   if (isUuid(trimmed)) return trimmed;
 
   if (!isSupabaseConfigured()) return null;
-  const client = createServiceClient();
+
+  const client = createServiceClient() ?? createAnonClient();
   if (!client) return null;
 
   const { data, error } = await client
@@ -30,7 +32,7 @@ export async function resolveArticleUuid(
     .maybeSingle();
 
   if (error) {
-    // Schema assente / rete: non propagare errori UUID; fallback file store.
+    // Schema assente / rete: non propagare; fallback public_slug.
     return null;
   }
   const id = data?.id;

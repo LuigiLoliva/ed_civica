@@ -94,7 +94,9 @@ export interface ArticleSource {
 
 export interface Comment {
   id: string;
-  article_id: string;
+  article_id: string | null;
+  /** Slug articolo pubblico quando non esiste riga in `articles` (mock). */
+  public_slug: string | null;
   parent_id: string | null;
   author_name: string;
   author_email: string | null;
