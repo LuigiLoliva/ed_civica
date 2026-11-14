@@ -140,27 +140,32 @@ function matchesArticleKey(
 export async function listApprovedComments(
   articleId: string,
 ): Promise<PublicComment[]> {
-  if (isSupabaseConfigured()) {
-    const articleUuid = await resolveArticleUuid(articleId);
-    const client = await createReadClient();
-    if (client) {
-      const base = client
-        .from("comments")
-        .select(SELECT_COLS)
-        .eq("status", "approvato");
+  try {
+    if (isSupabaseConfigured()) {
+      const articleUuid = await resolveArticleUuid(articleId);
+      const client = await createReadClient();
+      if (client) {
+        const base = client
+          .from("comments")
+          .select(SELECT_COLS)
+          .eq("status", "approvato");
 
-      const filtered = articleUuid
-        ? base.or(
-            `article_id.eq.${articleUuid},public_slug.eq.${articleId}`,
-          )
-        : base.eq("public_slug", articleId);
+        const filtered = articleUuid
+          ? base.or(
+              `article_id.eq.${articleUuid},public_slug.eq.${articleId}`,
+            )
+          : base.eq("public_slug", articleId);
 
-      const { data, error } = await filtered.order("created_at", {
-        ascending: true,
-      });
-      if (error) {
-        // Colonna public_slug assente → migrazione non applicata: prova solo UUID.
-        if (articleUuid && /public_slug/i.test(error.message)) {
+        const { data, error } = await filtered.order("created_at", {
+          ascending: true,
+        });
+
+        if (!error) {
+          return nestApproved((data ?? []).map(mapRow));
+        }
+
+        // Migrazione public_slug assente o schema vecchio: prova solo UUID.
+        if (/public_slug/i.test(error.message) && articleUuid) {
           const fallback = await client
             .from("comments")
             .select(
@@ -169,28 +174,28 @@ export async function listApprovedComments(
             .eq("article_id", articleUuid)
             .eq("status", "approvato")
             .order("created_at", { ascending: true });
-          if (fallback.error) {
-            console.error(
-              "[comments] listApprovedComments:",
-              fallback.error.message,
-            );
-            throw new Error(
-              "Impossibile caricare i commenti. Verifica le migrazioni SQL su Supabase.",
+          if (!fallback.error) {
+            return nestApproved(
+              (fallback.data ?? []).map((row) =>
+                mapRow({ ...row, public_slug: null }),
+              ),
             );
           }
-          return nestApproved(
-            (fallback.data ?? []).map((row) =>
-              mapRow({ ...row, public_slug: null }),
-            ),
+          console.error(
+            "[comments] listApprovedComments fallback:",
+            fallback.error.message,
+          );
+        } else {
+          // Non far fallire l'SSG/build Vercel: log e fallback file/vuoto.
+          console.error(
+            "[comments] listApprovedComments:",
+            error.message,
           );
         }
-        console.error("[comments] listApprovedComments:", error.message);
-        throw new Error(
-          "Impossibile caricare i commenti. Riprova tra poco.",
-        );
       }
-      return nestApproved((data ?? []).map(mapRow));
     }
+  } catch (err) {
+    console.error("[comments] listApprovedComments eccezione:", err);
   }
 
   const db = await readFileDb();

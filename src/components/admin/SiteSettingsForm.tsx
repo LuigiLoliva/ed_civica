@@ -1,17 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { PlusIcon, Trash2Icon } from "lucide-react";
 
-import {
+import type {
   saveSiteSettingsAction,
   uploadSiteAssetAction,
 } from "@/app/actions/site-settings";
+import { TiptapEditor } from "@/components/admin/TiptapEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,22 +23,10 @@ import {
 } from "@/lib/site-settings/schema";
 import type { SiteSettings } from "@/lib/site-settings/types";
 
-/** Solo TipTap è lazy: le Server Action restano import statici (vedi #16/#17). */
-const TiptapEditor = dynamic(
-  () =>
-    import("@/components/admin/TiptapEditor").then((m) => m.TiptapEditor),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="rounded-md border border-border bg-muted/40 p-4 text-sm text-muted-foreground">
-        Caricamento editor…
-      </div>
-    ),
-  },
-);
-
 interface SiteSettingsFormProps {
   initial: SiteSettings;
+  saveAction: typeof saveSiteSettingsAction;
+  uploadAction: typeof uploadSiteAssetAction;
 }
 
 function toFormValues(settings: SiteSettings): SiteSettingsFormValues {
@@ -68,7 +56,11 @@ function toFormValues(settings: SiteSettings): SiteSettingsFormValues {
   };
 }
 
-export function SiteSettingsForm({ initial }: SiteSettingsFormProps) {
+export function SiteSettingsForm({
+  initial,
+  saveAction,
+  uploadAction,
+}: SiteSettingsFormProps) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState<"logo" | "favicon" | null>(null);
@@ -106,7 +98,7 @@ export function SiteSettingsForm({ initial }: SiteSettingsFormProps) {
     async (values) => {
       setSaving(true);
       try {
-        const result = await saveSiteSettingsAction(values);
+        const result = await saveAction(values);
         if (!result.ok) {
           toast.error(result.message);
           return;
@@ -142,7 +134,7 @@ export function SiteSettingsForm({ initial }: SiteSettingsFormProps) {
       const fd = new FormData();
       fd.set("kind", kind);
       fd.set("file", file);
-      const result = await uploadSiteAssetAction(fd);
+      const result = await uploadAction(fd);
       if (!result.ok) {
         toast.error(result.message);
         return;
