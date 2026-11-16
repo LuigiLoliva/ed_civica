@@ -1,11 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { fetchAdminModerationData } from "@/app/actions/comments";
+import {
+  adminReplyAction,
+  moderateCommentAction,
+} from "@/app/actions/comments";
 import { requireAdminOrDemo } from "@/lib/auth/require-admin";
+import {
+  listAllCommentsForAdmin,
+  listReports,
+} from "@/lib/comments/store";
+import type { CommentRecord, CommentReport } from "@/lib/comments/types";
 import { siteConfig } from "@/lib/site-config";
 
-import { ModerationClient } from "./moderation-client";
+import { ModerationClientLoader } from "./moderation-client-loader";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +24,24 @@ export const metadata: Metadata = {
 export default async function AdminCommentiPage() {
   await requireAdminOrDemo();
 
-  const { comments, reports } = await fetchAdminModerationData();
+  let comments: CommentRecord[] = [];
+  let reports: CommentReport[] = [];
+  let loadError: string | null = null;
+
+  try {
+    const [c, r] = await Promise.all([
+      listAllCommentsForAdmin(),
+      listReports(),
+    ]);
+    comments = c;
+    reports = r;
+  } catch (err) {
+    console.error("[admin/commenti] fetch moderazione:", err);
+    loadError =
+      err instanceof Error
+        ? err.message
+        : "Impossibile caricare i commenti. Riprova tra poco.";
+  }
 
   return (
     <div className="space-y-8">
@@ -36,7 +61,27 @@ export default async function AdminCommentiPage() {
           solo dopo l&apos;approvazione.
         </p>
       </header>
-      <ModerationClient comments={comments} reports={reports} />
+      {loadError ? (
+        <div
+          className="rounded-lg border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive"
+          role="alert"
+        >
+          <p className="font-medium">Errore nel caricamento</p>
+          <p className="mt-1 text-destructive/90">{loadError}</p>
+          <p className="mt-2 text-muted-foreground">
+            Se il problema continua, verifica su Supabase che la migrazione
+            commenti (<code>public_slug</code>) sia applicata e che il ruolo
+            admin sia attivo.
+          </p>
+        </div>
+      ) : (
+        <ModerationClientLoader
+          comments={comments}
+          reports={reports}
+          moderateAction={moderateCommentAction}
+          replyAction={adminReplyAction}
+        />
+      )}
     </div>
   );
 }

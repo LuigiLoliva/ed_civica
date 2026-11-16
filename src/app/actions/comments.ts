@@ -277,6 +277,7 @@ export async function fetchApprovedComments(articleId: string) {
   return listApprovedComments(articleId);
 }
 
+/** Preferire listAllCommentsForAdmin/listReports dalla page RSC (evita grafo Action). */
 export async function fetchAdminModerationData() {
   const [comments, reports] = await Promise.all([
     listAllCommentsForAdmin(),

@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
-import {
+import type {
   adminReplyAction,
   moderateCommentAction,
 } from "@/app/actions/comments";
@@ -13,6 +13,8 @@ import type { CommentRecord, CommentReport } from "@/lib/comments/types";
 type Props = {
   comments: CommentRecord[];
   reports: CommentReport[];
+  moderateAction: typeof moderateCommentAction;
+  replyAction: typeof adminReplyAction;
 };
 
 const STATUS_LABEL: Record<CommentRecord["status"], string> = {
@@ -45,11 +47,20 @@ function articleLabel(comment: CommentRecord): {
   };
 }
 
-export function ModerationClient({ comments, reports }: Props) {
+export function ModerationClient({
+  comments,
+  reports,
+  moderateAction,
+  replyAction,
+}: Props) {
   const router = useRouter();
+  const pendingCount = useMemo(
+    () => comments.filter((c) => c.status === "in_attesa").length,
+    [comments],
+  );
   const [filter, setFilter] = useState<
     "all" | "in_attesa" | "approvato" | "rifiutato"
-  >("in_attesa");
+  >(() => (pendingCount > 0 ? "in_attesa" : "all"));
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -62,7 +73,7 @@ export function ModerationClient({ comments, reports }: Props) {
     action: "approve" | "reject" | "delete",
   ) {
     startTransition(async () => {
-      const result = await moderateCommentAction({ commentId, action });
+      const result = await moderateAction({ commentId, action });
       setMessage(result.message);
       router.refresh();
     });
@@ -72,7 +83,7 @@ export function ModerationClient({ comments, reports }: Props) {
     const body = replyDrafts[comment.id]?.trim() ?? "";
     if (!body) return;
     startTransition(async () => {
-      const result = await adminReplyAction({
+      const result = await replyAction({
         articleId: comment.articleSlug ?? comment.articleId,
         parentId: comment.parentId ?? comment.id,
         body,
@@ -117,7 +128,9 @@ export function ModerationClient({ comments, reports }: Props) {
       <ul className="space-y-4">
         {filtered.length === 0 && (
           <li className="text-sm text-muted-foreground">
-            Nessun commento in questo filtro.
+            {comments.length === 0
+              ? "Nessun commento da moderare al momento."
+              : "Nessun commento in questo filtro. Prova «Tutti»."}
           </li>
         )}
         {filtered.map((comment) => {
