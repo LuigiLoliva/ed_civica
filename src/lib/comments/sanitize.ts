@@ -1,17 +1,14 @@
-import DOMPurify from "isomorphic-dompurify";
-
 /**
- * Sanitizza testo commento: niente HTML, XSS prevenuto.
- * I commenti sono plain text; strippiamo tag e entità pericolose.
+ * Sanitizza testo commento: plain text, niente HTML.
+ * Senza isomorphic-dompurify/jsdom: un import top-level di quelle dipendenze
+ * nelle Server Action faceva crashare l'SSR di /admin/commenti su Vercel
+ * (stessa classe di bug di /admin/impostazioni, vedi sanitize-html.ts).
  */
-export function sanitizeCommentText(raw: string): string {
-  const stripped = DOMPurify.sanitize(raw ?? "", {
-    ALLOWED_TAGS: [],
-    ALLOWED_ATTR: [],
-    KEEP_CONTENT: true,
-  });
 
-  return stripped
+export function sanitizeCommentText(raw: string): string {
+  return String(raw ?? "")
+    .replace(/<[^>]*>/g, "")
+    .replace(/&(#\d+|#x[\da-f]+|\w+);/gi, " ")
     .replace(/\u0000/g, "")
     .replace(/[\u200B-\u200D\uFEFF]/g, "")
     .replace(/\r\n/g, "\n")

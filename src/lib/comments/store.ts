@@ -4,6 +4,7 @@ import path from "path";
 
 import { resolveArticleUuid } from "@/lib/articles/resolve-id";
 import { getCommentsModerationEnabled } from "@/lib/comments/moderation-settings";
+import { getArticleBySlug } from "@/lib/mock-data";
 import { getSiteSettings } from "@/lib/site-settings/get-site-settings";
 import {
   createAnonClient,
@@ -115,7 +116,67 @@ function mapRow(row: {
 const SELECT_COLS =
   "id, article_id, public_slug, parent_id, author_name, author_email, body, status, reported, ip_hash, created_at, updated_at";
 
-const SELECT_COLS_ADMIN = `${SELECT_COLS}, articles ( slug, title )`;
+/** Select senza embed `articles`: i commenti mock hanno solo public_slug e il join PostgREST fallisce o resta vuoto. */
+const SELECT_COLS_ADMIN = SELECT_COLS;
+
+async function enrichAdminComments(
+  rows: CommentRecord[],
+): Promise<CommentRecord[]> {
+  const uuidIds = [
+    ...new Set(
+      rows
+        .map((r) => r.articleId)
+        .filter((id): id is string => Boolean(id) && isUuid(id)),
+    ),
+  ];
+
+  const byUuid = new Map<string, { slug: string; title: string }>();
+  if (uuidIds.length > 0 && isSupabaseConfigured()) {
+    const client =
+      createServiceClient() ??
+      (await createWriteClient())?.client ??
+      createAnonClient();
+    if (client) {
+      const { data, error } = await client
+        .from("articles")
+        .select("id, slug, title")
+        .in("id", uuidIds);
+      if (error) {
+        console.warn(
+          "[comments] enrichAdminComments articles lookup:",
+          error.message,
+        );
+      } else {
+        for (const row of data ?? []) {
+          if (row?.id && row.slug) {
+            byUuid.set(row.id, { slug: row.slug, title: row.title ?? row.slug });
+          }
+        }
+      }
+    }
+  }
+
+  return rows.map((row) => {
+    if (row.articleTitle && row.articleSlug) return row;
+
+    const fromDb = isUuid(row.articleId) ? byUuid.get(row.articleId) : null;
+    const slug =
+      row.articleSlug?.trim() ||
+      fromDb?.slug ||
+      (!isUuid(row.articleId) ? row.articleId : null) ||
+      null;
+    const mock = slug ? getArticleBySlug(slug) : undefined;
+    return {
+      ...row,
+      articleSlug: slug,
+      articleTitle:
+        row.articleTitle?.trim() ||
+        fromDb?.title ||
+        mock?.title ||
+        null,
+    };
+  });
+}
 
 async function sameArticle(
   parentArticleId: string,
@@ -218,7 +279,7 @@ export async function listAllCommentsForAdmin(): Promise<CommentRecord[]> {
           const fallback = await write.client
             .from("comments")
             .select(
-              "id, article_id, parent_id, author_name, author_email, body, status, reported, ip_hash, created_at, updated_at, articles ( slug, title )",
+              "id, article_id, parent_id, author_name, author_email, body, status, reported, ip_hash, created_at, updated_at",
             )
             .order("created_at", { ascending: false });
           if (fallback.error) {
@@ -228,20 +289,23 @@ export async function listAllCommentsForAdmin(): Promise<CommentRecord[]> {
             );
             throw new Error(fallback.error.message);
           }
-          return (fallback.data ?? []).map((row) =>
-            mapRow({ ...row, public_slug: null }),
+          return enrichAdminComments(
+            (fallback.data ?? []).map((row) =>
+              mapRow({ ...row, public_slug: null }),
+            ),
           );
         }
         console.error("[comments] listAllCommentsForAdmin:", error.message);
         throw new Error(error.message);
       }
-      return (data ?? []).map(mapRow);
+      return enrichAdminComments((data ?? []).map(mapRow));
     }
   }
   const db = await readFileDb();
-  return [...db.comments].sort((a, b) =>
+  const sorted = [...db.comments].sort((a, b) =>
     b.createdAt.localeCompare(a.createdAt),
   );
+  return enrichAdminComments(sorted);
 }
 
 export async function countPendingComments(): Promise<number> {
@@ -614,16 +678,21 @@ export async function listReports(): Promise<CommentReport[]> {
           resolvedAt: row.resolved_at,
         }));
       }
-      const flagged = await listAllCommentsForAdmin();
-      return flagged
-        .filter((c) => c.reported)
-        .map((c) => ({
-          id: c.id,
-          commentId: c.id,
-          reason: "(segnalato — motivo non disponibile)",
-          createdAt: c.updatedAt,
-          resolvedAt: null,
-        }));
+      try {
+        const flagged = await listAllCommentsForAdmin();
+        return flagged
+          .filter((c) => c.reported)
+          .map((c) => ({
+            id: c.id,
+            commentId: c.id,
+            reason: "(segnalato — motivo non disponibile)",
+            createdAt: c.updatedAt,
+            resolvedAt: null,
+          }));
+      } catch (err) {
+        console.error("[comments] listReports fallback:", err);
+        return [];
+      }
     }
   }
   const db = await readFileDb();
