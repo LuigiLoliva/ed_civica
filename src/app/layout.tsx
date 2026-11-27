@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 
+import { ShellProviders } from "@/components/shell/shell-providers";
 import { siteConfig } from "@/lib/site-config";
 import { getSiteSettings } from "@/lib/site-settings/get-site-settings";
 
@@ -73,9 +74,10 @@ export default function RootLayout({
   return (
     <html lang="it" suppressHydrationWarning>
       <body
+        data-shell-root
         className={`${plusJakarta.variable} ${fraunces.variable} font-sans antialiased`}
       >
-        {children}
+        <ShellProviders>{children}</ShellProviders>
       </body>
     </html>
   );

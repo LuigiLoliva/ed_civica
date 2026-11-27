@@ -1,8 +1,9 @@
 "use client";
 
-import { motion, useReducedMotion, type Variants } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import type { ReactNode } from "react";
 
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { motionDuration, motionEase } from "@/lib/motion/tokens";
 import { cn } from "@/lib/utils";
 
@@ -53,7 +54,7 @@ export function Reveal({
   once = true,
   as = "div",
 }: RevealProps) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = usePrefersReducedMotion();
   const MotionTag = motion[as];
 
   if (reduceMotion) {

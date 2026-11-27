@@ -1,0 +1,550 @@
+/**
+ * Shell condivisa Voci Unite: stage, transizioni di route, header, footer.
+ * CSS puro (nessun @apply) così resta indipendente da globals.css.
+ */
+
+/* ───────────── Stage WebGL persistente ───────────── */
+
+.shell-stage {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1400ms var(--motion-ease-out);
+}
+
+.shell-stage[data-ready="true"] {
+  opacity: 1;
+}
+
+/* ───────────── Transizioni di route ───────────── */
+
+.route-surface {
+  transition: opacity 240ms var(--motion-ease-out);
+}
+
+html[data-route-phase="leaving"] .route-surface,
+html[data-route-phase="loading"] .route-surface {
+  opacity: 0;
+  pointer-events: none;
+}
+
+html[data-route-phase="entering"] .route-surface {
+  animation: shell-route-enter 700ms var(--motion-ease-out) both;
+}
+
+/* Pagine senza layout pubblico (auth, 404): anima l'intero contenuto. */
+html[data-route-phase] [data-shell-root]:not(:has(.route-surface)) {
+  transition: opacity 240ms var(--motion-ease-out);
+}
+
+html[data-route-phase="leaving"] [data-shell-root]:not(:has(.route-surface)),
+html[data-route-phase="loading"] [data-shell-root]:not(:has(.route-surface)) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+html[data-route-phase="entering"] [data-shell-root]:not(:has(.route-surface)) {
+  animation: shell-route-enter 700ms var(--motion-ease-out) both;
+}
+
+@keyframes shell-route-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.shell-title-card {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0 1.5rem;
+  pointer-events: none;
+  color: var(--foreground);
+  perspective: 900px;
+  background: radial-gradient(
+    ellipse 60% 46% at 50% 50%,
+    rgb(232 241 246 / 92%),
+    rgb(232 241 246 / 55%) 55%,
+    transparent 78%
+  );
+}
+
+.shell-title-card-eyebrow {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--goal-16);
+}
+
+.shell-title-card[data-accent="goal17"] .shell-title-card-eyebrow {
+  color: var(--goal-17);
+}
+
+.shell-title-card[data-accent="onu"] .shell-title-card-eyebrow {
+  color: var(--onu);
+}
+
+.shell-title-card-label {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-size: clamp(3rem, 11vw, 8.5rem);
+  font-weight: 600;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  text-align: center;
+}
+
+.shell-title-card-clip {
+  display: inline-block;
+  overflow: hidden;
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+}
+
+.shell-title-card-clip > span {
+  transform-origin: 50% 100%;
+  will-change: transform;
+}
+
+.shell-title-card-rule {
+  display: block;
+  width: min(18rem, 60vw);
+  height: 2px;
+  border-radius: 999px;
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, var(--onu), var(--goal-17));
+}
+
+/* Lama di luce che attraversa il viewport quando entra la nuova pagina. */
+.shell-route-sweep {
+  position: fixed;
+  inset: -20% 0;
+  z-index: 44;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate3d(0, -110%, 0);
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgb(0 158 219 / 0%) 30%,
+    rgb(0 158 219 / 14%) 47%,
+    rgb(255 255 255 / 55%) 50%,
+    rgb(25 72 106 / 12%) 53%,
+    transparent 70%
+  );
+}
+
+html[data-route-phase="entering"] .shell-route-sweep {
+  animation: shell-route-sweep 760ms var(--motion-ease-out) both;
+}
+
+@keyframes shell-route-sweep {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -70%, 0);
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(0, 70%, 0);
+  }
+}
+
+/* ───────────── Header ───────────── */
+
+.shell-header {
+  --shell-accent: var(--onu);
+}
+
+.shell-header[data-accent="goal16"] {
+  --shell-accent: var(--goal-16);
+}
+
+.shell-header[data-accent="goal17"] {
+  --shell-accent: var(--goal-17);
+}
+
+.shell-header[data-accent="olive"] {
+  --shell-accent: var(--olive);
+}
+
+.shell-header-capsule {
+  max-width: 72rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  transition:
+    max-width 700ms var(--motion-ease-inertia),
+    height 500ms var(--motion-ease-out),
+    margin-top 500ms var(--motion-ease-out),
+    background-color 400ms ease,
+    border-color 400ms ease,
+    box-shadow 500ms ease,
+    backdrop-filter 400ms ease;
+}
+
+.shell-header[data-scrolled="true"] .shell-header-capsule {
+  max-width: 62rem;
+  height: 3.25rem;
+  margin-top: 0.375rem;
+  border-color: rgb(25 72 106 / 14%);
+  background-color: rgb(255 255 255 / 74%);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 75%) inset,
+    0 18px 44px -22px rgb(10 28 46 / 45%);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  backdrop-filter: blur(18px) saturate(1.5);
+}
+
+.shell-header-emblem {
+  display: inline-flex;
+  perspective: 600px;
+}
+
+.shell-header-emblem > span {
+  transform-style: preserve-3d;
+}
+
+.shell-header-mark {
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 30%) inset,
+    0 8px 18px -8px rgb(25 72 106 / 70%);
+  transition: box-shadow 400ms ease, background-color 600ms ease;
+}
+
+a:hover .shell-header-mark {
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 40%) inset,
+    0 0 0 5px rgb(0 158 219 / 16%),
+    0 10px 22px -8px rgb(0 158 219 / 70%);
+}
+
+.shell-nav-active {
+  background: var(--shell-accent);
+  box-shadow: 0 0 12px 0 var(--shell-accent);
+  transition: background-color 600ms ease, box-shadow 600ms ease;
+}
+
+.shell-nav-roll {
+  display: inline-grid;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+
+.shell-nav-roll > span {
+  grid-area: 1 / 1;
+  transition: transform 480ms var(--motion-ease-out);
+}
+
+.shell-nav-roll > span:last-child {
+  transform: translateY(110%);
+}
+
+.shell-nav-link:hover .shell-nav-roll > span:first-child,
+.shell-nav-link:focus-visible .shell-nav-roll > span:first-child {
+  transform: translateY(-110%);
+}
+
+.shell-nav-link:hover .shell-nav-roll > span:last-child,
+.shell-nav-link:focus-visible .shell-nav-roll > span:last-child {
+  transform: translateY(0);
+}
+
+/* Filo di caricamento sotto all'header durante la transizione. */
+.shell-header-progress {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.shell-header-progress::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--shell-accent) 40%,
+    var(--onu) 60%,
+    transparent
+  );
+}
+
+html[data-route-phase="leaving"] .shell-header-progress,
+html[data-route-phase="loading"] .shell-header-progress {
+  opacity: 1;
+}
+
+html[data-route-phase="leaving"] .shell-header-progress::after,
+html[data-route-phase="loading"] .shell-header-progress::after {
+  animation: shell-header-progress 900ms var(--motion-ease-out) infinite;
+}
+
+@keyframes shell-header-progress {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.shell-mobile-menu [data-slot="sheet-close"] {
+  color: #fff;
+}
+
+.shell-mobile-menu {
+  background-image:
+    radial-gradient(ellipse 90% 50% at 100% 0%, rgb(0 158 219 / 30%), transparent 60%),
+    radial-gradient(ellipse 70% 45% at 0% 100%, rgb(0 104 157 / 35%), transparent 55%);
+}
+
+/* ───────────── Footer ───────────── */
+
+.shell-footer {
+  margin-top: 2rem;
+  border-radius: 2.25rem 2.25rem 0 0;
+  background-color: var(--hero);
+  background-image: linear-gradient(175deg, #0a1c2e 0%, #10324b 55%, #19486a 100%);
+  box-shadow: 0 -1px 0 rgb(255 255 255 / 12%) inset;
+}
+
+.shell-footer::before {
+  position: absolute;
+  top: 0;
+  right: 12%;
+  left: 12%;
+  z-index: 1;
+  height: 1px;
+  content: "";
+  background: linear-gradient(90deg, transparent, rgb(126 200 227 / 80%), transparent);
+}
+
+.shell-footer-aurora {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.shell-footer-aurora > span {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  will-change: transform;
+}
+
+.shell-footer-aurora > span:nth-child(1) {
+  top: -30%;
+  left: -8%;
+  width: 46%;
+  height: 90%;
+  background: rgb(0 158 219 / 34%);
+  animation: shell-aurora-a 22s ease-in-out infinite;
+}
+
+.shell-footer-aurora > span:nth-child(2) {
+  right: -10%;
+  bottom: -45%;
+  width: 52%;
+  height: 100%;
+  background: rgb(0 104 157 / 42%);
+  animation: shell-aurora-b 28s ease-in-out infinite;
+}
+
+.shell-footer-aurora > span:nth-child(3) {
+  top: 20%;
+  left: 38%;
+  width: 26%;
+  height: 60%;
+  background: rgb(95 125 82 / 20%);
+  animation: shell-aurora-a 34s ease-in-out infinite reverse;
+}
+
+@keyframes shell-aurora-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(14%, 10%, 0) scale(1.15);
+  }
+}
+
+@keyframes shell-aurora-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.05);
+  }
+  50% {
+    transform: translate3d(-16%, -12%, 0) scale(0.92);
+  }
+}
+
+.shell-footer-grid {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.5;
+  background-image: radial-gradient(rgb(255 255 255 / 16%) 1px, transparent 1px);
+  background-size: 26px 26px;
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 30%, #000 60%, transparent);
+  mask-image: linear-gradient(180deg, transparent, #000 30%, #000 60%, transparent);
+}
+
+.shell-footer-mark {
+  display: inline-flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 6%);
+}
+
+.shell-footer-link {
+  position: relative;
+  display: inline-block;
+  color: rgb(255 255 255 / 62%);
+  transition:
+    color 300ms ease,
+    transform 400ms var(--motion-ease-out);
+}
+
+.shell-footer-link::after {
+  position: absolute;
+  right: 0;
+  bottom: -2px;
+  left: 0;
+  height: 1px;
+  content: "";
+  transform: scaleX(0);
+  transform-origin: 100% 50%;
+  background: currentColor;
+  transition: transform 450ms var(--motion-ease-out);
+}
+
+.shell-footer-link:hover,
+.shell-footer-link:focus-visible {
+  color: #fff;
+  transform: translateX(4px);
+}
+
+.shell-footer-link:hover::after,
+.shell-footer-link:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: 0 50%;
+}
+
+.shell-footer-wordmark-wrap {
+  margin-top: 3rem;
+  overflow: hidden;
+  perspective: 900px;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.shell-footer-wordmark {
+  margin: 0;
+  font-size: clamp(3.6rem, 17.5vw, 15rem);
+  font-weight: 600;
+  line-height: 0.86;
+  letter-spacing: -0.045em;
+  white-space: nowrap;
+  text-align: center;
+  transform-origin: 50% 100%;
+  color: transparent;
+  background: linear-gradient(
+    180deg,
+    rgb(255 255 255 / 92%) 0%,
+    rgb(126 200 227 / 55%) 55%,
+    rgb(126 200 227 / 6%) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  will-change: transform;
+}
+
+.shell-footer-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.3rem 0.9rem 0.3rem 0.3rem;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 80%);
+  background: rgb(255 255 255 / 5%);
+  transition:
+    background-color 300ms ease,
+    border-color 300ms ease,
+    color 300ms ease;
+}
+
+.shell-footer-top:hover,
+.shell-footer-top:focus-visible {
+  border-color: rgb(126 200 227 / 70%);
+  color: #fff;
+  background: rgb(0 158 219 / 22%);
+}
+
+.shell-footer-top-icon {
+  display: inline-flex;
+  width: 1.75rem;
+  height: 1.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: var(--hero);
+  background: #fff;
+}
+
+/* ───────────── 404 ───────────── */
+
+.shell-lost-digits {
+  font-size: clamp(7rem, 30vw, 19rem);
+  font-weight: 600;
+  line-height: 0.82;
+  letter-spacing: -0.05em;
+  color: transparent;
+  background: linear-gradient(160deg, var(--goal-17) 10%, var(--onu) 55%, #7ec8e3 95%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 28px 40px rgb(10 28 46 / 22%));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell-footer-aurora > span,
+  .shell-header-progress::after,
+  .shell-route-sweep {
+    animation: none !important;
+  }
+
+  .shell-nav-roll > span {
+    transition: none;
+  }
+}

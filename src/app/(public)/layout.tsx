@@ -17,7 +17,11 @@ export default async function PublicLayout({
       <SkipLink />
       <PublicMotionRoot />
       <SiteHeader siteName={settings.siteName} logoUrl={settings.logoUrl} />
-      <main id="contenuto-principale" className="flex-1" tabIndex={-1}>
+      <main
+        id="contenuto-principale"
+        className="route-surface flex-1"
+        tabIndex={-1}
+      >
         {children}
       </main>
       <SiteFooter settings={settings} />

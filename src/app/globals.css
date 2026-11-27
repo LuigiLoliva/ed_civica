@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "../components/shell/shell.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -202,7 +203,7 @@
 
 /* Atmosfera partnership: alone soft + trama a punti */
 .bg-partnership-pattern {
-  background-color: var(--background);
+  /* Senza colore pieno: lo stage WebGL resta visibile nei gutter */
   background-image:
     radial-gradient(ellipse 80% 50% at 10% -10%, rgb(0 158 219 / 18%), transparent 55%),
     radial-gradient(ellipse 60% 40% at 95% 15%, rgb(25 72 106 / 14%), transparent 50%),
