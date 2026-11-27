@@ -12,16 +12,19 @@ type SpotlightProps = {
   /** Colore alone (CSS color). Default blu ONU soft. */
   color?: string;
   size?: number;
+  /** Alone visibile solo in hover (card / superfici chiare). */
+  hoverOnly?: boolean;
 };
 
 /**
- * Alone luminoso che segue il cursore (hero / pannelli scuri).
+ * Alone luminoso che segue il cursore (hero / pannelli scuri / card).
  */
 export function Spotlight({
   children,
   className,
   color = "rgb(0 158 219 / 28%)",
   size = 420,
+  hoverOnly = false,
 }: SpotlightProps) {
   const reduceMotion = usePrefersReducedMotion();
   const mouseX = useMotionValue(50);
@@ -41,10 +44,18 @@ export function Spotlight({
   );
 
   return (
-    <div className={cn("relative isolate", className)} onMouseMove={onMove}>
+    <div
+      className={cn("relative isolate", hoverOnly && "group/spotlight", className)}
+      onMouseMove={onMove}
+    >
       {!reduceMotion ? (
         <motion.div
-          className="pointer-events-none absolute inset-0 z-0 opacity-90 transition-opacity duration-500"
+          className={cn(
+            "pointer-events-none absolute inset-0 z-0 transition-opacity duration-500",
+            hoverOnly
+              ? "opacity-0 group-hover/spotlight:opacity-90"
+              : "opacity-90",
+          )}
           style={{ background }}
           aria-hidden
         />

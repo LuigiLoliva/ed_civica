@@ -68,6 +68,7 @@ export default async function HomePage() {
                 <ArticleCard
                   article={article}
                   topic={getTopicBySlug(article.topicSlug)}
+                  withReveal={false}
                 />
               </Reveal>
             ))}
@@ -86,6 +87,7 @@ export default async function HomePage() {
                 <ArticleCard
                   article={article}
                   topic={getTopicBySlug(article.topicSlug)}
+                  withReveal={false}
                 />
               </Reveal>
             ))}
