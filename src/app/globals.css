@@ -323,3 +323,25 @@ html.has-custom-cursor select {
     0 1px 0 rgb(255 255 255 / 40%) inset,
     0 18px 40px -24px var(--depth-shadow);
 }
+
+/* Lettura articoli: tipografia editoriale scoped */
+.article-prose {
+  font-feature-settings: "kern" 1, "liga" 1;
+  letter-spacing: -0.005em;
+}
+
+.article-dropcap::first-letter {
+  float: left;
+  margin: 0.12em 0.14em 0 0;
+  font-family: var(--font-serif), ui-serif, Georgia, serif;
+  font-size: 3.35em;
+  font-weight: 600;
+  line-height: 0.82;
+  color: var(--goal-16);
+}
+
+@media (max-width: 639px) {
+  .article-dropcap::first-letter {
+    font-size: 2.75em;
+  }
+}

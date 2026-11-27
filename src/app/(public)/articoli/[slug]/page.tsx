@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { ArticleCard } from "@/components/articles/article-card";
+import { ArticleDetailHero } from "@/components/articles/article-detail-hero";
+import { ArticleReadingBody } from "@/components/articles/article-reading-body";
 import { CommentsSection } from "@/components/comments/comments-section";
-import { Badge } from "@/components/ui/badge";
+import { Reveal } from "@/components/motion/reveal";
 import { Button } from "@/components/ui/button";
 import { listApprovedComments } from "@/lib/comments/store";
-import { authorFullName, formatDateIt } from "@/lib/format";
+import { formatDateIt } from "@/lib/format";
 import {
   articles,
   getArticleBySlug,
@@ -55,45 +56,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   return (
     <article className="bg-partnership-pattern pb-16">
-      <header className="bg-page-banner border-b border-border/60">
-        <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
-          {topic ? (
-            <Badge
-              variant="secondary"
-              render={<Link href={`/argomenti/${topic.slug}`} />}
-            >
-              {topic.name}
-            </Badge>
-          ) : null}
-          <h1 className="font-heading mt-4 text-3xl font-semibold tracking-tight text-balance sm:text-4xl lg:text-5xl">
-            {article.title}
-          </h1>
-          <p className="mt-4 text-lg text-muted-foreground text-pretty">
-            {article.summary}
-          </p>
-          <div className="mt-6 flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
-            <span>{article.authors.map(authorFullName).join(", ")}</span>
-            <time dateTime={article.publishedAt}>
-              {formatDateIt(article.publishedAt)}
-            </time>
-            <span>{article.readingMinutes} min di lettura</span>
-          </div>
-        </div>
-      </header>
+      <ArticleDetailHero article={article} topic={topic} />
 
-      <div
-        className={`h-40 bg-gradient-to-br ${article.coverGradient} sm:h-48`}
-        aria-hidden
-      />
+      <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-12">
+        <ArticleReadingBody paragraphs={article.body} />
 
-      <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-        <div className="space-y-5 text-base leading-relaxed sm:text-lg">
-          {article.body.map((paragraph) => (
-            <p key={paragraph.slice(0, 48)}>{paragraph}</p>
-          ))}
-        </div>
-
-        <section className="mt-12 rounded-xl border border-border bg-card p-6">
+        <Reveal className="mt-12 rounded-xl border border-border bg-card/90 p-6 shadow-depth backdrop-blur-sm">
           <h2 className="font-heading text-2xl font-semibold">Fonti</h2>
           <ol className="mt-4 list-decimal space-y-3 pl-5 text-sm leading-relaxed text-muted-foreground">
             {article.sources.map((source) => (
@@ -102,7 +70,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                   href={source.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-medium text-primary"
+                  className="font-medium text-primary transition-colors hover:text-goal-16"
+                  data-cursor="link"
                 >
                   {source.title}
                 </a>
@@ -110,56 +79,67 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               </li>
             ))}
           </ol>
-        </section>
+        </Reveal>
 
-        <section className="mt-10" aria-label="Condivisione">
-          <p className="text-sm font-semibold text-foreground">Condividi</p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              render={
-                <a
-                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(article.title)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                />
-              }
-            >
-              X / Twitter
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              render={
-                <a
-                  href={`mailto:?subject=${encodeURIComponent(article.title)}`}
-                />
-              }
-            >
-              Email
-            </Button>
-          </div>
-        </section>
+        <Reveal className="mt-10" delay={0.05}>
+          <section aria-label="Condivisione">
+            <p className="text-sm font-semibold text-foreground">Condividi</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                nativeButton={false}
+                render={
+                  <a
+                    href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(article.title)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-cursor="cta"
+                  />
+                }
+              >
+                X / Twitter
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                nativeButton={false}
+                render={
+                  <a
+                    href={`mailto:?subject=${encodeURIComponent(article.title)}`}
+                    data-cursor="cta"
+                  />
+                }
+              >
+                Email
+              </Button>
+            </div>
+          </section>
+        </Reveal>
 
-        <CommentsSection articleId={article.slug} comments={comments} />
+        <Reveal className="mt-4" delay={0.08}>
+          <CommentsSection articleId={article.slug} comments={comments} />
+        </Reveal>
       </div>
 
       {related.length > 0 ? (
-        <section className="mx-auto max-w-6xl px-4 sm:px-6">
-          <h2 className="font-heading text-2xl font-semibold tracking-tight">
-            Articoli correlati
-          </h2>
-          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {related.map((item) => (
-              <ArticleCard
-                key={item.slug}
-                article={item}
-                topic={getTopicBySlug(item.topicSlug)}
-              />
-            ))}
-          </div>
-        </section>
+        <Reveal className="mx-auto max-w-6xl px-4 sm:px-6" delay={0.1}>
+          <section>
+            <h2 className="font-heading text-2xl font-semibold tracking-tight">
+              Articoli correlati
+            </h2>
+            <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {related.map((item, index) => (
+                <ArticleCard
+                  key={item.slug}
+                  article={item}
+                  topic={getTopicBySlug(item.topicSlug)}
+                  index={index}
+                />
+              ))}
+            </div>
+          </section>
+        </Reveal>
       ) : null}
     </article>
   );
