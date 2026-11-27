@@ -12,7 +12,6 @@ import {
 } from "react";
 
 import { Magnetic } from "@/components/motion/magnetic";
-import { Spotlight } from "@/components/motion/spotlight";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { cursorData } from "@/lib/motion/tokens";
 import { siteConfig } from "@/lib/site-config";
@@ -80,26 +79,6 @@ const ACTORS: Actor[] = [
   },
 ];
 
-type SimNode = {
-  id: ActorId;
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  r: number;
-  color: string;
-  label: string;
-  short: string;
-};
-
-type Packet = {
-  from: number;
-  to: number;
-  t: number;
-  speed: number;
-  hue: string;
-};
-
 const EDGES: [ActorId, ActorId][] = [
   ["cittadini", "scuole"],
   ["cittadini", "associazioni"],
@@ -115,38 +94,108 @@ const EDGES: [ActorId, ActorId][] = [
   ["governi", "associazioni"],
 ];
 
-function createNodes(width: number, height: number): SimNode[] {
-  const cx = width / 2;
-  const cy = height / 2;
-  const radius = Math.min(width, height) * 0.32;
+type Vec3 = { x: number; y: number; z: number };
+
+type SimNode = {
+  id: ActorId;
+  base: Vec3;
+  pos: Vec3;
+  vel: Vec3;
+  color: string;
+  label: string;
+  short: string;
+  phase: number;
+};
+
+type Packet = {
+  from: number;
+  to: number;
+  t: number;
+  speed: number;
+  color: string;
+};
+
+type Projected = {
+  x: number;
+  y: number;
+  scale: number;
+  depth: number;
+};
+
+function createNodes(): SimNode[] {
   return ACTORS.map((actor, i) => {
     const angle = (Math.PI * 2 * i) / ACTORS.length - Math.PI / 2;
+    const elev = ((i % 3) - 1) * 0.42;
+    const radius = 1.05 + (i % 2) * 0.18;
+    const base = {
+      x: Math.cos(angle) * radius * Math.cos(elev),
+      y: Math.sin(elev) * 0.85,
+      z: Math.sin(angle) * radius * Math.cos(elev),
+    };
     return {
       id: actor.id,
-      x: cx + Math.cos(angle) * radius,
-      y: cy + Math.sin(angle) * radius,
-      vx: 0,
-      vy: 0,
-      r: Math.max(22, Math.min(width, height) * 0.048),
+      base,
+      pos: { ...base },
+      vel: { x: 0, y: 0, z: 0 },
       color: actor.color,
       label: actor.label,
       short: actor.short,
+      phase: i * 1.1,
     };
   });
+}
+
+function project(
+  p: Vec3,
+  w: number,
+  h: number,
+  rotY: number,
+  rotX: number,
+): Projected {
+  const cosY = Math.cos(rotY);
+  const sinY = Math.sin(rotY);
+  const cosX = Math.cos(rotX);
+  const sinX = Math.sin(rotX);
+
+  const x1 = p.x * cosY - p.z * sinY;
+  const z1 = p.x * sinY + p.z * cosY;
+  const y2 = p.y * cosX - z1 * sinX;
+  const z2 = p.y * sinX + z1 * cosX;
+
+  const fov = 3.2;
+  const depth = z2 + 3.15;
+  const scale = (fov / Math.max(0.45, depth)) * Math.min(w, h) * 0.32;
+  return {
+    x: w * 0.52 + x1 * scale * 1.05,
+    y: h * 0.58 + y2 * scale * 0.88,
+    scale,
+    depth,
+  };
+}
+
+function noise3(t: number, phase: number): Vec3 {
+  return {
+    x: Math.sin(t * 0.00055 + phase) * 0.14 + Math.sin(t * 0.001 + phase * 2) * 0.07,
+    y: Math.cos(t * 0.0007 + phase * 1.3) * 0.12 + Math.sin(t * 0.0012 + phase) * 0.05,
+    z: Math.sin(t * 0.00065 + phase * 0.7) * 0.14 + Math.cos(t * 0.0009 + phase * 1.7) * 0.06,
+  };
 }
 
 export function Goal17Network() {
   const reduceMotion = usePrefersReducedMotion();
   const titleId = useId();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const nodesRef = useRef<SimNode[]>([]);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const nodesRef = useRef<SimNode[]>(createNodes());
   const packetsRef = useRef<Packet[]>([]);
-  const focusedRef = useRef<ActorId | null>(null);
-  const dragRef = useRef<{ index: number; ox: number; oy: number } | null>(
-    null,
-  );
+  const focusedRef = useRef<ActorId | null>("organizzazioni");
+  const dragRef = useRef<{
+    index: number;
+    grabOffset: Vec3;
+  } | null>(null);
   const pointerRef = useRef<{ x: number; y: number } | null>(null);
+  const rotRef = useRef({ y: 0.35, x: 0.18, targetY: 0.35, targetX: 0.18 });
+  const sizeRef = useRef({ w: 0, h: 0 });
   const rafRef = useRef(0);
   const [focused, setFocused] = useState<ActorId | null>("organizzazioni");
   const [dragging, setDragging] = useState(false);
@@ -159,68 +208,47 @@ export function Goal17Network() {
     >,
     [],
   );
-
   const focusedActor = focused ? actorMap[focused] : null;
 
   useEffect(() => {
     focusedRef.current = focused;
   }, [focused]);
 
-  const sizeRef = useRef({ w: 0, h: 0 });
+  useEffect(() => {
+    packetsRef.current = EDGES.slice(0, 8).map(([a, b], i) => {
+      const from = ACTORS.findIndex((x) => x.id === a);
+      const to = ACTORS.findIndex((x) => x.id === b);
+      return {
+        from,
+        to,
+        t: i / 8,
+        speed: 0.0018 + (i % 4) * 0.0005,
+        color: ACTORS[from]?.color ?? "#7ec8e3",
+      };
+    });
+  }, []);
 
   const resize = useCallback(() => {
     const canvas = canvasRef.current;
-    const wrap = wrapRef.current;
-    if (!canvas || !wrap) return;
-    // clientWidth/Height = content box — avoids border-box feedback with ResizeObserver
-    const w = Math.max(280, Math.floor(wrap.clientWidth));
-    const h = Math.max(320, Math.floor(wrap.clientHeight));
+    const stage = stageRef.current;
+    if (!canvas || !stage) return;
+    const w = Math.max(320, Math.floor(stage.clientWidth));
+    const h = Math.max(420, Math.floor(stage.clientHeight));
     if (w === sizeRef.current.w && h === sizeRef.current.h) return;
     sizeRef.current = { w, h };
-
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = Math.floor(w * dpr);
     canvas.height = Math.floor(h * dpr);
-    // Layout size comes from CSS (100% of fixed-height stage) — do not set style height
     const ctx = canvas.getContext("2d");
     if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    if (nodesRef.current.length === 0) {
-      nodesRef.current = createNodes(w, h);
-      packetsRef.current = EDGES.slice(0, 6).map(([a, b], i) => {
-        const from = ACTORS.findIndex((x) => x.id === a);
-        const to = ACTORS.findIndex((x) => x.id === b);
-        return {
-          from,
-          to,
-          t: i / 6,
-          speed: 0.0022 + (i % 3) * 0.0006,
-          hue: ACTORS[from]?.color ?? "#7ec8e3",
-        };
-      });
-    } else {
-      const cx = w / 2;
-      const cy = h / 2;
-      const radius = Math.min(w, h) * 0.32;
-      nodesRef.current.forEach((node, i) => {
-        const angle = (Math.PI * 2 * i) / ACTORS.length - Math.PI / 2;
-        const tx = cx + Math.cos(angle) * radius;
-        const ty = cy + Math.sin(angle) * radius;
-        node.x = node.x * 0.7 + tx * 0.3;
-        node.y = node.y * 0.7 + ty * 0.3;
-        node.r = Math.max(22, Math.min(w, h) * 0.048);
-      });
-    }
   }, []);
 
   useEffect(() => {
     resize();
-    const wrap = wrapRef.current;
-    if (!wrap) return;
-    const ro = new ResizeObserver(() => {
-      resize();
-    });
-    ro.observe(wrap);
+    const stage = stageRef.current;
+    if (!stage) return;
+    const ro = new ResizeObserver(() => resize());
+    ro.observe(stage);
     return () => ro.disconnect();
   }, [resize]);
 
@@ -241,62 +269,37 @@ export function Goal17Network() {
       const nodes = nodesRef.current;
       const focusedId = focusedRef.current;
       const drag = dragRef.current;
+      const rot = rotRef.current;
 
-      // Physics
       if (!reduceMotion) {
-        const cx = w / 2;
-        const cy = h / 2;
+        rot.y += (rot.targetY - rot.y) * 0.04;
+        rot.x += (rot.targetX - rot.x) * 0.04;
+        // Slow auto orbit when idle
+        if (!pointerRef.current && !drag) {
+          rot.targetY += 0.00035 * dt;
+        }
+      }
+
+      // Organic 3D motion
+      if (!reduceMotion) {
         for (let i = 0; i < nodes.length; i++) {
-          const a = nodes[i]!;
+          const node = nodes[i]!;
           if (drag?.index === i) continue;
-
-          // Soft orbit spring toward ring
-          const angle = (Math.PI * 2 * i) / nodes.length - Math.PI / 2;
-          const radius = Math.min(w, h) * 0.32;
-          const tx = cx + Math.cos(angle + now / 18000) * radius;
-          const ty = cy + Math.sin(angle + now / 18000) * radius;
-          a.vx += (tx - a.x) * 0.0009 * dt;
-          a.vy += (ty - a.y) * 0.0009 * dt;
-
-          // Mouse repulsion / attraction
-          const ptr = pointerRef.current;
-          if (ptr) {
-            const dx = a.x - ptr.x;
-            const dy = a.y - ptr.y;
-            const dist = Math.hypot(dx, dy) || 1;
-            if (dist < 140) {
-              const f = ((140 - dist) / 140) * 0.08;
-              a.vx += (dx / dist) * f * dt * 0.05;
-              a.vy += (dy / dist) * f * dt * 0.05;
-            }
-          }
-
-          // Pairwise soft repulsion
-          for (let j = i + 1; j < nodes.length; j++) {
-            const b = nodes[j]!;
-            const dx = a.x - b.x;
-            const dy = a.y - b.y;
-            const dist = Math.hypot(dx, dy) || 1;
-            const min = a.r + b.r + 28;
-            if (dist < min) {
-              const push = ((min - dist) / min) * 0.04;
-              const nx = dx / dist;
-              const ny = dy / dist;
-              a.vx += nx * push * dt;
-              a.vy += ny * push * dt;
-              if (drag?.index !== j) {
-                b.vx -= nx * push * dt;
-                b.vy -= ny * push * dt;
-              }
-            }
-          }
-
-          a.vx *= 0.9;
-          a.vy *= 0.9;
-          a.x += a.vx;
-          a.y += a.vy;
-          a.x = Math.max(a.r + 8, Math.min(w - a.r - 8, a.x));
-          a.y = Math.max(a.r + 8, Math.min(h - a.r - 8, a.y));
+          const n = noise3(now, node.phase);
+          const target = {
+            x: node.base.x + n.x,
+            y: node.base.y + n.y,
+            z: node.base.z + n.z,
+          };
+          node.vel.x += (target.x - node.pos.x) * 0.0022 * dt;
+          node.vel.y += (target.y - node.pos.y) * 0.0022 * dt;
+          node.vel.z += (target.z - node.pos.z) * 0.0022 * dt;
+          node.vel.x *= 0.86;
+          node.vel.y *= 0.86;
+          node.vel.z *= 0.86;
+          node.pos.x += node.vel.x;
+          node.pos.y += node.vel.y;
+          node.pos.z += node.vel.z;
         }
 
         for (const packet of packetsRef.current) {
@@ -305,132 +308,265 @@ export function Goal17Network() {
         }
       }
 
-      // Draw
+      const projected = nodes.map((node) =>
+        project(node.pos, w, h, rot.y, rot.x),
+      );
+
+      // Light direction from pointer (or soft default)
+      const lightScreen = pointerRef.current ?? {
+        x: w * 0.62,
+        y: h * 0.28,
+      };
+
       ctx.clearRect(0, 0, w, h);
 
-      // Ambient grid dots
-      ctx.fillStyle = "rgb(255 255 255 / 6%)";
-      for (let y = 24; y < h; y += 28) {
-        for (let x = 24; x < w; x += 28) {
-          ctx.beginPath();
-          ctx.arc(x, y, 1, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
+      // Giant watermark (canvas cannot resolve CSS font vars)
+      ctx.save();
+      ctx.font = `600 ${Math.min(w, h) * 0.56}px Georgia, "Times New Roman", serif`;
+      ctx.fillStyle = "rgb(255 255 255 / 6.5%)";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "bottom";
+      ctx.fillText("17", w * 0.01, h * 1.02);
+      ctx.restore();
 
-      // Center hub
-      const hubGrad = ctx.createRadialGradient(
-        w / 2,
-        h / 2,
-        4,
-        w / 2,
-        h / 2,
-        Math.min(w, h) * 0.18,
+      // Atmospheric depth fog
+      const atm = ctx.createRadialGradient(
+        w * 0.5,
+        h * 0.5,
+        30,
+        w * 0.5,
+        h * 0.5,
+        Math.min(w, h) * 0.72,
       );
-      hubGrad.addColorStop(0, "rgb(0 158 219 / 35%)");
-      hubGrad.addColorStop(1, "rgb(0 158 219 / 0%)");
-      ctx.fillStyle = hubGrad;
-      ctx.beginPath();
-      ctx.arc(w / 2, h / 2, Math.min(w, h) * 0.18, 0, Math.PI * 2);
-      ctx.fill();
+      atm.addColorStop(0, "rgb(0 158 219 / 22%)");
+      atm.addColorStop(0.45, "rgb(25 72 106 / 12%)");
+      atm.addColorStop(1, "rgb(0 0 0 / 0%)");
+      ctx.fillStyle = atm;
+      ctx.fillRect(0, 0, w, h);
 
+      // Dynamic spotlight (stronger bloom)
+      const spot = ctx.createRadialGradient(
+        lightScreen.x,
+        lightScreen.y,
+        8,
+        lightScreen.x,
+        lightScreen.y,
+        Math.min(w, h) * 0.55,
+      );
+      spot.addColorStop(0, "rgb(210 240 255 / 28%)");
+      spot.addColorStop(0.3, "rgb(0 158 219 / 12%)");
+      spot.addColorStop(1, "rgb(0 0 0 / 0%)");
+      ctx.fillStyle = spot;
+      ctx.fillRect(0, 0, w, h);
+
+      // Core hub
+      const hub = project({ x: 0, y: 0, z: 0 }, w, h, rot.y, rot.x);
+      const hubGlow = ctx.createRadialGradient(
+        hub.x,
+        hub.y,
+        2,
+        hub.x,
+        hub.y,
+        hub.scale * 0.9,
+      );
+      hubGlow.addColorStop(0, "rgb(255 255 255 / 80%)");
+      hubGlow.addColorStop(0.25, "rgb(0 158 219 / 45%)");
+      hubGlow.addColorStop(1, "rgb(0 158 219 / 0%)");
+      ctx.fillStyle = hubGlow;
       ctx.beginPath();
-      ctx.arc(w / 2, h / 2, 10, 0, Math.PI * 2);
-      ctx.fillStyle = "rgb(255 255 255 / 85%)";
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(w / 2, h / 2, 4.5, 0, Math.PI * 2);
-      ctx.fillStyle = "#009edb";
+      ctx.arc(hub.x, hub.y, hub.scale * 0.9, 0, Math.PI * 2);
       ctx.fill();
 
       const indexById = Object.fromEntries(
         nodes.map((n, i) => [n.id, i]),
       ) as Record<ActorId, number>;
 
-      // Edges
+      // Depth-sorted edges
+      type EdgeDraw = {
+        ax: number;
+        ay: number;
+        bx: number;
+        by: number;
+        hot: boolean;
+        midZ: number;
+      };
+      const edges: EdgeDraw[] = [];
       for (const [aId, bId] of EDGES) {
         const ai = indexById[aId];
         const bi = indexById[bId];
-        const a = nodes[ai];
-        const b = nodes[bi];
+        const a = projected[ai];
+        const b = projected[bi];
         if (!a || !b) continue;
         const hot =
           focusedId === null || focusedId === aId || focusedId === bId;
+        edges.push({
+          ax: a.x,
+          ay: a.y,
+          bx: b.x,
+          by: b.y,
+          hot,
+          midZ: (a.depth + b.depth) / 2,
+        });
+      }
+      edges.sort((a, b) => b.midZ - a.midZ);
+
+      for (const e of edges) {
+        const mx = (e.ax + e.bx) / 2;
+        const my = (e.ay + e.by) / 2 - 18;
         ctx.beginPath();
-        ctx.moveTo(a.x, a.y);
-        const mx = (a.x + b.x) / 2 + (a.y - b.y) * 0.08;
-        const my = (a.y + b.y) / 2 + (b.x - a.x) * 0.08;
-        ctx.quadraticCurveTo(mx, my, b.x, b.y);
-        ctx.strokeStyle = hot
-          ? "rgb(126 200 227 / 42%)"
-          : "rgb(126 200 227 / 12%)";
-        ctx.lineWidth = hot ? 1.8 : 1;
+        ctx.moveTo(e.ax, e.ay);
+        ctx.quadraticCurveTo(mx, my, e.bx, e.by);
+        if (e.hot) {
+          const grad = ctx.createLinearGradient(e.ax, e.ay, e.bx, e.by);
+          grad.addColorStop(0, "rgb(126 200 227 / 70%)");
+          grad.addColorStop(0.5, "rgb(255 255 255 / 55%)");
+          grad.addColorStop(1, "rgb(0 158 219 / 65%)");
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = 2.4;
+          ctx.shadowColor = "rgb(0 158 219 / 55%)";
+          ctx.shadowBlur = 14;
+        } else {
+          ctx.strokeStyle = "rgb(126 200 227 / 14%)";
+          ctx.lineWidth = 1.1;
+          ctx.shadowBlur = 0;
+        }
         ctx.stroke();
+        ctx.shadowBlur = 0;
       }
 
-      // Packets
+      // Packets along curves
       if (!reduceMotion) {
         for (const packet of packetsRef.current) {
-          const a = nodes[packet.from];
-          const b = nodes[packet.to];
-          if (!a || !b) continue;
+          const a = projected[packet.from];
+          const b = projected[packet.to];
+          const na = nodes[packet.from];
+          const nb = nodes[packet.to];
+          if (!a || !b || !na || !nb) continue;
           const hot =
             focusedId === null ||
-            focusedId === a.id ||
-            focusedId === b.id;
+            focusedId === na.id ||
+            focusedId === nb.id;
           if (!hot) continue;
           const t = packet.t;
-          const mx = (a.x + b.x) / 2 + (a.y - b.y) * 0.08;
-          const my = (a.y + b.y) / 2 + (b.x - a.x) * 0.08;
-          const ox = (1 - t) * (1 - t) * a.x + 2 * (1 - t) * t * mx + t * t * b.x;
-          const oy = (1 - t) * (1 - t) * a.y + 2 * (1 - t) * t * my + t * t * b.y;
+          const mx = (a.x + b.x) / 2;
+          const my = (a.y + b.y) / 2 - 18;
+          const ox =
+            (1 - t) * (1 - t) * a.x + 2 * (1 - t) * t * mx + t * t * b.x;
+          const oy =
+            (1 - t) * (1 - t) * a.y + 2 * (1 - t) * t * my + t * t * b.y;
           ctx.beginPath();
-          ctx.arc(ox, oy, 3.2, 0, Math.PI * 2);
-          ctx.fillStyle = packet.hue;
-          ctx.shadowColor = packet.hue;
-          ctx.shadowBlur = 10;
+          ctx.arc(ox, oy, 4.6, 0, Math.PI * 2);
+          ctx.fillStyle = packet.color;
+          ctx.shadowColor = packet.color;
+          ctx.shadowBlur = 22;
           ctx.fill();
           ctx.shadowBlur = 0;
         }
       }
 
-      // Nodes
-      for (const node of nodes) {
+      // Depth-sorted nodes
+      const order = projected
+        .map((p, i) => ({ p, i }))
+        .sort((a, b) => b.p.depth - a.p.depth);
+
+      for (const { p, i } of order) {
+        const node = nodes[i]!;
         const isFocus = focusedId === node.id;
         const dimmed = focusedId !== null && !isFocus;
-        const pulse = reduceMotion
-          ? 1
-          : 1 + Math.sin(now / 420 + node.x) * 0.04;
+        const radius =
+          p.scale *
+          0.2 *
+          (isFocus ? 1.22 : 1) *
+          (reduceMotion ? 1 : 1 + Math.sin(now / 480 + node.phase) * 0.06);
 
+        // Lighting: brighter when facing light screen
+        const dx = lightScreen.x - p.x;
+        const dy = lightScreen.y - p.y;
+        const dist = Math.hypot(dx, dy) || 1;
+        const lit = Math.max(0.35, 1 - dist / (Math.min(w, h) * 0.7));
+
+        // Soft contact shadow
         ctx.beginPath();
-        ctx.arc(node.x, node.y, node.r * pulse + (isFocus ? 4 : 0), 0, Math.PI * 2);
-        ctx.fillStyle = dimmed ? "rgb(20 45 65 / 75%)" : "rgb(8 28 44 / 88%)";
+        ctx.ellipse(
+          p.x,
+          p.y + radius * 1.15,
+          radius * 0.85,
+          radius * 0.28,
+          0,
+          0,
+          Math.PI * 2,
+        );
+        ctx.fillStyle = `rgb(0 0 0 / ${12 + lit * 10}%)`;
         ctx.fill();
-        ctx.lineWidth = isFocus ? 3 : 1.5;
+
+        // Outer bloom
+        const glow = ctx.createRadialGradient(
+          p.x,
+          p.y,
+          radius * 0.15,
+          p.x,
+          p.y,
+          radius * 3.2,
+        );
+        glow.addColorStop(
+          0,
+          dimmed ? "rgb(0 158 219 / 0%)" : `${node.color}66`,
+        );
+        glow.addColorStop(0.45, dimmed ? "rgb(0 0 0 / 0%)" : `${node.color}22`);
+        glow.addColorStop(1, "rgb(0 0 0 / 0%)");
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, radius * 3.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Sphere body — emissive actor color + specular
+        const body = ctx.createRadialGradient(
+          p.x - radius * 0.38,
+          p.y - radius * 0.42,
+          radius * 0.08,
+          p.x,
+          p.y,
+          radius,
+        );
+        const hi = dimmed ? 35 : Math.round(55 + lit * 40);
+        body.addColorStop(0, `rgb(255 255 255 / ${hi}%)`);
+        body.addColorStop(0.28, node.color);
+        body.addColorStop(0.7, node.color);
+        body.addColorStop(1, dimmed ? "rgb(8 28 44 / 88%)" : "#021018");
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = body;
+        ctx.shadowColor = dimmed ? "transparent" : `${node.color}88`;
+        ctx.shadowBlur = isFocus ? 28 : 16;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.lineWidth = isFocus ? 2.8 : 1.4;
         ctx.strokeStyle = dimmed
-          ? "rgb(126 200 227 / 25%)"
-          : node.color;
+          ? "rgb(126 200 227 / 22%)"
+          : `rgb(255 255 255 / ${45 + lit * 45}%)`;
         ctx.stroke();
 
         if (isFocus) {
           ctx.beginPath();
-          ctx.arc(node.x, node.y, node.r + 12, 0, Math.PI * 2);
-          ctx.strokeStyle = "rgb(0 158 219 / 35%)";
+          ctx.arc(p.x, p.y, radius + 10, 0, Math.PI * 2);
+          ctx.strokeStyle = "rgb(0 158 219 / 45%)";
           ctx.lineWidth = 1;
+          ctx.setLineDash([3, 6]);
           ctx.stroke();
+          ctx.setLineDash([]);
         }
 
         ctx.fillStyle = dimmed ? "rgb(255 255 255 / 45%)" : "#fff";
-        ctx.font = `650 ${Math.max(10, node.r * 0.42)}px var(--font-sans), system-ui, sans-serif`;
+        ctx.font = `700 ${Math.max(13, radius * 0.42)}px system-ui, sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText(node.short, node.x, node.y - 1);
+        ctx.fillText(node.short, p.x, p.y - 1);
 
         ctx.fillStyle = dimmed
           ? "rgb(255 255 255 / 40%)"
-          : "rgb(238 245 249 / 88%)";
-        ctx.font = `500 ${Math.max(10, node.r * 0.36)}px var(--font-sans), system-ui, sans-serif`;
-        ctx.fillText(node.label, node.x, node.y + node.r + 14);
+          : "rgb(238 245 249 / 92%)";
+        ctx.font = `600 ${Math.max(13, radius * 0.32)}px system-ui, sans-serif`;
+        ctx.fillText(node.label, p.x, p.y + radius + Math.max(18, radius * 0.35));
       }
 
       rafRef.current = requestAnimationFrame(step);
@@ -441,21 +577,38 @@ export function Goal17Network() {
   }, [reduceMotion]);
 
   const hitTest = useCallback((x: number, y: number) => {
-    const nodes = nodesRef.current;
-    for (let i = nodes.length - 1; i >= 0; i--) {
-      const n = nodes[i]!;
-      if (Math.hypot(n.x - x, n.y - y) <= n.r + 8) return i;
+    const canvas = canvasRef.current;
+    if (!canvas) return -1;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = canvas.width / dpr;
+    const h = canvas.height / dpr;
+    const rot = rotRef.current;
+    const projected = nodesRef.current.map((node) =>
+      project(node.pos, w, h, rot.y, rot.x),
+    );
+    let best = -1;
+    let bestDist = Infinity;
+    for (let i = 0; i < projected.length; i++) {
+      const p = projected[i]!;
+      const r = p.scale * 0.28;
+      const d = Math.hypot(p.x - x, p.y - y);
+      if (d <= r + 12 && d < bestDist) {
+        best = i;
+        bestDist = d;
+      }
     }
-    return -1;
+    return best;
   }, []);
 
-  const toLocal = useCallback((event: ReactPointerEvent<HTMLCanvasElement>) => {
+  const toLocal = (event: ReactPointerEvent<HTMLCanvasElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
     return {
       x: event.clientX - rect.left,
       y: event.clientY - rect.top,
+      nx: (event.clientX - rect.left) / rect.width,
+      ny: (event.clientY - rect.top) / rect.height,
     };
-  }, []);
+  };
 
   const onPointerDown = (event: ReactPointerEvent<HTMLCanvasElement>) => {
     const { x, y } = toLocal(event);
@@ -466,22 +619,49 @@ export function Goal17Network() {
     }
     const node = nodesRef.current[index]!;
     setFocused(node.id);
-    dragRef.current = { index, ox: x - node.x, oy: y - node.y };
+    dragRef.current = {
+      index,
+      grabOffset: { ...node.pos },
+    };
     setDragging(true);
     event.currentTarget.setPointerCapture(event.pointerId);
   };
 
   const onPointerMove = (event: ReactPointerEvent<HTMLCanvasElement>) => {
-    const { x, y } = toLocal(event);
-    pointerRef.current = { x, y };
+    const local = toLocal(event);
+    pointerRef.current = { x: local.x, y: local.y };
+
+    if (!reduceMotion) {
+      rotRef.current.targetY = 0.35 + (local.nx - 0.5) * 0.9;
+      rotRef.current.targetX = 0.18 + (0.5 - local.ny) * 0.45;
+    }
+
     const drag = dragRef.current;
     if (!drag) return;
     const node = nodesRef.current[drag.index];
     if (!node) return;
-    node.x = x - drag.ox;
-    node.y = y - drag.oy;
-    node.vx = 0;
-    node.vy = 0;
+
+    // Map screen delta into approximate 3D tangential move
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = canvas.width / dpr;
+    const h = canvas.height / dpr;
+    const dx = (local.x - w * 0.5) / (Math.min(w, h) * 0.28);
+    const dy = (local.y - h * 0.52) / (Math.min(w, h) * 0.28);
+    const rot = rotRef.current;
+    const cosY = Math.cos(-rot.y);
+    const sinY = Math.sin(-rot.y);
+    const worldX = dx * cosY;
+    const worldZ = dx * sinY;
+    node.pos.x = worldX;
+    node.pos.y = dy * 0.7;
+    node.pos.z = worldZ;
+    node.vel = { x: 0, y: 0, z: 0 };
+    // Keep base near drag so it spring-returns nearby
+    node.base.x = node.pos.x * 0.85;
+    node.base.y = node.pos.y * 0.85;
+    node.base.z = node.pos.z * 0.85;
   };
 
   const onPointerUp = (event: ReactPointerEvent<HTMLCanvasElement>) => {
@@ -500,9 +680,6 @@ export function Goal17Network() {
 
   const selectActor = (id: ActorId) => {
     setFocused((prev) => (prev === id ? null : id));
-    setLinkCount(
-      EDGES.filter(([a, b]) => a === id || b === id).length || EDGES.length,
-    );
   };
 
   useEffect(() => {
@@ -516,50 +693,77 @@ export function Goal17Network() {
   }, [focused]);
 
   return (
-    <Spotlight
-      className={styles.section}
-      color="rgb(0 158 219 / 18%)"
-      size={560}
+    <section
+      className={styles.experience}
+      aria-labelledby={titleId}
+      data-goal="17"
     >
-      <section aria-labelledby={titleId} data-goal="17">
-        <div className={styles.layout}>
+      <p className={styles.watermark} aria-hidden>
+        17
+      </p>
+
+      <div className={styles.stage} ref={stageRef}>
+        <canvas
+          ref={canvasRef}
+          className={`${styles.canvas} ${dragging ? styles.canvasDragging : ""}`}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerUp}
+          onPointerLeave={onPointerLeave}
+          role="img"
+          aria-label="Rete tridimensionale interattiva di collaborazione tra cittadini, scuole, governi, organizzazioni, imprese e associazioni"
+          data-cursor={cursorData.values.media}
+        />
+      </div>
+
+      <div className={styles.hud}>
+        <p className={styles.hudBadge}>
+          {linkCount}
+          <span>legami attivi</span>
+        </p>
+        <p className={styles.hudHint}>
+          Trascina i nodi · la luce segue il cursore
+        </p>
+      </div>
+
+      <div className={styles.overlay}>
+        <div className={styles.top}>
+          <p className={styles.eyebrow}>Obiettivo 17 · Agenda 2030</p>
+          <h3 id={titleId} className={styles.title}>
+            Partnership
+            <span className={styles.titleAccent}>per gli obiettivi</span>
+          </h3>
+          <p className={styles.lead}>
+            Rafforzare i mezzi di attuazione e rivitalizzare la partnership
+            globale: nessuna sfida si affronta da soli.
+          </p>
+        </div>
+
+        <div className={styles.bottom}>
+          <div
+            className={styles.actors}
+            role="group"
+            aria-label="Attori della partnership"
+          >
+            {ACTORS.map((actor) => {
+              const isActive = focused === actor.id;
+              return (
+                <button
+                  key={actor.id}
+                  type="button"
+                  className={`${styles.actor} ${isActive ? styles.actorActive : ""}`}
+                  aria-pressed={isActive}
+                  data-cursor={cursorData.values.link}
+                  onClick={() => selectActor(actor.id)}
+                >
+                  {actor.label}
+                </button>
+              );
+            })}
+          </div>
+
           <div>
-            <p className={styles.eyebrow}>Obiettivo 17 · Agenda 2030</p>
-            <h3 id={titleId} className={styles.title}>
-              {siteConfig.goals[17].title}
-            </h3>
-            <p className={styles.lead}>
-              Rafforzare i mezzi di attuazione e rivitalizzare la partnership
-              globale: nessuna sfida si affronta da soli.
-            </p>
-
-            <div
-              className={styles.actors}
-              role="group"
-              aria-label="Attori della partnership"
-            >
-              {ACTORS.map((actor) => {
-                const isActive = focused === actor.id;
-                return (
-                  <button
-                    key={actor.id}
-                    type="button"
-                    className={`${styles.actor} ${isActive ? styles.actorActive : ""}`}
-                    aria-pressed={isActive}
-                    data-cursor={cursorData.values.link}
-                    onClick={() => selectActor(actor.id)}
-                    style={
-                      isActive
-                        ? { boxShadow: `0 0 0 1px ${actor.color}` }
-                        : undefined
-                    }
-                  >
-                    {actor.label}
-                  </button>
-                );
-              })}
-            </div>
-
             <div className={styles.detail} aria-live="polite">
               {focusedActor ? (
                 <>
@@ -574,50 +778,31 @@ export function Goal17Network() {
                   <p className={styles.detailCopy}>
                     Seleziona o trascina un nodo per esplorare come cittadini,
                     scuole, governi, organizzazioni, imprese e associazioni si
-                    collegano.
+                    collegano nello spazio.
                   </p>
                 </>
               )}
             </div>
-
-            <Magnetic strength={10} radius={90} className={styles.ctaWrap}>
-              <Link
-                href="/argomenti/obiettivo-17"
-                className={styles.cta}
-                data-cursor={cursorData.values.cta}
-              >
-                Scopri l&apos;Obiettivo 17
-                <span aria-hidden="true">→</span>
-              </Link>
-            </Magnetic>
-          </div>
-
-          <div className={styles.stage} ref={wrapRef}>
-            <canvas
-              ref={canvasRef}
-              className={`${styles.canvas} ${dragging ? styles.canvasDragging : ""}`}
-              onPointerDown={onPointerDown}
-              onPointerMove={onPointerMove}
-              onPointerUp={onPointerUp}
-              onPointerCancel={onPointerUp}
-              onPointerLeave={onPointerLeave}
-              role="img"
-              aria-label="Rete interattiva di collaborazione tra cittadini, scuole, governi, organizzazioni, imprese e associazioni"
-              data-cursor={cursorData.values.media}
-            />
-            <p className={styles.srOnly}>
-              Usa i pulsanti degli attori per evidenziare i collegamenti, oppure
-              trascina i nodi sulla rete.
-            </p>
-            <div className={styles.hud}>
-              <p className={styles.hudHint}>
-                Trascina i nodi · clicca per focalizzare
-              </p>
-              <p className={styles.hudBadge}>{linkCount} legami</p>
+            <div className={styles.ctaRow}>
+              <Magnetic strength={12} radius={100}>
+                <Link
+                  href={`/argomenti/${siteConfig.goals[17].slug}`}
+                  className={styles.cta}
+                  data-cursor={cursorData.values.cta}
+                >
+                  Scopri l&apos;Obiettivo 17
+                  <span aria-hidden>→</span>
+                </Link>
+              </Magnetic>
             </div>
           </div>
         </div>
-      </section>
-    </Spotlight>
+      </div>
+
+      <p className={styles.srOnly}>
+        Usa i pulsanti degli attori per evidenziare i collegamenti, oppure
+        trascina i nodi sulla rete tridimensionale.
+      </p>
+    </section>
   );
 }

@@ -1,32 +1,31 @@
 "use client";
 
-import { Reveal } from "@/components/motion/reveal";
-
 import { Goal16Section } from "./goal-16-section";
 import { Goal17Network } from "./goal-17-network";
 
-/** Sezione memorabile Goal 16 + rete interattiva Goal 17 (self-contained). */
+/**
+ * Vetrina immersiva Goal 16 + Goal 17.
+ * Composizioni full-bleed self-contained — niente card wrapper.
+ */
 export function GoalsShowcase() {
   return (
-    <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
-      <Reveal variant="clip-up">
-        <h2 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl lg:text-[2.75rem]">
-          Due Obiettivi, un impegno comune
-        </h2>
-        <p className="mt-3 max-w-2xl text-muted-foreground text-pretty sm:text-lg">
-          Pace, giustizia, istituzioni solide e partnership globale: i Goal 16 e
-          17 dell&apos;Agenda 2030 delle Nazioni Unite.
+    <div className="relative">
+      <header className="relative z-10 mx-auto max-w-6xl px-4 pb-4 pt-16 sm:px-6 sm:pt-24">
+        <p className="text-[0.72rem] font-semibold tracking-[0.28em] text-primary uppercase">
+          Agenda 2030 · Nazioni Unite
         </p>
-      </Reveal>
+        <h2 className="font-heading mt-3 max-w-4xl text-[clamp(2.4rem,6vw,4.5rem)] font-semibold leading-[0.95] tracking-tight text-pretty">
+          Due Obiettivi,
+          <span className="block text-goal-16">un impegno comune</span>
+        </h2>
+        <p className="mt-5 max-w-xl text-base text-muted-foreground text-pretty sm:text-lg">
+          Pace, giustizia, istituzioni solide e partnership globale: esperienze
+          interattive sui Goal 16 e 17.
+        </p>
+      </header>
 
-      <div className="mt-10 grid gap-8">
-        <Reveal delay={0.08} variant="fade-up">
-          <Goal16Section />
-        </Reveal>
-        <Reveal delay={0.14} variant="fade-up">
-          <Goal17Network />
-        </Reveal>
-      </div>
-    </section>
+      <Goal16Section />
+      <Goal17Network />
+    </div>
   );
 }
