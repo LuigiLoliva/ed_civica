@@ -146,9 +146,9 @@ export function HeroMotif3D() {
           </svg>
         </div>
 
-        {/* Nodo pace (ulivo) — basso a sinistra, evita collisione tipografia */}
+        {/* Nodo pace (ulivo) — esterno basso, fuori dal blocco tipografico */}
         <OrbitNode
-          className="left-[2%] bottom-[22%]"
+          className="-left-[2%] top-[58%] lg:left-[8%] lg:top-[72%]"
           depth={110}
           label="Pace"
           hue="olive"
