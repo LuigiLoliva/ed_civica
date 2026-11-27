@@ -1,6 +1,9 @@
 import Link from "next/link";
 
 import { OliveBranchIcon } from "@/components/icons/onu-motifs";
+import { BackToTop, FooterWordmark } from "@/components/layout/footer-motion";
+import { Reveal } from "@/components/motion/reveal";
+import { Spotlight } from "@/components/motion/spotlight";
 import { siteConfig } from "@/lib/site-config";
 import { formatSchoolLocation } from "@/lib/site-settings/map";
 import type { SiteSettings } from "@/lib/site-settings/types";
@@ -9,6 +12,10 @@ interface SiteFooterProps {
   settings: SiteSettings;
 }
 
+/**
+ * Footer della shell: orizzonte notturno con aurora lenta, alone che segue
+ * il cursore, colonne in reveal sfalsato e wordmark che emerge allo scroll.
+ */
 export function SiteFooter({ settings }: SiteFooterProps) {
   const location = formatSchoolLocation(settings);
   const socialEntries = [
@@ -23,112 +30,135 @@ export function SiteFooter({ settings }: SiteFooterProps) {
   ].filter((item) => Boolean(item.href));
 
   return (
-    <footer className="border-t border-border bg-goal-17 text-hero-foreground">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-3">
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <OliveBranchIcon className="size-6 text-primary" />
-            <p className="font-heading text-xl font-semibold">{settings.siteName}</p>
-          </div>
-          <p className="text-sm text-white/70">{settings.tagline}</p>
-          <p className="text-sm text-white/55">
-            {settings.schoolName} · {settings.className} · {settings.schoolYear}
-          </p>
-          {location ? (
-            <p className="text-sm text-white/55">{location}</p>
-          ) : null}
-          {settings.contactEmail ? (
-            <p className="text-sm text-white/55">
-              <a
-                href={`mailto:${settings.contactEmail}`}
-                className="underline-offset-2 hover:text-white hover:underline"
-              >
-                {settings.contactEmail}
-              </a>
-            </p>
-          ) : null}
-        </div>
+    <footer className="shell-footer relative isolate overflow-hidden text-hero-foreground">
+      <div className="shell-footer-aurora" aria-hidden>
+        <span />
+        <span />
+        <span />
+      </div>
+      <div className="shell-footer-grid" aria-hidden />
 
-        <div>
-          <p className="mb-3 text-sm font-semibold tracking-wide text-white/90">
-            Navigazione
-          </p>
-          <ul className="space-y-2 text-sm">
-            {siteConfig.nav.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className="text-white/60 transition-colors hover:text-white"
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div>
-          <p className="mb-3 text-sm font-semibold tracking-wide text-white/90">
-            Link utili
-          </p>
-          <ul className="space-y-2 text-sm">
-            {siteConfig.footerLinks.map((item) => (
-              <li key={item.href}>
-                {"external" in item && item.external ? (
+      <Spotlight color="rgb(0 158 219 / 16%)" size={520}>
+        <div className="mx-auto max-w-6xl px-4 pt-16 sm:px-6 sm:pt-20">
+          <div className="grid gap-10 md:grid-cols-[1.35fr_1fr_1fr]">
+            <Reveal className="space-y-3">
+              <div className="flex items-center gap-2.5">
+                <span className="shell-footer-mark">
+                  <OliveBranchIcon className="size-6 text-sky-300" />
+                </span>
+                <p className="font-heading text-2xl font-semibold">
+                  {settings.siteName}
+                </p>
+              </div>
+              <p className="max-w-sm text-sm text-white/75 text-pretty">
+                {settings.tagline}
+              </p>
+              <p className="text-sm text-white/55">
+                {settings.schoolName} · {settings.className} · {settings.schoolYear}
+              </p>
+              {location ? (
+                <p className="text-sm text-white/55">{location}</p>
+              ) : null}
+              {settings.contactEmail ? (
+                <p className="text-sm text-white/55">
                   <a
-                    href={item.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-white/60 transition-colors hover:text-white"
+                    href={`mailto:${settings.contactEmail}`}
+                    className="shell-footer-link"
                   >
-                    {item.label}
+                    {settings.contactEmail}
                   </a>
-                ) : (
-                  <Link
-                    href={item.href}
-                    className="text-white/60 transition-colors hover:text-white"
-                  >
-                    {item.label}
-                  </Link>
-                )}
-              </li>
-            ))}
-            {socialEntries.map((item) => (
-              <li key={item.key}>
-                <a
-                  href={item.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-white/60 transition-colors hover:text-white"
-                >
-                  {item.label}
-                </a>
-              </li>
-            ))}
-          </ul>
+                </p>
+              ) : null}
+            </Reveal>
+
+            <Reveal delay={0.08}>
+              <p className="mb-4 text-xs font-semibold tracking-[0.2em] text-white/50 uppercase">
+                Navigazione
+              </p>
+              <ul className="space-y-2.5 text-sm">
+                {siteConfig.nav.map((item) => (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      data-cursor="link"
+                      className="shell-footer-link"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </Reveal>
+
+            <Reveal delay={0.16}>
+              <p className="mb-4 text-xs font-semibold tracking-[0.2em] text-white/50 uppercase">
+                Link utili
+              </p>
+              <ul className="space-y-2.5 text-sm">
+                {siteConfig.footerLinks.map((item) => (
+                  <li key={item.href}>
+                    {"external" in item && item.external ? (
+                      <a
+                        href={item.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        data-cursor="link"
+                        className="shell-footer-link"
+                      >
+                        {item.label}
+                      </a>
+                    ) : (
+                      <Link
+                        href={item.href}
+                        data-cursor="link"
+                        className="shell-footer-link"
+                      >
+                        {item.label}
+                      </Link>
+                    )}
+                  </li>
+                ))}
+                {socialEntries.map((item) => (
+                  <li key={item.key}>
+                    <a
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      data-cursor="link"
+                      className="shell-footer-link"
+                    >
+                      {item.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </Reveal>
+          </div>
+
+          <FooterWordmark name={settings.siteName} />
         </div>
-      </div>
-      <div className="border-t border-white/10 px-4 py-4 text-center text-xs text-white/50">
-        <div
-          className="prose prose-sm mx-auto max-w-none text-white/50 prose-p:text-white/50 [&_a]:text-white/70 [&_p]:my-0"
-          dangerouslySetInnerHTML={{ __html: settings.footerHtml }}
-        />
-        <p className="mt-2">
-          <Link
-            href="/privacy"
-            className="underline-offset-2 hover:text-white hover:underline"
-          >
-            Privacy
-          </Link>
-          <span aria-hidden> · </span>
-          <Link
-            href="/cookie"
-            className="underline-offset-2 hover:text-white hover:underline"
-          >
-            Cookie
-          </Link>
-        </p>
-      </div>
+
+        <div className="border-t border-white/10">
+          <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 py-5 text-xs text-white/50 sm:flex-row sm:justify-between sm:px-6">
+            <div
+              className="prose prose-sm max-w-none text-center text-white/50 prose-p:text-white/50 sm:text-left [&_a]:text-white/70 [&_p]:my-0"
+              dangerouslySetInnerHTML={{ __html: settings.footerHtml }}
+            />
+            <div className="flex items-center gap-5">
+              <p>
+                <Link href="/privacy" className="shell-footer-link">
+                  Privacy
+                </Link>
+                <span aria-hidden> · </span>
+                <Link href="/cookie" className="shell-footer-link">
+                  Cookie
+                </Link>
+              </p>
+              <BackToTop />
+            </div>
+          </div>
+        </div>
+      </Spotlight>
     </footer>
   );
 }

@@ -1,8 +1,9 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import type { ReactNode } from "react";
 
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { motionDuration, motionEase } from "@/lib/motion/tokens";
 import { cn } from "@/lib/utils";
 
@@ -23,7 +24,7 @@ export function TextReveal({
   delay = 0,
   as: Tag = "p",
 }: TextRevealProps) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = usePrefersReducedMotion();
   const words = children.split(/(\s+)/).filter((w) => w.length > 0);
 
   if (reduceMotion) {
@@ -68,7 +69,7 @@ type FadeLineProps = {
 
 /** Singola riga con fade + rise (sottotitoli / CTA group). */
 export function FadeLine({ children, className, delay = 0 }: FadeLineProps) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = usePrefersReducedMotion();
 
   if (reduceMotion) {
     return <div className={className}>{children}</div>;

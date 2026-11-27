@@ -9,13 +9,13 @@ test.describe("sito pubblico", () => {
   test("home mostra brand e CTA principali", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
-      "Voci Unite",
+      /Voci\s*Unite/i,
     );
     await expect(
-      page.getByRole("link", { name: "Leggi gli articoli" }),
+      page.getByRole("button", { name: "Leggi gli articoli" }),
     ).toBeVisible();
     await expect(
-      page.getByRole("link", { name: "Metti alla prova le tue conoscenze" }),
+      page.getByRole("button", { name: "Metti alla prova le tue conoscenze" }),
     ).toBeVisible();
   });
 
