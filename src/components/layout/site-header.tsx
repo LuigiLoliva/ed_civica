@@ -27,13 +27,37 @@ export function SiteHeader({ siteName, logoUrl }: SiteHeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  // La home si apre su un hero scuro a tutto schermo: evita il lampo chiaro al primo paint.
+  const [onDark, setOnDark] = useState(pathname === "/");
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
-    onScroll();
+    let frame = 0;
+    const measure = () => {
+      frame = 0;
+      setScrolled(window.scrollY > 12);
+      // Le sezioni scure dichiarano `data-header-theme="dark"`: l'header si adatta a ciò che ha sotto.
+      const probe = 32;
+      let dark = false;
+      document
+        .querySelectorAll<HTMLElement>('[data-header-theme="dark"]')
+        .forEach((element) => {
+          const rect = element.getBoundingClientRect();
+          if (rect.top <= probe && rect.bottom > probe) dark = true;
+        });
+      setOnDark(dark);
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(measure);
+    };
+    measure();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    window.addEventListener("resize", onScroll);
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [pathname]);
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
@@ -43,17 +67,24 @@ export function SiteHeader({ siteName, logoUrl }: SiteHeaderProps) {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 border-b transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300",
-        scrolled
-          ? "border-border/70 bg-background/90 shadow-[0_8px_30px_rgb(10_28_46_/8%)] backdrop-blur-xl"
-          : "border-border/40 bg-background/70 backdrop-blur-md",
+        "sticky top-0 z-50 border-b transition-[background-color,border-color,box-shadow,backdrop-filter,color] duration-500",
+        onDark
+          ? scrolled
+            ? "border-white/10 bg-hero/75 text-white"
+            : "border-transparent bg-transparent text-white"
+          : scrolled
+            ? "border-border/70 bg-background/90 shadow-[0_8px_30px_rgb(10_28_46_/8%)] backdrop-blur-xl"
+            : "border-border/40 bg-background/70 backdrop-blur-md",
       )}
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
         <Link
           href="/"
           data-cursor="link"
-          className="group flex items-center gap-2.5 text-foreground transition-opacity hover:opacity-90"
+          className={cn(
+            "group flex items-center gap-2.5 transition-[color,opacity] duration-500 hover:opacity-90",
+            onDark ? "text-white" : "text-foreground",
+          )}
         >
           {logoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -63,7 +94,12 @@ export function SiteHeader({ siteName, logoUrl }: SiteHeaderProps) {
               className="h-8 w-auto max-w-[2.5rem] object-contain transition-transform duration-300 group-hover:scale-[1.04]"
             />
           ) : (
-            <span className="flex size-9 items-center justify-center rounded-full bg-goal-17 text-white transition-transform duration-300 group-hover:scale-[1.04]">
+            <span
+              className={cn(
+                "flex size-9 items-center justify-center rounded-full text-white transition-[transform,background-color] duration-300 group-hover:scale-[1.04]",
+                onDark ? "bg-white/15 ring-1 ring-white/25" : "bg-goal-17",
+              )}
+            >
               <OliveBranchIcon className="size-5" />
             </span>
           )}
@@ -82,10 +118,14 @@ export function SiteHeader({ siteName, logoUrl }: SiteHeaderProps) {
                 data-cursor="link"
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "nav-link relative rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                  active
-                    ? "text-foreground"
-                    : "text-muted-foreground hover:bg-secondary/80 hover:text-foreground",
+                  "nav-link relative rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-300",
+                  onDark
+                    ? active
+                      ? "text-white"
+                      : "text-white/65 hover:bg-white/10 hover:text-white"
+                    : active
+                      ? "text-foreground"
+                      : "text-muted-foreground hover:bg-secondary/80 hover:text-foreground",
                 )}
               >
                 {item.label}
@@ -108,7 +148,12 @@ export function SiteHeader({ siteName, logoUrl }: SiteHeaderProps) {
               render={<Link href="/auth/login" data-cursor="cta" />}
               variant="outline"
               size="sm"
-              className="border-goal-17/25"
+              className={cn(
+                "transition-colors duration-300",
+                onDark
+                  ? "border-white/35 bg-transparent text-white hover:bg-white/10 hover:text-white"
+                  : "border-goal-17/25",
+              )}
             >
               Area riservata
             </Button>
@@ -120,7 +165,11 @@ export function SiteHeader({ siteName, logoUrl }: SiteHeaderProps) {
                 <Button
                   variant="outline"
                   size="icon-sm"
-                  className="md:hidden"
+                  className={cn(
+                    "md:hidden",
+                    onDark &&
+                      "border-white/35 bg-transparent text-white hover:bg-white/10 hover:text-white",
+                  )}
                   aria-label="Apri menu di navigazione"
                 />
               }

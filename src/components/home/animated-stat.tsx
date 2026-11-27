@@ -50,12 +50,12 @@ export function AnimatedStat({
   }, [inView, reduceMotion, value]);
 
   return (
-    <div ref={ref} className={cn("text-left sm:text-center lg:text-left", className)}>
+    <div ref={ref} className={cn("text-left", className)}>
       <p
         className={cn(
           "font-heading font-semibold leading-none tracking-tight",
           tone === "on-dark"
-            ? "text-[clamp(5.5rem,14vw,11rem)] text-white"
+            ? "text-[clamp(5rem,11vw,12rem)] tracking-[-0.04em] text-white tabular-nums"
             : "text-[clamp(3.5rem,8vw,6.5rem)] text-goal-17",
         )}
       >

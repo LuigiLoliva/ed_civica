@@ -35,9 +35,14 @@ export default async function HomePage() {
 
   return (
     <div>
-      <CinematicHero siteName={settings.siteName} tagline={tagline} />
+      <CinematicHero
+        siteName={settings.siteName}
+        tagline={tagline}
+        statement={settings.description}
+      />
 
-      <div className="bg-partnership-pattern">
+      {/* Sipario: sale sopra la scena bloccata dell'hero */}
+      <div className="bg-partnership-pattern relative z-10 -mt-10 overflow-clip rounded-t-[2rem] shadow-[0_-28px_80px_-24px_rgb(4_14_26_/_70%)] sm:rounded-t-[3rem]">
         {/* Hook immersivo Goal 16/17 — owned by goals worker */}
         <GoalsShowcase />
 
