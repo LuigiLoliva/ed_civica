@@ -166,18 +166,22 @@ export function Goal17Network() {
     focusedRef.current = focused;
   }, [focused]);
 
+  const sizeRef = useRef({ w: 0, h: 0 });
+
   const resize = useCallback(() => {
     const canvas = canvasRef.current;
     const wrap = wrapRef.current;
     if (!canvas || !wrap) return;
+    // clientWidth/Height = content box — avoids border-box feedback with ResizeObserver
+    const w = Math.max(280, Math.floor(wrap.clientWidth));
+    const h = Math.max(320, Math.floor(wrap.clientHeight));
+    if (w === sizeRef.current.w && h === sizeRef.current.h) return;
+    sizeRef.current = { w, h };
+
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const rect = wrap.getBoundingClientRect();
-    const w = Math.max(320, Math.floor(rect.width));
-    const h = Math.max(352, Math.floor(rect.height));
     canvas.width = Math.floor(w * dpr);
     canvas.height = Math.floor(h * dpr);
-    canvas.style.width = `${w}px`;
-    canvas.style.height = `${h}px`;
+    // Layout size comes from CSS (100% of fixed-height stage) — do not set style height
     const ctx = canvas.getContext("2d");
     if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
@@ -195,7 +199,6 @@ export function Goal17Network() {
         };
       });
     } else {
-      // Soft recenter without hard reset
       const cx = w / 2;
       const cy = h / 2;
       const radius = Math.min(w, h) * 0.32;
@@ -214,7 +217,9 @@ export function Goal17Network() {
     resize();
     const wrap = wrapRef.current;
     if (!wrap) return;
-    const ro = new ResizeObserver(() => resize());
+    const ro = new ResizeObserver(() => {
+      resize();
+    });
     ro.observe(wrap);
     return () => ro.disconnect();
   }, [resize]);
