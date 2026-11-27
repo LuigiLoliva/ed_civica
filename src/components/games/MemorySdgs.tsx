@@ -278,7 +278,7 @@ export function MemorySdgs() {
                   transition={{ type: "spring", ...motionSpring.magnetic }}
                 >
                   <span
-                    className="absolute inset-0 flex items-center justify-center rounded-xl border border-border bg-gradient-to-br from-white via-warm-surface to-[#c8e3f1] shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]"
+                    className="absolute inset-0 flex items-center justify-center rounded-xl border border-border bg-gradient-to-br from-white via-warm-surface to-accent shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]"
                     style={{
                       backfaceVisibility: "hidden",
                       WebkitBackfaceVisibility: "hidden",

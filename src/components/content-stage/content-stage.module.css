@@ -34,7 +34,7 @@
   min-height: 100%;
   background-color: transparent;
   background-image:
-    radial-gradient(ellipse 80% 50% at 10% -10%, rgb(0 158 219 / 14%), transparent 55%),
+    radial-gradient(ellipse 80% 50% at 10% -10%, rgb(0 114 186 / 18%), transparent 55%),
     radial-gradient(ellipse 60% 40% at 95% 15%, rgb(25 72 106 / 10%), transparent 50%),
     radial-gradient(rgb(25 72 106 / 5%) 1px, transparent 1px);
   background-size: auto, auto, 22px 22px;

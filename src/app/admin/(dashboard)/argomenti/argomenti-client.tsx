@@ -25,7 +25,7 @@ export function ArgomentiClient({
   const [topics, setTopics] = useState<MockTopic[]>([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [color, setColor] = useState("#009EDB");
+  const [color, setColor] = useState("#0072BA");
 
   const canManage =
     serverCanManage !== null ? serverCanManage : ready && isAdmin;

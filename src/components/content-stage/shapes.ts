@@ -10,9 +10,9 @@ export type ContentSceneId =
   | "progetto"
   | "argomenti";
 
-const ON = [0, 158, 219] as const;
-const G16 = [0, 104, 157] as const;
-const G17 = [25, 72, 106] as const;
+const ON = [0, 114, 186] as const;
+const G16 = [0, 78, 122] as const;
+const G17 = [11, 53, 84] as const;
 const ICE = [198, 228, 240] as const;
 const OLIVE = [95, 125, 82] as const;
 
@@ -351,7 +351,7 @@ export function getShapeForScene(
       shape = shapeProgetto();
       break;
     case "argomenti":
-      shape = shapeArgomenti(accentHex ?? "#009EDB");
+      shape = shapeArgomenti(accentHex ?? "#0072BA");
       break;
     default:
       shape = shapeArticoliList();

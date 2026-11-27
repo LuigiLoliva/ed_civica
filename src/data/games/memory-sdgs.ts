@@ -20,7 +20,7 @@ export const memoryPairs: MemoryPair[] = [
     symbolHint: "Bilancia / istituzioni",
     nameLabel: "Pace, giustizia e istituzioni solide",
     keywords: ["pace", "giustizia", "istituzioni", "anti-corruzione"],
-    accent: "#00689D",
+    accent: "#004E7A",
   },
   {
     id: "sdg17",
@@ -28,7 +28,7 @@ export const memoryPairs: MemoryPair[] = [
     symbolHint: "Rete / partnership",
     nameLabel: "Partnership per gli obiettivi",
     keywords: ["cooperazione", "alleanze", "finanza", "tecnologia"],
-    accent: "#19486A",
+    accent: "#0B3554",
   },
   {
     id: "onu",
@@ -36,7 +36,7 @@ export const memoryPairs: MemoryPair[] = [
     symbolHint: "Mappamondo stilizzato",
     nameLabel: "Organizzazione delle Nazioni Unite",
     keywords: ["Carta", "Assemblea", "pace", "cooperazione"],
-    accent: "#009EDB",
+    accent: "#0072BA",
   },
   {
     id: "agenda2030",

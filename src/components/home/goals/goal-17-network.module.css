@@ -173,7 +173,7 @@
 .titleAccent {
   width: fit-content;
   padding-right: 0.06em;
-  background: linear-gradient(100deg, #fff 4%, #6ec5e8 48%, #86c9a8 98%);
+  background: linear-gradient(100deg, #fff 4%, #3dadeb 48%, #5fd4a0 98%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -249,7 +249,7 @@
 }
 
 .actor:focus-visible {
-  box-shadow: 0 0 0 2px rgb(0 158 219 / 60%);
+  box-shadow: 0 0 0 2px rgb(0 114 186 / 65%);
   border-radius: 0.35rem;
 }
 
@@ -326,7 +326,7 @@
 
 .cta:hover,
 .cta:focus-visible {
-  border-color: #6ec5e8;
+  border-color: #3dadeb;
   outline: none;
 }
 
