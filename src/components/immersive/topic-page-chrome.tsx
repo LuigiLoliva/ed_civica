@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { RouteAmbient } from "@/components/immersive/route-ambient";
+import styles from "@/components/content-stage/content-stage.module.css";
 import { CinematicPageBanner } from "@/components/immersive/cinematic-page-banner";
 import { Magnetic } from "@/components/motion/magnetic";
 import { Reveal } from "@/components/motion/reveal";
@@ -23,13 +23,14 @@ export function TopicPageChrome({
   children,
 }: TopicPageChromeProps) {
   return (
-    <>
-      <RouteAmbient scene="topic" className="-z-[1]" />
-      <div className="relative z-10 bg-partnership-pattern/85">
+    <div className={styles.contentAtmosphere}>
+      <div className="relative z-10">
         <CinematicPageBanner
           title={name}
           description={description}
           eyebrow="Argomento"
+          tone="glass"
+          className={styles.contentHero}
         >
           <span
             className="inline-block h-2 w-16 rounded-full"
@@ -56,6 +57,6 @@ export function TopicPageChrome({
           <div className="mt-6">{children}</div>
         </section>
       </div>
-    </>
+    </div>
   );
 }

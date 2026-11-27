@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { ArticleCard } from "@/components/articles/article-card";
+import styles from "@/components/content-stage/content-stage.module.css";
+import { Magnetic } from "@/components/motion/magnetic";
 import { ArticleDetailHero } from "@/components/articles/article-detail-hero";
 import { ArticleReadingBody } from "@/components/articles/article-reading-body";
 import { CommentsSection } from "@/components/comments/comments-section";
@@ -55,13 +57,13 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   const comments = await listApprovedComments(article.slug);
 
   return (
-    <article className="bg-partnership-pattern pb-16">
+    <article className={`${styles.contentAtmosphere} pb-16`}>
       <ArticleDetailHero article={article} topic={topic} />
 
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-12">
         <ArticleReadingBody paragraphs={article.body} />
 
-        <Reveal className="mt-12 rounded-xl border border-border bg-card/90 p-6 shadow-depth backdrop-blur-sm">
+        <Reveal className={`mt-12 rounded-xl border p-6 shadow-depth ${styles.contentPanel}`}>
           <h2 className="font-heading text-2xl font-semibold">Fonti</h2>
           <ol className="mt-4 list-decimal space-y-3 pl-5 text-sm leading-relaxed text-muted-foreground">
             {article.sources.map((source) => (
@@ -85,34 +87,40 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           <section aria-label="Condivisione">
             <p className="text-sm font-semibold text-foreground">Condividi</p>
             <div className="mt-3 flex flex-wrap gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                nativeButton={false}
-                render={
-                  <a
-                    href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(article.title)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    data-cursor="cta"
-                  />
-                }
-              >
-                X / Twitter
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                nativeButton={false}
-                render={
-                  <a
-                    href={`mailto:?subject=${encodeURIComponent(article.title)}`}
-                    data-cursor="cta"
-                  />
-                }
-              >
-                Email
-              </Button>
+              <Magnetic strength={11} radius={72} className="inline-flex">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  nativeButton={false}
+                  className="bg-card/50 backdrop-blur-sm"
+                  render={
+                    <a
+                      href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(article.title)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      data-cursor="cta"
+                    />
+                  }
+                >
+                  X / Twitter
+                </Button>
+              </Magnetic>
+              <Magnetic strength={11} radius={72} className="inline-flex">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  nativeButton={false}
+                  className="bg-card/50 backdrop-blur-sm"
+                  render={
+                    <a
+                      href={`mailto:?subject=${encodeURIComponent(article.title)}`}
+                      data-cursor="cta"
+                    />
+                  }
+                >
+                  Email
+                </Button>
+              </Magnetic>
             </div>
           </section>
         </Reveal>

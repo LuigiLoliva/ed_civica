@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 
 import { ArticlesGrid } from "@/components/articles/articles-grid";
 import { ArticlesListingBanner } from "@/components/articles/articles-listing-banner";
+import styles from "@/components/content-stage/content-stage.module.css";
+import { Reveal } from "@/components/motion/reveal";
 import { articles, getTopicBySlug, topics } from "@/lib/mock-data";
 import { getSiteSettings } from "@/lib/site-settings/get-site-settings";
 
@@ -36,14 +38,16 @@ export default async function ArticoliPage({ searchParams }: ArticoliPageProps) 
     : undefined;
 
   return (
-    <div className="bg-partnership-pattern">
+    <div className={styles.contentAtmosphere}>
       <ArticlesListingBanner topics={topics} selected={selected} />
 
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+        <Reveal variant="fade-up">
         <p className="text-sm text-muted-foreground" aria-live="polite">
           {sorted.length} articol{sorted.length === 1 ? "o" : "i"}
           {filterName ? ` in “${filterName}”` : ""}
         </p>
+        </Reveal>
 
         <ArticlesGrid
           articles={sorted}

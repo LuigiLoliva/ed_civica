@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 
+import styles from "@/components/content-stage/content-stage.module.css";
 import { FadeLine, TextReveal } from "@/components/motion/text-reveal";
 import { Badge } from "@/components/ui/badge";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
@@ -23,8 +24,7 @@ export function ArticleDetailHero({ article, topic }: ArticleDetailHeroProps) {
 
   return (
     <>
-      <header className="relative isolate overflow-hidden border-b border-border/60">
-        <div className="absolute inset-0 bg-page-banner" aria-hidden />
+      <header className={`${styles.contentHero} relative isolate overflow-hidden`}>
         <div
           className="pointer-events-none absolute -right-16 top-0 h-56 w-56 rounded-full bg-primary/12 blur-3xl"
           aria-hidden

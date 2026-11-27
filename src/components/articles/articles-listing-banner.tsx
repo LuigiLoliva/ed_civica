@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import styles from "@/components/content-stage/content-stage.module.css";
 import { Magnetic } from "@/components/motion/magnetic";
 import { FadeLine, TextReveal } from "@/components/motion/text-reveal";
 import { Badge } from "@/components/ui/badge";
@@ -21,11 +22,9 @@ export function ArticlesListingBanner({
   selected,
 }: ArticlesListingBannerProps) {
   return (
-    <header className="relative isolate overflow-hidden border-b border-border/60">
-      <div
-        className="pointer-events-none absolute inset-0 bg-page-banner"
-        aria-hidden
-      />
+    <header
+      className={`${styles.contentHero} relative isolate overflow-hidden`}
+    >
       <div
         className="pointer-events-none absolute -top-24 right-[-10%] h-72 w-72 rounded-full bg-primary/15 blur-3xl"
         aria-hidden
