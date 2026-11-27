@@ -1,11 +1,10 @@
-import Link from "next/link";
-
-import { ArticleCard } from "@/components/articles/article-card";
-import { AnimatedStat } from "@/components/home/animated-stat";
 import { CinematicHero } from "@/components/home/cinematic-hero";
 import { GoalsShowcase } from "@/components/home/goals/goals-showcase";
-import { Reveal } from "@/components/motion/reveal";
-import { Button } from "@/components/ui/button";
+import { HomeFeaturedEditorial } from "@/components/home/home-featured-editorial";
+import { HomeLatestRiver } from "@/components/home/home-latest-river";
+import { HomeMarquee } from "@/components/home/home-marquee";
+import { HomePlayChapter } from "@/components/home/home-play-chapter";
+import { HomeStatsChapter } from "@/components/home/home-stats-chapter";
 import { games } from "@/data/games";
 import { quizzes } from "@/data/quizzes";
 import {
@@ -25,130 +24,36 @@ export default async function HomePage() {
     settings.tagline ||
     "Voci della scuola su ONU, pace, giustizia e partnership.";
 
+  const featuredItems = featured.map((article) => ({
+    article,
+    topic: getTopicBySlug(article.topicSlug),
+  }));
+  const latestItems = latest.map((article) => ({
+    article,
+    topic: getTopicBySlug(article.topicSlug),
+  }));
+
   return (
     <div>
       <CinematicHero siteName={settings.siteName} tagline={tagline} />
 
       <div className="bg-partnership-pattern">
+        {/* Hook immersivo Goal 16/17 — owned by goals worker */}
         <GoalsShowcase />
 
-        <section className="border-y border-border/70 bg-card/70 backdrop-blur-sm">
-          <Reveal
-            className="mx-auto grid max-w-6xl gap-8 px-4 py-14 sm:grid-cols-3 sm:px-6"
-            variant="scale"
-          >
-            <AnimatedStat label="Articoli pubblicati" value={mockStats.articles} />
-            <AnimatedStat label="Autori" value={mockStats.authors} />
-            <AnimatedStat label="Quiz disponibili" value={quizzes.length} />
-          </Reveal>
-        </section>
+        <HomeMarquee />
 
-        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
-          <Reveal className="mb-8 flex items-end justify-between gap-4" variant="clip-up">
-            <div>
-              <h2 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
-                In evidenza
-              </h2>
-              <p className="mt-2 text-muted-foreground">
-                Letture scelte dalla redazione scolastica.
-              </p>
-            </div>
-            <Button
-              nativeButton={false}
-              render={<Link href="/articoli" data-cursor="link" />}
-              variant="outline"
-              className="hidden sm:inline-flex"
-            >
-              Tutti gli articoli
-            </Button>
-          </Reveal>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {featured.map((article, index) => (
-              <Reveal key={article.slug} delay={0.06 * index} variant="fade-up">
-                <ArticleCard
-                  article={article}
-                  topic={getTopicBySlug(article.topicSlug)}
-                  withReveal={false}
-                />
-              </Reveal>
-            ))}
-          </div>
-        </section>
+        <HomeStatsChapter
+          articles={mockStats.articles}
+          authors={mockStats.authors}
+          quizzes={quizzes.length}
+        />
 
-        <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 sm:pb-20">
-          <Reveal variant="clip-up">
-            <h2 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
-              Ultimi articoli
-            </h2>
-          </Reveal>
-          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {latest.map((article, index) => (
-              <Reveal key={article.slug} delay={0.06 * index} variant="fade-up">
-                <ArticleCard
-                  article={article}
-                  topic={getTopicBySlug(article.topicSlug)}
-                  withReveal={false}
-                />
-              </Reveal>
-            ))}
-          </div>
-        </section>
+        <HomeFeaturedEditorial items={featuredItems} />
 
-        <section className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
-          <Reveal variant="scale">
-            <div className="relative overflow-hidden rounded-3xl bg-hero px-6 py-10 text-hero-foreground sm:px-10 sm:py-14">
-              <div
-                className="pointer-events-none absolute -right-10 top-0 size-56 rounded-full bg-primary/25 blur-2xl"
-                aria-hidden
-              />
-              <div
-                className="pointer-events-none absolute -bottom-16 left-10 size-48 rounded-full bg-goal-16/30 blur-3xl"
-                aria-hidden
-              />
-              <h2 className="font-heading relative text-2xl font-semibold sm:text-3xl">
-                Gioca e impara
-              </h2>
-              <p className="relative mt-3 max-w-2xl text-white/75 text-pretty">
-                Mini-giochi e quiz sull&apos;ONU e sull&apos;Agenda 2030 — contenuti seed
-                da revisionare con i docenti.
-              </p>
-              <ul className="relative mt-8 grid gap-4 sm:grid-cols-2">
-                {gameTeasers.map((game) => (
-                  <li key={game.slug}>
-                    <Link
-                      href={`/gioca/giochi/${game.slug}`}
-                      data-cursor="cta"
-                      className="block rounded-xl border border-white/15 bg-white/5 px-4 py-4 transition duration-300 hover:translate-y-[-2px] hover:bg-white/10"
-                    >
-                      <p className="text-xs font-medium tracking-wide text-primary uppercase">
-                        {game.badge} · ~{game.estimatedMinutes} min
-                      </p>
-                      <p className="mt-1 font-heading text-lg">{game.title}</p>
-                      <p className="mt-1 text-sm text-white/65">{game.description}</p>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-              <div className="relative mt-8 flex flex-wrap gap-3">
-                <Button
-                  nativeButton={false}
-                  render={<Link href="/gioca" data-cursor="cta" />}
-                  className="bg-white text-hero hover:bg-white/90"
-                >
-                  Vai a Gioca e impara
-                </Button>
-                <Button
-                  nativeButton={false}
-                  render={<Link href="/progetto" data-cursor="link" />}
-                  variant="outline"
-                  className="border-white/35 bg-transparent text-white hover:bg-white/10 hover:text-white"
-                >
-                  Il progetto
-                </Button>
-              </div>
-            </div>
-          </Reveal>
-        </section>
+        <HomeLatestRiver items={latestItems} />
+
+        <HomePlayChapter games={gameTeasers} />
       </div>
     </div>
   );
