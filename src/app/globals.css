@@ -317,6 +317,35 @@ html.has-custom-cursor select {
   animation: hero-scroll-pulse 1.8s var(--motion-ease-out) infinite;
 }
 
+/* Motivo 3D hero: orbite lente (disattivate con reduced-motion) */
+@keyframes hero-motif-orbit {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.hero-motif-ring {
+  animation: hero-motif-orbit 48s linear infinite;
+}
+
+.hero-motif-ring:nth-of-type(2) {
+  animation-duration: 64s;
+  animation-direction: reverse;
+}
+
+.hero-motif-ring:nth-of-type(3) {
+  animation-duration: 80s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-motif-ring {
+    animation: none !important;
+  }
+}
+
 /* Utility profondità soft (card / pannelli pubblici) */
 .shadow-depth {
   box-shadow:
