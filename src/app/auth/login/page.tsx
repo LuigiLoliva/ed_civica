@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { LoginForm } from "@/components/auth/login-form";
+import { AuthStage } from "@/components/immersive/auth-stage";
 import {
   Card,
   CardContent,
@@ -26,8 +27,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       : "/admin";
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-partnership-pattern px-4">
-      <Card className="w-full max-w-md">
+    <AuthStage>
+      <Card className="w-full max-w-md bg-card/95 shadow-depth backdrop-blur-sm">
         <CardHeader>
           <h1 className="font-heading text-2xl font-semibold leading-snug">
             Area riservata
@@ -51,6 +52,6 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           />
         </CardContent>
       </Card>
-    </div>
+    </AuthStage>
   );
 }

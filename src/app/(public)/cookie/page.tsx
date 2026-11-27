@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { LegalPageShell } from "@/components/immersive/legal-page-shell";
+import { LegalScroll, LegalSection } from "@/components/immersive/legal-scroll";
 import { getSiteSettings } from "@/lib/site-settings/get-site-settings";
 import { formatTeachers } from "@/lib/site-settings";
 
@@ -21,42 +23,28 @@ export default async function CookiePage() {
   const teachers = formatTeachers(settings);
 
   return (
-    <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
-      <header className="space-y-3">
-        <p className="text-sm font-medium text-primary">Informativa · bozza scolastica</p>
-        <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
-          Cookie Policy
-        </h1>
-        <p className="text-muted-foreground text-pretty">
+    <LegalPageShell
+      scene="cookie"
+      title="Cookie Policy"
+      lead={
+        <>
           {settings.siteName} utilizza un numero minimo di cookie e tecnologie
           simili, necessari al funzionamento del sito. Questo testo è una{" "}
           <strong>base da far validare</strong> alla scuola.
-        </p>
-      </header>
-
-      <div className="mt-10 space-y-8 text-sm leading-relaxed text-muted-foreground">
-        <section className="space-y-2" aria-labelledby="cosa-sono">
-          <h2
-            id="cosa-sono"
-            className="font-heading text-xl font-semibold text-foreground"
-          >
-            1. Cosa sono i cookie
-          </h2>
+        </>
+      }
+    >
+      <LegalScroll>
+        <LegalSection id="cosa-sono" title="1. Cosa sono i cookie" index={0}>
           <p>
             I cookie sono piccoli file di testo memorizzati sul dispositivo
             dell&apos;utente. Possono essere strettamente necessari (tecnici) o
             usati per misurazione / profilazione. Questo progetto privilegia i
             soli cookie tecnici.
           </p>
-        </section>
+        </LegalSection>
 
-        <section className="space-y-2" aria-labelledby="cookie-usati">
-          <h2
-            id="cookie-usati"
-            className="font-heading text-xl font-semibold text-foreground"
-          >
-            2. Cookie e storage utilizzati
-          </h2>
+        <LegalSection id="cookie-usati" title="2. Cookie e storage utilizzati" index={1}>
           <ul className="list-disc space-y-2 pl-5">
             <li>
               <strong className="text-foreground">Sessione autenticazione</strong>{" "}
@@ -77,15 +65,9 @@ export default async function CookiePage() {
               sia un bot.
             </li>
           </ul>
-        </section>
+        </LegalSection>
 
-        <section className="space-y-2" aria-labelledby="non-usiamo">
-          <h2
-            id="non-usiamo"
-            className="font-heading text-xl font-semibold text-foreground"
-          >
-            3. Cosa non usiamo (stato attuale)
-          </h2>
+        <LegalSection id="non-usiamo" title="3. Cosa non usiamo (stato attuale)" index={2}>
           <p>
             Non sono attivi cookie di profilazione pubblicitaria né tool di
             remarketing. Eventuali analytics privacy-friendly (es. Vercel
@@ -93,15 +75,9 @@ export default async function CookiePage() {
             <em>prima</em> dell&apos;attivazione e, se necessario, gestiti con
             consenso secondo le indicazioni della scuola.
           </p>
-        </section>
+        </LegalSection>
 
-        <section className="space-y-2" aria-labelledby="gestione">
-          <h2
-            id="gestione"
-            className="font-heading text-xl font-semibold text-foreground"
-          >
-            4. Come gestirli
-          </h2>
+        <LegalSection id="gestione" title="4. Come gestirli" index={3}>
           <p>
             I cookie tecnici sono necessari al funzionamento dell&apos;area
             riservata. È comunque possibile eliminarli o bloccarli dalle
@@ -113,21 +89,15 @@ export default async function CookiePage() {
             </Link>
             .
           </p>
-        </section>
+        </LegalSection>
 
-        <section className="space-y-2" aria-labelledby="contatti">
-          <h2
-            id="contatti"
-            className="font-heading text-xl font-semibold text-foreground"
-          >
-            5. Contatti e aggiornamenti
-          </h2>
+        <LegalSection id="contatti" title="5. Contatti e aggiornamenti" index={4}>
           <p>
             Per domande: docente referente ({teachers}
             ). Ultimo aggiornamento bozza: novembre 2026.
           </p>
-        </section>
-      </div>
-    </article>
+        </LegalSection>
+      </LegalScroll>
+    </LegalPageShell>
   );
 }

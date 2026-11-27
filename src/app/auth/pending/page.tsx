@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { logoutAction } from "@/app/auth/login/actions";
+import { AuthStage } from "@/components/immersive/auth-stage";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -38,8 +39,8 @@ export default async function PendingPage({ searchParams }: Props) {
       : loginBlockedMessage(status);
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-partnership-pattern px-4">
-      <Card className="w-full max-w-md">
+    <AuthStage>
+      <Card className="w-full max-w-md bg-card/95 shadow-depth backdrop-blur-sm">
         <CardHeader>
           <h1 className="font-heading text-2xl font-semibold">{title}</h1>
           <CardDescription>{description}</CardDescription>
@@ -55,6 +56,6 @@ export default async function PendingPage({ searchParams }: Props) {
           </form>
         </CardContent>
       </Card>
-    </div>
+    </AuthStage>
   );
 }
