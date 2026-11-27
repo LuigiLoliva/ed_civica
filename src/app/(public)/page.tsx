@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { ArticleCard } from "@/components/articles/article-card";
 import { AnimatedStat } from "@/components/home/animated-stat";
-import { HeroBackdrop } from "@/components/home/hero-backdrop";
+import { CinematicHero } from "@/components/home/cinematic-hero";
 import {
   NetworkIcon,
   ScalesIcon,
@@ -25,63 +25,33 @@ export default async function HomePage() {
   const featured = getFeaturedArticles();
   const latest = getLatestArticles(3);
   const gameTeasers = games.slice(0, 4);
+  const tagline =
+    settings.tagline ||
+    "Voci della scuola su ONU, pace, giustizia e partnership.";
 
   return (
     <div>
-      {/* Hero: un solo compositio — brand, supporto, CTA, piano visivo */}
-      <section className="bg-hero-ocean relative isolate overflow-hidden text-hero-foreground">
-        <HeroBackdrop />
-        <div className="relative mx-auto flex min-h-[min(88svh,44rem)] max-w-6xl flex-col justify-end px-4 pb-16 pt-24 sm:px-6 sm:pb-20 sm:pt-28 lg:justify-center lg:pb-24 lg:pt-32">
-          <p className="animate-hero-rise font-heading text-[clamp(2.75rem,9vw,5.75rem)] font-semibold leading-[0.95] tracking-tight text-balance">
-            {settings.siteName}
-          </p>
-          <p className="animate-hero-rise-delay-1 mt-5 max-w-xl text-lg text-white/80 text-pretty sm:text-xl">
-            {settings.tagline ||
-              "Voci della scuola su ONU, pace, giustizia e partnership."}
-            {" — "}Obiettivi{" "}
-            <span className="font-semibold text-sky-200">16</span> e{" "}
-            <span className="font-semibold text-sky-100">17</span> dell&apos;Agenda
-            2030.
-          </p>
-          <div className="animate-hero-rise-delay-2 mt-8 flex flex-wrap gap-3">
-            <Button
-              render={<Link href="/articoli" />}
-              size="lg"
-              className="bg-white text-hero hover:bg-white/90"
-            >
-              Leggi gli articoli
-            </Button>
-            <Button
-              render={<Link href="/gioca" />}
-              size="lg"
-              variant="outline"
-              className="border-white/35 bg-transparent text-white hover:bg-white/10 hover:text-white"
-            >
-              Metti alla prova le tue conoscenze
-            </Button>
-          </div>
-        </div>
-        <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent"
-          aria-hidden
-        />
-      </section>
+      <CinematicHero siteName={settings.siteName} tagline={tagline} />
 
       <div className="bg-partnership-pattern">
-        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-          <Reveal>
-            <h2 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
+        {/* Scroll storytelling: intro Goals — markup Goal lasciato intatto per altri worker */}
+        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+          <Reveal variant="clip-up">
+            <h2 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl lg:text-[2.75rem]">
               Due Obiettivi, un impegno comune
             </h2>
-            <p className="mt-3 max-w-2xl text-muted-foreground text-pretty">
+            <p className="mt-3 max-w-2xl text-muted-foreground text-pretty sm:text-lg">
               Pace, giustizia, istituzioni solide e partnership globale: i Goal 16 e
               17 dell&apos;Agenda 2030 delle Nazioni Unite.
             </p>
           </Reveal>
 
           <div className="mt-10 grid gap-8 lg:grid-cols-2">
-            <Reveal delay={0.08}>
-              <article className="group relative overflow-hidden rounded-2xl bg-goal-16 px-6 py-8 text-white sm:px-8 sm:py-10">
+            <Reveal delay={0.08} variant="fade-up">
+              <article
+                className="group relative overflow-hidden rounded-2xl bg-goal-16 px-6 py-8 text-white sm:px-8 sm:py-10"
+                data-cursor="link"
+              >
                 <ScalesIcon className="absolute -right-4 -top-2 size-36 text-white/10 transition-transform duration-500 group-hover:scale-105" />
                 <p className="text-sm font-semibold tracking-[0.18em] uppercase text-white/70">
                   Obiettivo 16
@@ -102,8 +72,11 @@ export default async function HomePage() {
               </article>
             </Reveal>
 
-            <Reveal delay={0.16}>
-              <article className="group relative overflow-hidden rounded-2xl bg-goal-17 px-6 py-8 text-white sm:px-8 sm:py-10">
+            <Reveal delay={0.16} variant="fade-up">
+              <article
+                className="group relative overflow-hidden rounded-2xl bg-goal-17 px-6 py-8 text-white sm:px-8 sm:py-10"
+                data-cursor="link"
+              >
                 <NetworkIcon className="absolute -right-4 -top-2 size-36 text-white/10 transition-transform duration-500 group-hover:scale-105" />
                 <p className="text-sm font-semibold tracking-[0.18em] uppercase text-white/70">
                   Obiettivo 17
@@ -127,15 +100,18 @@ export default async function HomePage() {
         </section>
 
         <section className="border-y border-border/70 bg-card/70 backdrop-blur-sm">
-          <Reveal className="mx-auto grid max-w-6xl gap-8 px-4 py-14 sm:grid-cols-3 sm:px-6">
+          <Reveal
+            className="mx-auto grid max-w-6xl gap-8 px-4 py-14 sm:grid-cols-3 sm:px-6"
+            variant="scale"
+          >
             <AnimatedStat label="Articoli pubblicati" value={mockStats.articles} />
             <AnimatedStat label="Autori" value={mockStats.authors} />
             <AnimatedStat label="Quiz disponibili" value={quizzes.length} />
           </Reveal>
         </section>
 
-        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-          <Reveal className="mb-8 flex items-end justify-between gap-4">
+        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+          <Reveal className="mb-8 flex items-end justify-between gap-4" variant="clip-up">
             <div>
               <h2 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
                 In evidenza
@@ -145,7 +121,8 @@ export default async function HomePage() {
               </p>
             </div>
             <Button
-              render={<Link href="/articoli" />}
+              nativeButton={false}
+              render={<Link href="/articoli" data-cursor="link" />}
               variant="outline"
               className="hidden sm:inline-flex"
             >
@@ -154,7 +131,7 @@ export default async function HomePage() {
           </Reveal>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {featured.map((article, index) => (
-              <Reveal key={article.slug} delay={0.06 * index}>
+              <Reveal key={article.slug} delay={0.06 * index} variant="fade-up">
                 <ArticleCard
                   article={article}
                   topic={getTopicBySlug(article.topicSlug)}
@@ -164,15 +141,15 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
-          <Reveal>
+        <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 sm:pb-20">
+          <Reveal variant="clip-up">
             <h2 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
               Ultimi articoli
             </h2>
           </Reveal>
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {latest.map((article, index) => (
-              <Reveal key={article.slug} delay={0.06 * index}>
+              <Reveal key={article.slug} delay={0.06 * index} variant="fade-up">
                 <ArticleCard
                   article={article}
                   topic={getTopicBySlug(article.topicSlug)}
@@ -182,11 +159,15 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
-          <Reveal>
-            <div className="relative overflow-hidden rounded-3xl bg-hero px-6 py-10 text-hero-foreground sm:px-10 sm:py-12">
+        <section className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
+          <Reveal variant="scale">
+            <div className="relative overflow-hidden rounded-3xl bg-hero px-6 py-10 text-hero-foreground sm:px-10 sm:py-14">
               <div
                 className="pointer-events-none absolute -right-10 top-0 size-56 rounded-full bg-primary/25 blur-2xl"
+                aria-hidden
+              />
+              <div
+                className="pointer-events-none absolute -bottom-16 left-10 size-48 rounded-full bg-goal-16/30 blur-3xl"
                 aria-hidden
               />
               <h2 className="font-heading relative text-2xl font-semibold sm:text-3xl">
@@ -201,7 +182,8 @@ export default async function HomePage() {
                   <li key={game.slug}>
                     <Link
                       href={`/gioca/giochi/${game.slug}`}
-                      className="block rounded-xl border border-white/15 bg-white/5 px-4 py-4 transition hover:bg-white/10"
+                      data-cursor="cta"
+                      className="block rounded-xl border border-white/15 bg-white/5 px-4 py-4 transition duration-300 hover:translate-y-[-2px] hover:bg-white/10"
                     >
                       <p className="text-xs font-medium tracking-wide text-primary uppercase">
                         {game.badge} · ~{game.estimatedMinutes} min
@@ -214,13 +196,15 @@ export default async function HomePage() {
               </ul>
               <div className="relative mt-8 flex flex-wrap gap-3">
                 <Button
-                  render={<Link href="/gioca" />}
+                  nativeButton={false}
+                  render={<Link href="/gioca" data-cursor="cta" />}
                   className="bg-white text-hero hover:bg-white/90"
                 >
                   Vai a Gioca e impara
                 </Button>
                 <Button
-                  render={<Link href="/progetto" />}
+                  nativeButton={false}
+                  render={<Link href="/progetto" data-cursor="link" />}
                   variant="outline"
                   className="border-white/35 bg-transparent text-white hover:bg-white/10 hover:text-white"
                 >
