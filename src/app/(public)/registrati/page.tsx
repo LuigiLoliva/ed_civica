@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { RegisterForm } from "@/components/auth/register-form";
+import { RegistratiShell } from "@/components/immersive/registrati-shell";
 import {
   Card,
   CardContent,
@@ -19,7 +20,7 @@ export default async function RegistratiPage() {
 
   if (!settings.studentRegistrationEnabled) {
     return (
-      <div className="mx-auto flex min-h-[60vh] max-w-lg flex-col justify-center px-4 py-16">
+      <RegistratiShell>
         <Card>
           <CardHeader>
             <h1 className="font-heading text-2xl font-semibold">
@@ -40,12 +41,12 @@ export default async function RegistratiPage() {
             </Link>
           </CardContent>
         </Card>
-      </div>
+      </RegistratiShell>
     );
   }
 
   return (
-    <div className="mx-auto flex min-h-[60vh] max-w-lg flex-col justify-center px-4 py-16">
+    <RegistratiShell>
       <Card>
         <CardHeader>
           <h1 className="font-heading text-2xl font-semibold">
@@ -60,6 +61,6 @@ export default async function RegistratiPage() {
           <RegisterForm />
         </CardContent>
       </Card>
-    </div>
+    </RegistratiShell>
   );
 }

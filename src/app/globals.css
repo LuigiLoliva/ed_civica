@@ -375,3 +375,28 @@ html.has-custom-cursor select {
     font-size: 2.75em;
   }
 }
+
+/* Atmosfera route (worker giochi/auth) — convive con eventuale stage shell root */
+.ambient-route-vignette {
+  background:
+    radial-gradient(ellipse 85% 60% at 50% 38%, transparent 35%, rgb(10 28 46 / 8%) 100%),
+  linear-gradient(180deg, rgb(232 241 246 / 35%) 0%, transparent 42%, rgb(10 28 46 / 6%) 100%);
+  mix-blend-mode: multiply;
+  opacity: 0.85;
+}
+
+.ambient-route-canvas {
+  opacity: 0.92;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-route-canvas {
+    opacity: 0.55;
+  }
+}
+
+/* Convivenza: stage shell globale o stage pagina (Goal 16/17) attenuano l'overlay per-route */
+html:has([data-shell-stage]) .ambient-route-canvas,
+html:has([data-webgl-stage]) .ambient-route-canvas {
+  opacity: 0.28;
+}

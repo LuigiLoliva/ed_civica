@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
+import { AuthStage } from "@/components/immersive/auth-stage";
 import {
   Card,
   CardContent,
@@ -14,8 +15,8 @@ export const metadata: Metadata = {
 
 export default function ResetPasswordPage() {
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-partnership-pattern px-4">
-      <Card className="w-full max-w-md">
+    <AuthStage>
+      <Card className="w-full max-w-md bg-card/95 shadow-depth backdrop-blur-sm">
         <CardHeader>
           <h1 className="font-heading text-2xl font-semibold">
             Imposta nuova password
@@ -29,6 +30,6 @@ export default function ResetPasswordPage() {
           <ResetPasswordForm />
         </CardContent>
       </Card>
-    </div>
+    </AuthStage>
   );
 }

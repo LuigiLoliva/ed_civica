@@ -1,6 +1,7 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+
+import { QuizPageChrome } from "@/components/immersive/quiz-page-chrome";
 import { QuizPlayer } from "@/components/quiz/QuizPlayer";
 import { getQuizBySlug, quizzes } from "@/data/quizzes";
 
@@ -23,16 +24,8 @@ export default async function QuizPage({ params }: Props) {
   if (!quiz) notFound();
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 px-4 py-12 sm:px-6">
-      <p>
-        <Link
-          href="/gioca"
-          className="text-sm text-primary underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-        >
-          ← Torna a Gioca e impara
-        </Link>
-      </p>
+    <QuizPageChrome>
       <QuizPlayer quiz={quiz} />
-    </div>
+    </QuizPageChrome>
   );
 }
