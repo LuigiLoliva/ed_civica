@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { memoryPairs } from "@/data/games/memory-sdgs";
 import { MatchBurst } from "@/components/games/MatchBurst";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
+import { motionDuration, motionSpring } from "@/lib/motion/tokens";
 
 type Card = {
   key: string;
@@ -73,7 +75,7 @@ function CardFaceCovered({ accent }: { accent: string }) {
 }
 
 export function MemorySdgs() {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = usePrefersReducedMotion();
   const gridRef = useRef<HTMLDivElement>(null);
   // Shuffle only after mount to avoid SSR/client hydration mismatch.
   const [deck, setDeck] = useState<Card[] | null>(null);
@@ -237,13 +239,13 @@ export function MemorySdgs() {
               }}
               transition={{
                 delay: reduceMotion ? 0 : index * 0.03,
-                duration: 0.35,
-                scale: { duration: 0.45 },
+                duration: motionDuration.fast,
+                scale: { duration: motionDuration.base },
               }}
               whileHover={
                 reduceMotion || isOpen
                   ? undefined
-                  : { y: -2, transition: { duration: 0.2 } }
+                  : { y: -2, transition: { duration: motionDuration.instant } }
               }
               whileTap={reduceMotion ? undefined : { scale: 0.97 }}
             >
@@ -273,7 +275,7 @@ export function MemorySdgs() {
                   className="relative block h-full min-h-28 w-full"
                   style={{ transformStyle: "preserve-3d" }}
                   animate={{ rotateY: isOpen ? 180 : 0 }}
-                  transition={{ type: "spring", stiffness: 260, damping: 22 }}
+                  transition={{ type: "spring", ...motionSpring.magnetic }}
                 >
                   <span
                     className="absolute inset-0 flex items-center justify-center rounded-xl border border-border bg-gradient-to-br from-white via-warm-surface to-[#d4e8f4] shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]"

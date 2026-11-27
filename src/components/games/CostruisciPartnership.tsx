@@ -4,13 +4,18 @@ import { useMemo, useState } from "react";
 import {
   AnimatePresence,
   motion,
-  useReducedMotion,
 } from "framer-motion";
 import {
   actorLabels,
   partnershipScenario,
 } from "@/data/games/partnership";
 import type { PartnershipActor } from "@/lib/types/games";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
+import {
+  motionDuration,
+  motionEase,
+  motionSpring,
+} from "@/lib/motion/tokens";
 
 const ACTORS: PartnershipActor[] = [
   "governi",
@@ -31,7 +36,7 @@ function nodePos(i: number) {
 }
 
 export function CostruisciPartnership() {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = usePrefersReducedMotion();
   const [selected, setSelected] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
 
@@ -163,9 +168,12 @@ export function CostruisciPartnership() {
                         : { pathLength: 0, opacity: 0 }
                     }
                     transition={{
-                      pathLength: { duration: 0.45, ease: [0.22, 1, 0.36, 1] },
+                      pathLength: {
+                        duration: motionDuration.base,
+                        ease: motionEase.out,
+                      },
                       opacity: reduceMotion
-                        ? { duration: 0.3 }
+                        ? { duration: motionDuration.fast }
                         : { duration: 2.2, repeat: Infinity, ease: "easeInOut" },
                     }}
                   />
@@ -212,7 +220,7 @@ export function CostruisciPartnership() {
                             : "drop-shadow(0 0 0 rgba(0,0,0,0))",
                         }
                   }
-                  transition={{ type: "spring", stiffness: 280, damping: 18 }}
+                  transition={{ type: "spring", ...motionSpring.magnetic }}
                 />
                 <text
                   x={x}
@@ -290,7 +298,7 @@ export function CostruisciPartnership() {
           aria-live="polite"
           initial={reduceMotion ? false : { opacity: 0, y: 12, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ type: "spring", stiffness: 280, damping: 24 }}
+          transition={{ type: "spring", ...motionSpring.soft }}
         >
           <p className="font-semibold">
             {requiredOk

@@ -1,7 +1,9 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useId, useMemo, useState } from "react";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
+import { motionDuration, motionEase } from "@/lib/motion/tokens";
 
 type Burst = {
   id: string;
@@ -30,7 +32,7 @@ export function MatchBurst({
   y,
   color = "var(--onu)",
 }: MatchBurstProps) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = usePrefersReducedMotion();
   const reactId = useId();
   const [bursts, setBursts] = useState<Burst[]>([]);
 
@@ -103,9 +105,9 @@ function BurstParticles({ burst }: { burst: Burst }) {
             opacity: 0,
           }}
           transition={{
-            duration: 0.55,
+            duration: motionDuration.base,
             delay: p.delay,
-            ease: [0.22, 1, 0.36, 1],
+            ease: motionEase.out,
           }}
         />
       ))}
@@ -120,7 +122,7 @@ function BurstParticles({ burst }: { burst: Burst }) {
         }}
         initial={{ scale: 0.3, opacity: 0.9 }}
         animate={{ scale: 3.2, opacity: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        transition={{ duration: motionDuration.base, ease: motionEase.out }}
       />
     </motion.div>
   );

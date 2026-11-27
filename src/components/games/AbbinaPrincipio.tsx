@@ -4,10 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import {
   AnimatePresence,
   motion,
-  useReducedMotion,
   type PanInfo,
 } from "framer-motion";
 import { abbinaItems } from "@/data/games/abbina-principio";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
+import { motionDuration, motionSpring } from "@/lib/motion/tokens";
 
 type Organ = (typeof abbinaItems)[number];
 type FnItem = { id: string; text: string };
@@ -22,7 +23,7 @@ function shuffle<T>(items: T[]): T[] {
 }
 
 export function AbbinaPrincipio() {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = usePrefersReducedMotion();
   // Shuffle after mount only — avoids SSR/client hydration mismatch.
   const [organs, setOrgans] = useState<Organ[] | null>(null);
   const [functions, setFunctions] = useState<FnItem[] | null>(null);
@@ -234,7 +235,10 @@ export function AbbinaPrincipio() {
                       zIndex: 40,
                       cursor: "grabbing",
                     }}
-                    whileHover={{ y: -1, transition: { duration: 0.15 } }}
+                    whileHover={{
+                      y: -1,
+                      transition: { duration: motionDuration.instant },
+                    }}
                     whileTap={{ scale: 0.985 }}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -298,8 +302,7 @@ export function AbbinaPrincipio() {
                   transition={{
                     delay: reduceMotion ? 0 : i * 0.04,
                     type: "spring",
-                    stiffness: 380,
-                    damping: 28,
+                    ...motionSpring.cursor,
                   }}
                   className={[
                     "relative w-full cursor-pointer overflow-hidden rounded-xl border px-4 py-3 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
@@ -318,7 +321,7 @@ export function AbbinaPrincipio() {
                         initial={{ opacity: 0.8 }}
                         animate={{ opacity: 0 }}
                         exit={{ opacity: 0 }}
-                        transition={{ duration: 0.45 }}
+                        transition={{ duration: motionDuration.base }}
                         aria-hidden
                       />
                     )}

@@ -5,11 +5,12 @@ import {
   AnimatePresence,
   motion,
   useMotionValue,
-  useReducedMotion,
   useTransform,
   type PanInfo,
 } from "framer-motion";
 import { veroFalsoItems } from "@/data/games/vero-falso";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
+import { motionDuration, motionSpring } from "@/lib/motion/tokens";
 
 type Feedback = {
   correct: boolean;
@@ -18,7 +19,7 @@ type Feedback = {
 } | null;
 
 export function VeroFalsoSwipe() {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = usePrefersReducedMotion();
   const [index, setIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
@@ -173,10 +174,10 @@ export function VeroFalsoSwipe() {
                   : {
                       opacity: 0,
                       x: exitDir * 160,
-                      transition: { duration: 0.28 },
+                      transition: { duration: motionDuration.fast },
                     }
               }
-              transition={{ type: "spring", stiffness: 320, damping: 28 }}
+              transition={{ type: "spring", ...motionSpring.magnetic }}
               className="relative overflow-hidden rounded-xl border border-border bg-white p-6 shadow-[0_12px_40px_-18px_rgba(0,110,170,0.35)]"
             >
               {!reduceMotion && !feedback && (
@@ -245,7 +246,7 @@ export function VeroFalsoSwipe() {
                     }
                     animate={{ opacity: 1, y: 0, height: "auto" }}
                     exit={{ opacity: 0 }}
-                    transition={{ type: "spring", stiffness: 280, damping: 26 }}
+                    transition={{ type: "spring", ...motionSpring.magnetic }}
                     className={[
                       "relative mt-5 space-y-2 overflow-hidden rounded-lg border px-4 py-3",
                       feedback.correct

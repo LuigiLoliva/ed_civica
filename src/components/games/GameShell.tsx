@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
+import { motionDuration, motionEase } from "@/lib/motion/tokens";
 
 export function GameShell({
   title,
@@ -13,7 +15,7 @@ export function GameShell({
   description: string;
   children: ReactNode;
 }) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = usePrefersReducedMotion();
 
   return (
     <div className="relative mx-auto max-w-3xl space-y-6 overflow-hidden px-4 py-12 sm:px-6">
@@ -38,6 +40,7 @@ export function GameShell({
         <Link
           href="/gioca"
           className="text-sm text-primary underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+          data-cursor="link"
         >
           ← Torna a Gioca e impara
         </Link>
@@ -46,7 +49,10 @@ export function GameShell({
         className="relative space-y-2"
         initial={reduceMotion ? false : { opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        transition={{
+          duration: motionDuration.base,
+          ease: motionEase.out,
+        }}
       >
         <h1 className="font-heading text-3xl text-foreground">{title}</h1>
         <p className="text-muted-foreground">{description}</p>
@@ -55,7 +61,11 @@ export function GameShell({
         className="relative"
         initial={reduceMotion ? false : { opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: reduceMotion ? 0 : 0.08, duration: 0.45 }}
+        transition={{
+          delay: reduceMotion ? 0 : motionDuration.instant,
+          duration: motionDuration.base,
+          ease: motionEase.out,
+        }}
       >
         {children}
       </motion.div>
