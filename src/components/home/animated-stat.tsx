@@ -23,7 +23,7 @@ export function AnimatedStat({
   className,
 }: AnimatedStatProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-10% 0px" });
+  const inView = useInView(ref, { once: true, margin: "-22% 0px" });
   const reduceMotion = usePrefersReducedMotion();
   const [display, setDisplay] = useState(0);
 
@@ -35,12 +35,12 @@ export function AnimatedStat({
       return;
     }
 
-    let frame = 0;
-    const totalFrames = 36;
+    const duration = 1500;
+    let start = 0;
     let raf = 0;
-    const tick = () => {
-      frame += 1;
-      const progress = Math.min(frame / totalFrames, 1);
+    const tick = (now: number) => {
+      if (!start) start = now;
+      const progress = Math.min((now - start) / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
       setDisplay(Math.round(value * eased));
       if (progress < 1) raf = requestAnimationFrame(tick);

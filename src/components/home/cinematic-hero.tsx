@@ -166,7 +166,7 @@ export function CinematicHero({
 
         {/* Globo 3D: centro ottico della scena */}
         <motion.div
-          className="absolute top-[33%] left-1/2 z-[2] w-[min(118vw,62svh)] lg:top-1/2 lg:left-[63%] lg:w-[min(60vw,92svh)]"
+          className="absolute top-[33%] left-1/2 z-[2] w-[min(118vw,62svh)] lg:top-1/2 lg:left-[61%] lg:w-[min(62vw,102svh)]"
           style={reduceMotion ? undefined : { x: globeX, y: globeY }}
         >
           <motion.div

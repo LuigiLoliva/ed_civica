@@ -670,7 +670,8 @@ export function HeroGlobe({ zoom, className }: HeroGlobeProps) {
       ctx.globalCompositeOperation = "source-over";
 
       /* Etichette DOM agganciate ai nodi orbitali */
-      const wrapLeft = compact ? wrap.getBoundingClientRect().left : 0;
+      const wrapLeft = wrap.getBoundingClientRect().left;
+      const viewportW = window.innerWidth;
       for (let i = 0; i < nodeDraw.length; i += 1) {
         const label = labelRefs.current[i];
         if (!label) continue;
@@ -678,11 +679,15 @@ export function HeroGlobe({ zoom, className }: HeroGlobeProps) {
         const reveal = clamp01((time - 1.9 - i * 0.25) / 0.8);
         const hidden =
           node.z < 0 && Math.hypot(node.x - cx, node.y - cy) < bodyR * 1.05;
-        const alpha = hidden ? 0 : reveal * (node.z >= 0 ? 1 : 0.45);
+        // Le etichette si spengono dove passerebbero sotto la tipografia (sinistra su desktop, in basso su mobile).
+        const clear = compact
+          ? 1 - clamp01((node.y - cy - R * 0.95) / (R * 0.35))
+          : clamp01((node.x - cx + R * 1.15) / (R * 0.4));
+        const alpha = hidden ? 0 : reveal * clear * (node.z >= 0 ? 1 : 0.45);
         label.style.opacity = alpha.toFixed(3);
         const gap = (R * 0.09) / dpr + 6;
         // Su schermi stretti l'etichetta passa a sinistra del nodo invece di uscire dal viewport.
-        const flip = compact && wrapLeft + node.x / dpr + gap + 132 > window.innerWidth;
+        const flip = wrapLeft + node.x / dpr + gap + 150 > viewportW;
         label.style.flexDirection = flip ? "row-reverse" : "row";
         label.style.transform = flip
           ? `translate3d(${(node.x / dpr - gap).toFixed(1)}px, ${(node.y / dpr).toFixed(1)}px, 0) translate(-100%, -50%)`
