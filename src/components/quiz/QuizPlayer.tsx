@@ -165,7 +165,7 @@ export function QuizPlayer({ quiz }: { quiz: Quiz }) {
                       checked
                         ? "border-primary bg-primary/5"
                         : "border-border hover:border-primary/50",
-                      showState && isCorrectOpt ? "border-emerald-500 bg-emerald-50" : "",
+                      showState && isCorrectOpt ? "border-primary bg-primary/10" : "",
                       showState && checked && !isCorrectOpt ? "border-rose-400 bg-rose-50" : "",
                     ].join(" ")}
                   >
@@ -201,7 +201,7 @@ export function QuizPlayer({ quiz }: { quiz: Quiz }) {
                 className={[
                   "space-y-3 rounded-lg border px-4 py-3",
                   lastCorrect
-                    ? "border-emerald-300 bg-emerald-50 text-emerald-950"
+                    ? "border-primary/40 bg-primary/10 text-primary"
                     : "border-rose-300 bg-rose-50 text-rose-950",
                 ].join(" ")}
                 role="status"

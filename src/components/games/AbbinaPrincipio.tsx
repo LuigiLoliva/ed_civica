@@ -309,7 +309,7 @@ export function AbbinaPrincipio() {
                     "border-border bg-white",
                     taken ? "border-goal-16" : "",
                     wrong ? "border-rose-400 bg-rose-50" : "",
-                    correct ? "border-emerald-400 bg-emerald-50" : "",
+                    correct ? "border-primary bg-primary/10" : "",
                     isHot ? "border-primary bg-primary/10 shadow-md" : "",
                   ].join(" ")}
                   aria-label={`Funzione: ${fn.text}${organForFn ? `. Già abbinata.` : ""}`}

@@ -41,8 +41,8 @@ export function CinematicPageBanner({
         className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14"
         color={
           tone === "ocean"
-            ? "rgb(27 122 78 / 26%)"
-            : "rgb(27 122 78 / 22%)"
+            ? "rgb(30 58 138 / 26%)"
+            : "rgb(30 58 138 / 22%)"
         }
         hoverOnly={tone === "light"}
       >

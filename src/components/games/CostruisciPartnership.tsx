@@ -128,7 +128,7 @@ export function CostruisciPartnership() {
           className="pointer-events-none absolute inset-0 rounded-full opacity-40"
           style={{
             background:
-              "radial-gradient(circle at 50% 48%, rgba(27,122,78,0.18), transparent 62%)",
+              "radial-gradient(circle at 50% 48%, rgba(30,58,138,0.18), transparent 62%)",
           }}
           aria-hidden
         />
@@ -216,7 +216,7 @@ export function CostruisciPartnership() {
                       : {
                           scale: active ? 1.06 : 1,
                           filter: active
-                            ? "drop-shadow(0 0 6px rgba(10,46,28,0.45))"
+                            ? "drop-shadow(0 0 6px rgba(23,37,84,0.45))"
                             : "drop-shadow(0 0 0 rgba(0,0,0,0))",
                         }
                   }
@@ -252,7 +252,7 @@ export function CostruisciPartnership() {
               className={[
                 "flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition-colors",
                 on
-                  ? "border-goal-17 bg-goal-17/5 shadow-[0_8px_24px_-16px_rgba(10,46,28,0.5)]"
+                  ? "border-goal-17 bg-goal-17/5 shadow-[0_8px_24px_-16px_rgba(23,37,84,0.5)]"
                   : "border-border bg-white/70",
               ].join(" ")}
               onKeyDown={(e) => onKeyToggle(e, choice.id)}

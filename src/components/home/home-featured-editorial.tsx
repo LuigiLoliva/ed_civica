@@ -110,7 +110,7 @@ export function HomeFeaturedEditorial({ items }: HomeFeaturedEditorialProps) {
             <div className="absolute inset-0 bg-gradient-to-t from-hero via-hero/40 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-6 sm:p-10 lg:p-14">
               {lead.topic ? (
-                <p className="text-xs font-semibold tracking-[0.22em] text-emerald-100/85 uppercase">
+                <p className="text-xs font-semibold tracking-[0.22em] text-blue-100/85 uppercase">
                   {lead.topic.name}
                 </p>
               ) : null}

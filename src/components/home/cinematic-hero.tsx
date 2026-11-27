@@ -35,7 +35,7 @@ export function CinematicHero({ siteName, tagline }: CinematicHeroProps) {
 
   const glowX = useTransform(springX, (v) => `${v * 100}%`);
   const glowY = useTransform(springY, (v) => `${v * 100}%`);
-  const glowBackground = useMotionTemplate`radial-gradient(720px circle at ${glowX} ${glowY}, rgb(27 122 78 / 36%), transparent 58%)`;
+  const glowBackground = useMotionTemplate`radial-gradient(720px circle at ${glowX} ${glowY}, rgb(30 58 138 / 36%), transparent 58%)`;
 
   const onMove = useCallback(
     (event: MouseEvent<HTMLElement>) => {
@@ -86,7 +86,7 @@ export function CinematicHero({ siteName, tagline }: CinematicHeroProps) {
 
           <div className="relative z-[3] max-w-4xl pt-[min(58vw,20rem)] sm:pt-[min(42vw,18rem)] lg:max-w-[72%] lg:pt-0">
             <motion.p
-              className="mb-4 text-[0.7rem] font-semibold tracking-[0.34em] text-emerald-100/80 uppercase sm:mb-5 sm:text-xs"
+              className="mb-4 text-[0.7rem] font-semibold tracking-[0.34em] text-blue-100/80 uppercase sm:mb-5 sm:text-xs"
               initial={reduceMotion ? false : { opacity: 0, x: -28 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{
@@ -99,7 +99,7 @@ export function CinematicHero({ siteName, tagline }: CinematicHeroProps) {
 
             <h1 className="font-heading leading-[0.76] tracking-tight">
               <motion.span
-                className="block text-[clamp(5rem,18vw,13rem)] font-semibold text-balance drop-shadow-[0_16px_48px_rgb(6_18_32_/_65%)]"
+                className="block text-[clamp(5rem,18vw,13rem)] font-semibold text-balance drop-shadow-[0_16px_48px_rgb(15_23_42_/_65%)]"
                 initial={
                   reduceMotion
                     ? false
@@ -115,7 +115,7 @@ export function CinematicHero({ siteName, tagline }: CinematicHeroProps) {
               </motion.span>
               {secondary ? (
                 <motion.span
-                  className="mt-[-0.06em] block text-[clamp(4rem,15vw,11rem)] font-semibold text-emerald-50/95 text-balance drop-shadow-[0_16px_48px_rgb(6_18_32_/_55%)]"
+                  className="mt-[-0.06em] block text-[clamp(4rem,15vw,11rem)] font-semibold text-slate-50/95 text-balance drop-shadow-[0_16px_48px_rgb(15_23_42_/_55%)]"
                   initial={
                     reduceMotion
                       ? false

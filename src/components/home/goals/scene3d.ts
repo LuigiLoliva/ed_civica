@@ -27,17 +27,17 @@ export type Projected = {
   z: number;
 };
 
-/** RGB allineati ai token «Bosco di Pace» in globals.css */
+/** RGB allineati ai token istituzionali 60-30-10 in globals.css */
 export const PALETTE = {
   white: [255, 255, 255],
-  ice: [242, 248, 244],
-  sky: [168, 208, 138],
-  onu: [27, 122, 78],
-  deep: [20, 92, 59],
-  navy: [10, 46, 28],
-  olive: [61, 173, 106],
-  oliveDeep: [30, 100, 65],
-  sage: [134, 179, 140],
+  ice: [248, 250, 252],
+  sky: [147, 197, 253],
+  onu: [30, 58, 138],
+  deep: [30, 58, 138],
+  navy: [23, 37, 84],
+  olive: [217, 119, 6],
+  oliveDeep: [180, 83, 9],
+  sage: [100, 116, 139],
 } as const satisfies Record<string, Rgb>;
 
 export const rgba = (c: Rgb, a: number) =>

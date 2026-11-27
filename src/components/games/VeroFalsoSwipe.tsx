@@ -183,7 +183,7 @@ export function VeroFalsoSwipe() {
               {!reduceMotion && !feedback && (
                 <>
                   <motion.div
-                    className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent to-emerald-200/50"
+                    className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent to-primary/20"
                     style={{ opacity: veroGlow }}
                     aria-hidden
                   />
@@ -193,7 +193,7 @@ export function VeroFalsoSwipe() {
                     aria-hidden
                   />
                   <motion.span
-                    className="pointer-events-none absolute right-4 top-4 rounded-md border border-emerald-400/60 bg-emerald-50/90 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-800"
+                    className="pointer-events-none absolute right-4 top-4 rounded-md border border-primary/50 bg-primary/10 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-primary"
                     style={{ opacity: veroGlow }}
                     aria-hidden
                   >
@@ -230,7 +230,7 @@ export function VeroFalsoSwipe() {
                     type="button"
                     onClick={() => answer(true)}
                     whileTap={reduceMotion ? undefined : { scale: 0.97 }}
-                    className="flex-1 rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 font-medium text-emerald-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                    className="flex-1 rounded-lg border border-primary/40 bg-primary/10 px-4 py-3 font-medium text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                   >
                     Vero →
                   </motion.button>
@@ -250,7 +250,7 @@ export function VeroFalsoSwipe() {
                     className={[
                       "relative mt-5 space-y-2 overflow-hidden rounded-lg border px-4 py-3",
                       feedback.correct
-                        ? "border-emerald-300 bg-emerald-50"
+                        ? "border-primary/40 bg-primary/10"
                         : "border-rose-300 bg-rose-50",
                     ].join(" ")}
                     role="status"

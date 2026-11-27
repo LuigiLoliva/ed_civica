@@ -51,47 +51,47 @@ export const topics: MockTopic[] = [
     name: "ONU: storia e struttura",
     description:
       "Origini, Carta delle Nazioni Unite e organi principali.",
-    color: "#1B7A4E",
+    color: "#1E3A8A",
   },
   {
     slug: "obiettivo-16",
     name: "Obiettivo 16",
     description: "Pace, giustizia e istituzioni solide.",
-    color: "#145C3B",
+    color: "#1E3A8A",
   },
   {
     slug: "obiettivo-17",
     name: "Obiettivo 17",
     description: "Partnership per gli obiettivi.",
-    color: "#0A2E1C",
+    color: "#172554",
   },
   {
     slug: "diritti-umani",
     name: "Diritti umani",
     description:
       "Dichiarazione Universale e tutela internazionale dei diritti.",
-    color: "#4A7C59",
+    color: "#334155",
   },
   {
     slug: "giustizia-internazionale",
     name: "Giustizia internazionale",
     description:
       "Corte Internazionale di Giustizia, CPI e diritto internazionale.",
-    color: "#2F6B4A",
+    color: "#1E40AF",
   },
   {
     slug: "cooperazione-partnership",
     name: "Cooperazione e partnership",
     description:
       "Cooperazione tra Stati, società civile, scuole e imprese.",
-    color: "#3D8A5C",
+    color: "#475569",
   },
   {
     slug: "attualita",
     name: "Attualità",
     description:
       "Notizie e approfondimenti collegati a ONU e Agenda 2030.",
-    color: "#C9B24A",
+    color: "#D97706",
   },
 ];
 
