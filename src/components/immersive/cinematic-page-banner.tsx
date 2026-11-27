@@ -13,7 +13,7 @@ type CinematicPageBannerProps = {
   eyebrow?: string;
   children?: ReactNode;
   className?: string;
-  tone?: "light" | "ocean";
+  tone?: "light" | "ocean" | "glass";
 };
 
 /** Intestazione cinematica per pagine secondarie (gioca, legali, argomenti). */
@@ -29,7 +29,11 @@ export function CinematicPageBanner({
     <header
       className={cn(
         "relative border-b border-border/60",
-        tone === "ocean" ? "bg-hero-ocean text-hero-foreground" : "bg-page-banner",
+        tone === "ocean"
+          ? "bg-hero-ocean text-hero-foreground"
+          : tone === "glass"
+            ? "border-border/45"
+            : "bg-page-banner",
         className,
       )}
     >
