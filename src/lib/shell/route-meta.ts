@@ -234,5 +234,5 @@ export const accentRgb: Record<RouteAccent, readonly [number, number, number]> =
   onu: [0, 158, 219],
   goal16: [0, 104, 157],
   goal17: [25, 72, 106],
-  olive: [95, 125, 82],
+  olive: [42, 125, 98],
 };

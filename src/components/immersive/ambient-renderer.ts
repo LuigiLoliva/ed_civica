@@ -112,7 +112,7 @@ export function renderRouteAmbient(
   );
   bg.addColorStop(0, "rgb(14 36 54 / 0%)");
   bg.addColorStop(0.45, "rgb(0 104 157 / 6%)");
-  bg.addColorStop(1, "rgb(10 28 46 / 14%)");
+  bg.addColorStop(1, "rgb(11 34 54 / 14%)");
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, w, h);
 
