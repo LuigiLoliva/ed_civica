@@ -23,9 +23,9 @@ export function HeroBackdrop() {
       style={reduceMotion ? undefined : { opacity }}
       aria-hidden
     >
-      <div className="animate-hero-drift absolute -right-[12%] top-[-8%] h-[70vmin] w-[70vmin] rounded-full bg-[radial-gradient(circle,rgb(27_122_78_/_28%),transparent_68%)]" />
-      <div className="animate-hero-drift absolute -left-[18%] bottom-[-20%] h-[55vmin] w-[55vmin] rounded-full bg-[radial-gradient(circle,rgb(95_125_82_/_16%),transparent_70%)] [animation-delay:-6s]" />
-      <div className="animate-hero-drift absolute top-[40%] right-[35%] h-[30vmin] w-[30vmin] rounded-full bg-[radial-gradient(circle,rgb(20_92_59_/_22%),transparent_70%)] [animation-delay:-11s]" />
+      <div className="animate-hero-drift absolute -right-[12%] top-[-8%] h-[70vmin] w-[70vmin] rounded-full bg-[radial-gradient(circle,rgb(30_58_138_/_28%),transparent_68%)]" />
+      <div className="animate-hero-drift absolute -left-[18%] bottom-[-20%] h-[55vmin] w-[55vmin] rounded-full bg-[radial-gradient(circle,rgb(71_85_105_/_16%),transparent_70%)] [animation-delay:-6s]" />
+      <div className="animate-hero-drift absolute top-[40%] right-[35%] h-[30vmin] w-[30vmin] rounded-full bg-[radial-gradient(circle,rgb(30_58_138_/_22%),transparent_70%)] [animation-delay:-11s]" />
 
       <motion.div style={reduceMotion ? undefined : { y: ySlow }}>
         <GlobeIcon className="absolute right-[6%] top-[18%] size-[min(42vw,18rem)] text-white/10 sm:right-[10%]" />

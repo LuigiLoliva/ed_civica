@@ -16,23 +16,23 @@ export const siteConfig = {
     16: {
       number: 16,
       title: "Pace, giustizia e istituzioni solide",
-      color: "#145C3B",
+      color: "#1E3A8A",
       slug: "obiettivo-16",
     },
     17: {
       number: 17,
       title: "Partnership per gli obiettivi",
-      color: "#0A2E1C",
+      color: "#172554",
       slug: "obiettivo-17",
     },
   },
 
   /** Colori istituzionali (allineati ai CSS tokens) */
   colors: {
-    onu: "#1B7A4E",
-    goal16: "#145C3B",
-    goal17: "#0A2E1C",
-    peace: "#3DAD6A",
+    onu: "#1E3A8A",
+    goal16: "#1E3A8A",
+    goal17: "#172554",
+    peace: "#D97706",
   },
 
   nav: [

@@ -220,10 +220,13 @@ e2e/                # Playwright
 
 ## Design system
 
-- **Primario (azione):** `#1B7A4E`
-- **Obiettivo 16:** `#145C3B`
-- **Obiettivo 17:** `#0A2E1C`
-- **Pace:** `#3DAD6A`
+Palette istituzionale 60-30-10:
+
+- **Sfondo (60%):** `#F8FAFC`
+- **Superfici / card / navbar:** `#FFFFFF` · bordo `#E2E8F0`
+- **Primario (30%):** `#1E3A8A` · hover `#172554`
+- **Accent (10%):** `#D97706`
+- **Testo:** `#0F172A` · secondario `#475569`
 - **Font titoli:** Fraunces · **Interfaccia:** Inter
 - Token CSS in `src/app/globals.css` · motivi SVG in `src/components/icons/onu-motifs.tsx`
 

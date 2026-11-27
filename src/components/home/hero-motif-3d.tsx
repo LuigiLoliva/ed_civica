@@ -27,7 +27,7 @@ export function HeroMotif3D() {
   const rotateX = useTransform(springY, [-0.5, 0.5], [18, -18]);
   const lightX = useTransform(springX, [-0.5, 0.5], [28, 72]);
   const lightY = useTransform(springY, [-0.5, 0.5], [22, 68]);
-  const sphereGlow = useMotionTemplate`radial-gradient(circle at ${lightX}% ${lightY}%, #a8d08a 0%, #1b7a4e 28%, #145c3b 58%, #06140e 100%)`;
+  const sphereGlow = useMotionTemplate`radial-gradient(circle at ${lightX}% ${lightY}%, #93c5fd 0%, #1e3a8a 28%, #1e3a8a 58%, #0b1220 100%)`;
   const rimLight = useMotionTemplate`radial-gradient(circle at ${lightX}% ${lightY}%, rgb(255 255 255 / 55%), transparent 42%)`;
 
   const onMove = useCallback(
@@ -56,7 +56,7 @@ export function HeroMotif3D() {
     >
       {/* Alone atmosferico */}
       <div
-        className="pointer-events-none absolute inset-[-18%] rounded-full bg-[radial-gradient(circle,rgb(27_122_78_/_35%),transparent_68%)] blur-2xl"
+        className="pointer-events-none absolute inset-[-18%] rounded-full bg-[radial-gradient(circle,rgb(30_58_138_/_35%),transparent_68%)] blur-2xl"
         aria-hidden
       />
 
@@ -75,7 +75,7 @@ export function HeroMotif3D() {
       >
         {/* Anello esterno giustizia */}
         <motion.div
-          className="hero-motif-ring absolute inset-[6%] rounded-full border border-emerald-200/25"
+          className="hero-motif-ring absolute inset-[6%] rounded-full border border-blue-200/25"
           style={{ transform: "translateZ(-40px) rotateX(68deg)" }}
           aria-hidden
         />
@@ -92,7 +92,7 @@ export function HeroMotif3D() {
 
         {/* Sfera centrale */}
         <div
-          className="absolute inset-[28%] overflow-hidden rounded-full shadow-[0_30px_80px_-20px_rgb(20_92_59_/_70%)]"
+          className="absolute inset-[28%] overflow-hidden rounded-full shadow-[0_30px_80px_-20px_rgb(30_58_138_/_70%)]"
           style={{ transform: "translateZ(80px)" }}
         >
           <motion.div
@@ -181,7 +181,7 @@ export function HeroMotif3D() {
 
         {/* Specchio pavimento */}
         <div
-          className="pointer-events-none absolute inset-x-[18%] bottom-[-2%] h-[18%] rounded-[100%] bg-[radial-gradient(ellipse,rgb(27_122_78_/_28%),transparent_70%)] blur-md"
+          className="pointer-events-none absolute inset-x-[18%] bottom-[-2%] h-[18%] rounded-[100%] bg-[radial-gradient(ellipse,rgb(30_58_138_/_28%),transparent_70%)] blur-md"
           style={{ transform: "translateZ(-10px) rotateX(80deg)" }}
           aria-hidden
         />
@@ -209,7 +209,7 @@ function OrbitNode({
     hue === "olive"
       ? "bg-olive/25 ring-olive/40"
       : hue === "goal16"
-        ? "bg-goal-16/30 ring-emerald-300/35"
+        ? "bg-goal-16/30 ring-blue-300/35"
         : "bg-primary/25 ring-primary/40";
 
   return (
@@ -266,7 +266,7 @@ function OliveMark() {
 
 function ScalesMark() {
   return (
-    <svg viewBox="0 0 32 32" className="size-7 text-emerald-50" aria-hidden>
+    <svg viewBox="0 0 32 32" className="size-7 text-slate-50" aria-hidden>
       <path d="M16 6v18M10 24h12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
       <path d="M8 12h16M8 12l-3 7h6l-3-7zm16 0l-3 7h6l-3-7z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
       <circle cx="16" cy="6" r="1.6" fill="currentColor" />
