@@ -38,13 +38,13 @@ export function SiteFooter({ settings }: SiteFooterProps) {
       </div>
       <div className="shell-footer-grid" aria-hidden />
 
-      <Spotlight color="rgb(0 114 186 / 20%)" size={520}>
+      <Spotlight color="rgb(27 122 78 / 20%)" size={520}>
         <div className="mx-auto max-w-6xl px-4 pt-16 sm:px-6 sm:pt-20">
           <div className="grid gap-10 md:grid-cols-[1.35fr_1fr_1fr]">
             <Reveal className="space-y-3">
               <div className="flex items-center gap-2.5">
                 <span className="shell-footer-mark">
-                  <OliveBranchIcon className="size-6 text-sky-300" />
+                  <OliveBranchIcon className="size-6 text-emerald-300" />
                 </span>
                 <p className="font-heading text-2xl font-semibold">
                   {settings.siteName}

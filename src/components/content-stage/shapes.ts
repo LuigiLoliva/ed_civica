@@ -10,11 +10,11 @@ export type ContentSceneId =
   | "progetto"
   | "argomenti";
 
-const ON = [0, 114, 186] as const;
-const G16 = [0, 78, 122] as const;
-const G17 = [11, 53, 84] as const;
-const ICE = [198, 228, 240] as const;
-const OLIVE = [95, 125, 82] as const;
+const ON = [27, 122, 78] as const;
+const G16 = [20, 92, 59] as const;
+const G17 = [10, 46, 28] as const;
+const ICE = [214, 232, 218] as const;
+const OLIVE = [61, 173, 106] as const;
 
 function rgba(rgb: readonly [number, number, number], a: number) {
   return Uint8Array.from([rgb[0], rgb[1], rgb[2], Math.round(a * 255)]);
@@ -351,7 +351,7 @@ export function getShapeForScene(
       shape = shapeProgetto();
       break;
     case "argomenti":
-      shape = shapeArgomenti(accentHex ?? "#0072BA");
+      shape = shapeArgomenti(accentHex ?? "#1B7A4E");
       break;
     default:
       shape = shapeArticoliList();

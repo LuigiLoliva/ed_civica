@@ -95,7 +95,7 @@ function FilterChip({
         render={<Link href={href} data-cursor="link" />}
         className={cn(
           "h-8 px-3 transition-transform duration-300",
-          active && "shadow-[0_8px_20px_rgb(0_158_219_/_25%)]",
+          active && "shadow-[0_8px_20px_rgb(27_122_78_/_25%)]",
         )}
         style={
           active && accent ? { boxShadow: `0 8px 20px ${accent}33` } : undefined

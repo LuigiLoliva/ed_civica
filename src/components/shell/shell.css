@@ -139,10 +139,10 @@ html[data-route-phase="entering"] [data-shell-root]:not(:has(.route-surface)) {
   background: linear-gradient(
     180deg,
     transparent 0%,
-    rgb(0 114 186 / 0%) 30%,
-    rgb(0 114 186 / 18%) 47%,
+    rgb(27 122 78 / 0%) 30%,
+    rgb(27 122 78 / 18%) 47%,
     rgb(255 255 255 / 55%) 50%,
-    rgb(11 53 84 / 14%) 53%,
+    rgb(10 46 28 / 14%) 53%,
     transparent 70%
   );
 }
@@ -201,11 +201,11 @@ html[data-route-phase="entering"] .shell-route-sweep {
   max-width: 62rem;
   height: 3.25rem;
   margin-top: 0.375rem;
-  border-color: rgb(11 53 84 / 16%);
+  border-color: rgb(10 46 28 / 16%);
   background-color: rgb(255 255 255 / 78%);
   box-shadow:
     0 1px 0 rgb(255 255 255 / 75%) inset,
-    0 18px 44px -22px rgb(5 26 46 / 48%);
+    0 18px 44px -22px rgb(6 20 14 / 48%);
   -webkit-backdrop-filter: blur(18px) saturate(1.5);
   backdrop-filter: blur(18px) saturate(1.5);
 }
@@ -222,15 +222,15 @@ html[data-route-phase="entering"] .shell-route-sweep {
 .shell-header-mark {
   box-shadow:
     0 0 0 1px rgb(255 255 255 / 30%) inset,
-    0 8px 18px -8px rgb(11 53 84 / 72%);
+    0 8px 18px -8px rgb(10 46 28 / 72%);
   transition: box-shadow 400ms ease, background-color 600ms ease;
 }
 
 a:hover .shell-header-mark {
   box-shadow:
     0 0 0 1px rgb(255 255 255 / 40%) inset,
-    0 0 0 5px rgb(0 114 186 / 20%),
-    0 10px 22px -8px rgb(0 114 186 / 72%);
+    0 0 0 5px rgb(27 122 78 / 20%),
+    0 10px 22px -8px rgb(27 122 78 / 72%);
 }
 
 .shell-nav-active {
@@ -315,8 +315,8 @@ html[data-route-phase="loading"] .shell-header-progress::after {
 
 .shell-mobile-menu {
   background-image:
-    radial-gradient(ellipse 90% 50% at 100% 0%, rgb(0 114 186 / 34%), transparent 60%),
-    radial-gradient(ellipse 70% 45% at 0% 100%, rgb(0 78 122 / 38%), transparent 55%);
+    radial-gradient(ellipse 90% 50% at 100% 0%, rgb(27 122 78 / 34%), transparent 60%),
+    radial-gradient(ellipse 70% 45% at 0% 100%, rgb(20 92 59 / 38%), transparent 55%);
 }
 
 /* ───────────── Footer ───────────── */
@@ -342,7 +342,7 @@ html[data-route-phase="loading"] .shell-header-progress::after {
   z-index: 1;
   height: 1px;
   content: "";
-  background: linear-gradient(90deg, transparent, rgb(61 173 235 / 82%), transparent);
+  background: linear-gradient(90deg, transparent, rgb(168 208 138 / 82%), transparent);
 }
 
 .shell-footer-aurora {
@@ -364,7 +364,7 @@ html[data-route-phase="loading"] .shell-header-progress::after {
   left: -8%;
   width: 46%;
   height: 90%;
-  background: rgb(0 114 186 / 38%);
+  background: rgb(27 122 78 / 38%);
   animation: shell-aurora-a 22s ease-in-out infinite;
 }
 
@@ -373,7 +373,7 @@ html[data-route-phase="loading"] .shell-header-progress::after {
   bottom: -45%;
   width: 52%;
   height: 100%;
-  background: rgb(0 78 122 / 46%);
+  background: rgb(20 92 59 / 46%);
   animation: shell-aurora-b 28s ease-in-out infinite;
 }
 
@@ -382,7 +382,7 @@ html[data-route-phase="loading"] .shell-header-progress::after {
   left: 38%;
   width: 26%;
   height: 60%;
-  background: rgb(24 166 106 / 28%);
+  background: rgb(61 173 106 / 28%);
   animation: shell-aurora-a 34s ease-in-out infinite reverse;
 }
 
@@ -483,8 +483,8 @@ html[data-route-phase="loading"] .shell-header-progress::after {
   background: linear-gradient(
     180deg,
     rgb(255 255 255 / 92%) 0%,
-    rgb(61 173 235 / 58%) 55%,
-    rgb(61 173 235 / 8%) 100%
+    rgb(168 208 138 / 58%) 55%,
+    rgb(168 208 138 / 8%) 100%
   );
   -webkit-background-clip: text;
   background-clip: text;
@@ -512,9 +512,9 @@ html[data-route-phase="loading"] .shell-header-progress::after {
 
 .shell-footer-top:hover,
 .shell-footer-top:focus-visible {
-  border-color: rgb(61 173 235 / 72%);
+  border-color: rgb(168 208 138 / 72%);
   color: #fff;
-  background: rgb(0 114 186 / 26%);
+  background: rgb(27 122 78 / 26%);
 }
 
 .shell-footer-top-icon {
@@ -539,7 +539,7 @@ html[data-route-phase="loading"] .shell-header-progress::after {
   background: linear-gradient(160deg, var(--goal-17) 10%, var(--onu) 55%, var(--chart-5) 95%);
   -webkit-background-clip: text;
   background-clip: text;
-  filter: drop-shadow(0 28px 40px rgb(5 26 46 / 24%));
+  filter: drop-shadow(0 28px 40px rgb(6 20 14 / 24%));
 }
 
 @media (prefers-reduced-motion: reduce) {
