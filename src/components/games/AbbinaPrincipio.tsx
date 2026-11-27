@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AnimatePresence,
   motion,
@@ -8,6 +8,9 @@ import {
   type PanInfo,
 } from "framer-motion";
 import { abbinaItems } from "@/data/games/abbina-principio";
+
+type Organ = (typeof abbinaItems)[number];
+type FnItem = { id: string; text: string };
 
 function shuffle<T>(items: T[]): T[] {
   const arr = [...items];
@@ -20,10 +23,9 @@ function shuffle<T>(items: T[]): T[] {
 
 export function AbbinaPrincipio() {
   const reduceMotion = useReducedMotion();
-  const organs = useMemo(() => shuffle(abbinaItems.map((i) => i)), []);
-  const [functions] = useState(() =>
-    shuffle(abbinaItems.map((i) => ({ id: i.id, text: i.function }))),
-  );
+  // Shuffle after mount only — avoids SSR/client hydration mismatch.
+  const [organs, setOrgans] = useState<Organ[] | null>(null);
+  const [functions, setFunctions] = useState<FnItem[] | null>(null);
   const [selectedOrgan, setSelectedOrgan] = useState<string | null>(null);
   const [matches, setMatches] = useState<Record<string, string>>({});
   const [message, setMessage] = useState(
@@ -34,6 +36,13 @@ export function AbbinaPrincipio() {
   const [dropTarget, setDropTarget] = useState<string | null>(null);
   const [flashPair, setFlashPair] = useState<string | null>(null);
   const dropRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  useEffect(() => {
+    setOrgans(shuffle(abbinaItems.map((i) => i)));
+    setFunctions(
+      shuffle(abbinaItems.map((i) => ({ id: i.id, text: i.function }))),
+    );
+  }, []);
 
   const matchedOrganIds = new Set(Object.keys(matches));
   const matchedFunctionIds = new Set(Object.values(matches));
@@ -124,6 +133,34 @@ export function AbbinaPrincipio() {
     setDraggingId(null);
     setDropTarget(null);
     setFlashPair(null);
+  }
+
+  if (!organs || !functions) {
+    return (
+      <div className="space-y-4" aria-busy="true">
+        <p className="text-sm text-muted-foreground" role="status">
+          Preparazione abbinamenti…
+        </p>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-2">
+            {abbinaItems.map((item) => (
+              <div
+                key={`o-${item.id}`}
+                className="h-16 rounded-xl border border-border bg-white/70"
+              />
+            ))}
+          </div>
+          <div className="space-y-2">
+            {abbinaItems.map((item) => (
+              <div
+                key={`f-${item.id}`}
+                className="h-16 rounded-xl border border-border bg-white/70"
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

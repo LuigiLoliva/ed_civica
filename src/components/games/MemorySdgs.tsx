@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { memoryPairs } from "@/data/games/memory-sdgs";
 import { MatchBurst } from "@/components/games/MatchBurst";
@@ -75,7 +75,8 @@ function CardFaceCovered({ accent }: { accent: string }) {
 export function MemorySdgs() {
   const reduceMotion = useReducedMotion();
   const gridRef = useRef<HTMLDivElement>(null);
-  const [deck, setDeck] = useState(() => buildDeck());
+  // Shuffle only after mount to avoid SSR/client hydration mismatch.
+  const [deck, setDeck] = useState<Card[] | null>(null);
   const [flipped, setFlipped] = useState<string[]>([]);
   const [matched, setMatched] = useState<string[]>([]);
   const [lock, setLock] = useState(false);
@@ -87,12 +88,17 @@ export function MemorySdgs() {
     color: "var(--onu)",
   });
 
+  useEffect(() => {
+    setDeck(buildDeck());
+  }, []);
+
   const done = matched.length === memoryPairs.length;
 
   const status = useMemo(() => {
+    if (!deck) return "Preparazione mazzo…";
     if (done) return `Completato in ${moves} mosse.`;
     return `Coppie trovate: ${matched.length}/${memoryPairs.length}. Mosse: ${moves}.`;
-  }, [done, matched.length, moves]);
+  }, [deck, done, matched.length, moves]);
 
   function reset() {
     setDeck(buildDeck());
@@ -133,7 +139,7 @@ export function MemorySdgs() {
   }
 
   function onSelect(card: Card) {
-    if (lock) return;
+    if (!deck || lock) return;
     if (matched.includes(card.pairId)) return;
     if (flipped.includes(card.key)) return;
     if (flipped.length >= 2) return;
@@ -172,6 +178,20 @@ export function MemorySdgs() {
       <p className="text-sm text-muted-foreground" role="status" aria-live="polite">
         {status} Usa Tab e Invio/Spazio per girare le carte.
       </p>
+      {!deck ? (
+        <div
+          className="grid min-h-64 grid-cols-2 gap-3 sm:grid-cols-3"
+          aria-busy="true"
+          aria-label="Caricamento griglia memory"
+        >
+          {Array.from({ length: memoryPairs.length * 2 }).map((_, i) => (
+            <div
+              key={i}
+              className="min-h-28 rounded-xl border border-border bg-white/70"
+            />
+          ))}
+        </div>
+      ) : (
       <div
         ref={gridRef}
         className="relative grid grid-cols-2 gap-3 sm:grid-cols-3"
@@ -285,6 +305,7 @@ export function MemorySdgs() {
           );
         })}
       </div>
+      )}
       {done && (
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: 8 }}

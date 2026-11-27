@@ -259,23 +259,25 @@ export function VeroFalsoSwipe() {
                       {item.isTrue ? "Vero" : "Falso"}
                     </p>
                     <p>{feedback.explanation}</p>
-                    {feedback.source && (
-                      <a
-                        href={feedback.source}
-                        className="text-sm underline"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                    <div className="flex flex-wrap items-center gap-3 pt-1">
+                      {feedback.source && (
+                        <a
+                          href={feedback.source}
+                          className="text-sm underline underline-offset-2"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Fonte
+                        </a>
+                      )}
+                      <button
+                        type="button"
+                        onClick={next}
+                        className="rounded-lg bg-foreground px-4 py-2 text-sm text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                       >
-                        Fonte
-                      </a>
-                    )}
-                    <button
-                      type="button"
-                      onClick={next}
-                      className="mt-2 rounded-lg bg-foreground px-4 py-2 text-sm text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-                    >
-                      Continua
-                    </button>
+                        Continua
+                      </button>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
