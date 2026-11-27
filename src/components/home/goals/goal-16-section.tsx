@@ -22,7 +22,7 @@ const PILLARS = [
     id: "pace",
     title: "Pace",
     copy: "Società inclusive che prevengono il conflitto e proteggono i diritti.",
-    tilt: -7,
+    tilt: -14,
   },
   {
     id: "giustizia",
@@ -34,7 +34,7 @@ const PILLARS = [
     id: "istituzioni",
     title: "Istituzioni",
     copy: "Organi efficaci, responsabili e trasparenti al servizio della comunità.",
-    tilt: 7,
+    tilt: 14,
   },
 ] as const;
 
@@ -150,8 +150,27 @@ export function Goal16Section() {
                 aria-hidden="true"
               >
                 <defs>
-                  <linearGradient id="g16-metal" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient
+                    id="g16-metal"
+                    x1="148"
+                    y1="168"
+                    x2="172"
+                    y2="308"
+                    gradientUnits="userSpaceOnUse"
+                  >
                     <stop offset="0%" stopColor="#e8f6fc" />
+                    <stop offset="100%" stopColor="#7ec8e3" />
+                  </linearGradient>
+                  <linearGradient
+                    id="g16-beam"
+                    x1="48"
+                    y1="78"
+                    x2="272"
+                    y2="78"
+                    gradientUnits="userSpaceOnUse"
+                  >
+                    <stop offset="0%" stopColor="#9fd7ea" />
+                    <stop offset="50%" stopColor="#ffffff" />
                     <stop offset="100%" stopColor="#7ec8e3" />
                   </linearGradient>
                   <linearGradient id="g16-pan" x1="0" y1="0" x2="1" y2="1">
@@ -184,8 +203,8 @@ export function Goal16Section() {
                 >
                   <path
                     d="M48 78h224"
-                    stroke="url(#g16-metal)"
-                    strokeWidth="5"
+                    stroke="url(#g16-beam)"
+                    strokeWidth="6"
                     strokeLinecap="round"
                   />
                   <path
@@ -196,12 +215,8 @@ export function Goal16Section() {
                     opacity="0.7"
                   />
 
-                  <g
-                    className={styles.pan}
-                    style={{
-                      transform: `translate(0px, ${tilt * 1.35}px)`,
-                    }}
-                  >
+                  {/* Pans hang level via counter-rotation (no canceling translate) */}
+                  <g className={styles.pan} transform={`rotate(${-tilt} 70 78)`}>
                     <path
                       d="M70 78v52"
                       stroke="#cfe8f4"
@@ -243,9 +258,7 @@ export function Goal16Section() {
 
                   <g
                     className={styles.pan}
-                    style={{
-                      transform: `translate(0px, ${-tilt * 1.35}px)`,
-                    }}
+                    transform={`rotate(${-tilt} 250 78)`}
                   >
                     <path
                       d="M250 78v52"
