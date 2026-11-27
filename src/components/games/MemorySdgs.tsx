@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { memoryPairs } from "@/data/games/memory-sdgs";
+import { MatchBurst } from "@/components/games/MatchBurst";
 
 type Card = {
   key: string;
@@ -43,13 +44,48 @@ function buildDeck(): Card[] {
   return shuffle(cards);
 }
 
+function CardFaceOpen({ card }: { card: Card }) {
+  return (
+    <span className="block space-y-1">
+      <span className="block text-xs uppercase tracking-wide text-muted-foreground">
+        {card.face === "symbol" ? "Simbolo" : "Nome"}
+      </span>
+      <span className="block font-medium text-foreground">{card.label}</span>
+      {card.hint && (
+        <span className="block text-xs text-muted-foreground">{card.hint}</span>
+      )}
+    </span>
+  );
+}
+
+function CardFaceCovered({ accent }: { accent: string }) {
+  return (
+    <span className="relative flex h-10 w-10 items-center justify-center">
+      <span
+        className="absolute inset-0 rounded-full opacity-30"
+        style={{
+          background: `radial-gradient(circle, ${accent} 0%, transparent 70%)`,
+        }}
+      />
+      <span className="text-2xl text-primary/80">◆</span>
+    </span>
+  );
+}
+
 export function MemorySdgs() {
   const reduceMotion = useReducedMotion();
+  const gridRef = useRef<HTMLDivElement>(null);
   const [deck, setDeck] = useState(() => buildDeck());
   const [flipped, setFlipped] = useState<string[]>([]);
   const [matched, setMatched] = useState<string[]>([]);
   const [lock, setLock] = useState(false);
   const [moves, setMoves] = useState(0);
+  const [burst, setBurst] = useState({
+    key: 0,
+    x: 0,
+    y: 0,
+    color: "var(--onu)",
+  });
 
   const done = matched.length === memoryPairs.length;
 
@@ -64,6 +100,36 @@ export function MemorySdgs() {
     setMatched([]);
     setLock(false);
     setMoves(0);
+  }
+
+  function fireBurst(cardKeys: string[], color?: string) {
+    if (reduceMotion || !gridRef.current) return;
+    const gridBox = gridRef.current.getBoundingClientRect();
+    const centers = cardKeys
+      .map((key) => {
+        const el = gridRef.current?.querySelector(
+          `[data-card-key="${key}"]`,
+        ) as HTMLElement | null;
+        if (!el) return null;
+        const r = el.getBoundingClientRect();
+        return {
+          x: r.left + r.width / 2 - gridBox.left,
+          y: r.top + r.height / 2 - gridBox.top,
+        };
+      })
+      .filter(Boolean) as { x: number; y: number }[];
+
+    if (!centers.length) return;
+    const mid = {
+      x: centers.reduce((s, c) => s + c.x, 0) / centers.length,
+      y: centers.reduce((s, c) => s + c.y, 0) / centers.length,
+    };
+    setBurst((b) => ({
+      key: b.key + 1,
+      x: mid.x,
+      y: mid.y,
+      color: color || "var(--onu)",
+    }));
   }
 
   function onSelect(card: Card) {
@@ -83,6 +149,7 @@ export function MemorySdgs() {
       if (a && b && a.pairId === b.pairId && a.face !== b.face) {
         setMatched((m) => [...m, a.pairId]);
         setFlipped([]);
+        fireBurst([aKey, bKey], a.accent || "var(--onu)");
       } else {
         setLock(true);
         window.setTimeout(() => {
@@ -106,16 +173,28 @@ export function MemorySdgs() {
         {status} Usa Tab e Invio/Spazio per girare le carte.
       </p>
       <div
-        className="grid grid-cols-2 gap-3 sm:grid-cols-3"
+        ref={gridRef}
+        className="relative grid grid-cols-2 gap-3 sm:grid-cols-3"
         role="group"
         aria-label="Griglia memory"
+        style={{ perspective: reduceMotion ? undefined : 1200 }}
       >
-        {deck.map((card) => {
-          const isOpen = flipped.includes(card.key) || matched.includes(card.pairId);
+        <MatchBurst
+          triggerKey={burst.key}
+          x={burst.x}
+          y={burst.y}
+          color={burst.color}
+        />
+        {deck.map((card, index) => {
+          const isMatched = matched.includes(card.pairId);
+          const isOpen = flipped.includes(card.key) || isMatched;
+          const accent = card.accent || "var(--onu)";
+
           return (
             <motion.button
               key={card.key}
               type="button"
+              data-card-key={card.key}
               aria-pressed={isOpen}
               aria-label={
                 isOpen
@@ -125,48 +204,104 @@ export function MemorySdgs() {
               disabled={lock && !isOpen}
               onClick={() => onSelect(card)}
               onKeyDown={(e) => onKeyDown(e, card)}
-              className="min-h-28 rounded-lg border border-border p-3 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              className="relative min-h-28 rounded-xl text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               style={{
-                background: isOpen
-                  ? card.accent
-                    ? `${card.accent}14`
-                    : "var(--warm-surface)"
-                  : "white",
-                borderColor: isOpen && card.accent ? card.accent : undefined,
+                transformStyle: reduceMotion ? undefined : "preserve-3d",
+                WebkitTapHighlightColor: "transparent",
               }}
-              whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+              initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+              animate={{
+                opacity: 1,
+                y: 0,
+                scale: isMatched && !reduceMotion ? [1, 1.04, 1] : 1,
+              }}
+              transition={{
+                delay: reduceMotion ? 0 : index * 0.03,
+                duration: 0.35,
+                scale: { duration: 0.45 },
+              }}
+              whileHover={
+                reduceMotion || isOpen
+                  ? undefined
+                  : { y: -2, transition: { duration: 0.2 } }
+              }
+              whileTap={reduceMotion ? undefined : { scale: 0.97 }}
             >
-              {isOpen ? (
-                <span className="block space-y-1">
-                  <span className="block text-xs uppercase tracking-wide text-muted-foreground">
-                    {card.face === "symbol" ? "Simbolo" : "Nome"}
-                  </span>
-                  <span className="block font-medium text-foreground">
-                    {card.label}
-                  </span>
-                  {card.hint && (
-                    <span className="block text-xs text-muted-foreground">
-                      {card.hint}
-                    </span>
+              {reduceMotion ? (
+                <span
+                  className={[
+                    "flex min-h-28 w-full items-center rounded-xl border p-3",
+                    isOpen ? "" : "justify-center bg-white",
+                  ].join(" ")}
+                  style={
+                    isOpen
+                      ? {
+                          background: `${accent}14`,
+                          borderColor: accent,
+                        }
+                      : undefined
+                  }
+                >
+                  {isOpen ? (
+                    <CardFaceOpen card={card} />
+                  ) : (
+                    <CardFaceCovered accent={accent} />
                   )}
                 </span>
               ) : (
-                <span className="flex h-full items-center justify-center text-2xl text-primary">
-                  ◆
-                </span>
+                <motion.span
+                  className="relative block h-full min-h-28 w-full"
+                  style={{ transformStyle: "preserve-3d" }}
+                  animate={{ rotateY: isOpen ? 180 : 0 }}
+                  transition={{ type: "spring", stiffness: 260, damping: 22 }}
+                >
+                  <span
+                    className="absolute inset-0 flex items-center justify-center rounded-xl border border-border bg-gradient-to-br from-white via-warm-surface to-[#d4e8f4] shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]"
+                    style={{
+                      backfaceVisibility: "hidden",
+                      WebkitBackfaceVisibility: "hidden",
+                    }}
+                  >
+                    <CardFaceCovered accent={accent} />
+                  </span>
+                  <span
+                    className="absolute inset-0 flex flex-col justify-center rounded-xl border p-3 shadow-sm"
+                    style={{
+                      backfaceVisibility: "hidden",
+                      WebkitBackfaceVisibility: "hidden",
+                      transform: "rotateY(180deg)",
+                      background: `${accent}14`,
+                      borderColor: accent,
+                      boxShadow: isMatched
+                        ? `0 0 0 1px ${accent}, 0 8px 24px ${accent}33`
+                        : undefined,
+                    }}
+                  >
+                    <CardFaceOpen card={card} />
+                  </span>
+                </motion.span>
               )}
             </motion.button>
           );
         })}
       </div>
       {done && (
-        <button
-          type="button"
-          onClick={reset}
-          className="rounded-lg bg-primary px-4 py-2 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+        <motion.div
+          initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-wrap items-center gap-3"
         >
-          Rigioca
-        </button>
+          <p className="font-heading text-lg text-goal-16">
+            Tutte le coppie trovate!
+          </p>
+          <button
+            type="button"
+            onClick={reset}
+            className="rounded-lg bg-primary px-4 py-2 text-white transition-transform hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+          >
+            Rigioca
+          </button>
+        </motion.div>
       )}
     </div>
   );
