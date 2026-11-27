@@ -23,7 +23,7 @@ export function GameShell({
         className="pointer-events-none absolute -left-24 top-8 h-56 w-56 rounded-full opacity-40 blur-3xl"
         style={{
           background:
-            "radial-gradient(circle, rgba(0,158,219,0.28), transparent 70%)",
+            "radial-gradient(circle, rgba(27,122,78,0.28), transparent 70%)",
         }}
         aria-hidden
       />
@@ -31,7 +31,7 @@ export function GameShell({
         className="pointer-events-none absolute -right-16 top-40 h-48 w-48 rounded-full opacity-30 blur-3xl"
         style={{
           background:
-            "radial-gradient(circle, rgba(25,72,106,0.25), transparent 70%)",
+            "radial-gradient(circle, rgba(10,46,28,0.25), transparent 70%)",
         }}
         aria-hidden
       />

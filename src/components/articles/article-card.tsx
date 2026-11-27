@@ -78,7 +78,7 @@ export function ArticleCard({
     >
       <Spotlight
         hoverOnly
-        color="rgb(0 114 186 / 26%)"
+        color="rgb(27 122 78 / 26%)"
         size={380}
         className={cn(
           "flex h-full flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-depth",

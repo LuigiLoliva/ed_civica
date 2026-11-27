@@ -36,7 +36,7 @@ export function HomeStatsChapter({
       aria-label="Numeri della redazione"
     >
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_80%_20%,rgb(0_158_219_/_22%),transparent_55%),radial-gradient(ellipse_50%_40%_at_10%_90%,rgb(0_104_157_/_28%),transparent_50%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_80%_20%,rgb(27_122_78_/_22%),transparent_55%),radial-gradient(ellipse_50%_40%_at_10%_90%,rgb(20_92_59_/_28%),transparent_50%)]"
         aria-hidden
       />
 
@@ -55,7 +55,7 @@ export function HomeStatsChapter({
         style={reduceMotion ? undefined : { y: contentY }}
       >
         <div className="lg:col-span-4">
-          <p className="text-xs font-semibold tracking-[0.28em] text-sky-200/70 uppercase">
+          <p className="text-xs font-semibold tracking-[0.28em] text-emerald-100/70 uppercase">
             La redazione in numeri
           </p>
           <h2 className="font-heading mt-4 max-w-sm text-[clamp(2rem,4vw,3.5rem)] leading-[1.05] font-semibold">

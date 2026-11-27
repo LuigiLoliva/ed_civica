@@ -163,7 +163,7 @@ function MotionHalo() {
         position: "absolute",
         inset: 0,
         background:
-          "radial-gradient(ellipse 55% 45% at 75% 35%, rgb(0 114 186 / 22%), transparent 70%)",
+          "radial-gradient(ellipse 55% 45% at 75% 35%, rgb(27 122 78 / 22%), transparent 70%)",
       }}
     />
   );

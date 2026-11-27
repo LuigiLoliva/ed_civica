@@ -22,7 +22,7 @@ type SpotlightProps = {
 export function Spotlight({
   children,
   className,
-  color = "rgb(0 114 186 / 32%)",
+  color = "rgb(27 122 78 / 32%)",
   size = 420,
   hoverOnly = false,
 }: SpotlightProps) {

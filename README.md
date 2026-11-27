@@ -220,9 +220,10 @@ e2e/                # Playwright
 
 ## Design system
 
-- **Primario (ONU):** `#009EDB`
-- **Obiettivo 16:** `#00689D`
-- **Obiettivo 17:** `#19486A`
+- **Primario (azione):** `#1B7A4E`
+- **Obiettivo 16:** `#145C3B`
+- **Obiettivo 17:** `#0A2E1C`
+- **Pace:** `#3DAD6A`
 - **Font titoli:** Fraunces · **Interfaccia:** Inter
 - Token CSS in `src/app/globals.css` · motivi SVG in `src/components/icons/onu-motifs.tsx`
 

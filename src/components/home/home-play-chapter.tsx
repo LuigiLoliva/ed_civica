@@ -37,20 +37,20 @@ export function HomePlayChapter({ games }: HomePlayChapterProps) {
         style={reduceMotion ? undefined : { y: bgY }}
         aria-hidden
       >
-        <div className="absolute -top-24 -right-16 size-[36rem] rounded-full bg-[radial-gradient(circle,rgb(0_158_219_/_35%),transparent_65%)]" />
-        <div className="absolute bottom-[-20%] left-[-10%] size-[28rem] rounded-full bg-[radial-gradient(circle,rgb(0_104_157_/_40%),transparent_70%)]" />
+        <div className="absolute -top-24 -right-16 size-[36rem] rounded-full bg-[radial-gradient(circle,rgb(27_122_78_/_35%),transparent_65%)]" />
+        <div className="absolute bottom-[-20%] left-[-10%] size-[28rem] rounded-full bg-[radial-gradient(circle,rgb(20_92_59_/_40%),transparent_70%)]" />
         <div className="absolute top-1/3 left-1/2 size-[20rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgb(95_125_82_/_22%),transparent_70%)]" />
       </motion.div>
 
       <div className="relative mx-auto max-w-[90rem] px-4 py-20 sm:px-6 sm:py-28 lg:py-32">
         <div className="grid gap-10 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-5 lg:sticky lg:top-28 lg:self-start">
-            <p className="text-xs font-semibold tracking-[0.28em] text-sky-200/70 uppercase">
+            <p className="text-xs font-semibold tracking-[0.28em] text-emerald-100/70 uppercase">
               Laboratori interattivi
             </p>
             <h2 className="font-heading mt-4 text-[clamp(2.6rem,7vw,5.25rem)] leading-[0.92] font-semibold tracking-tight">
               Gioca
-              <span className="mt-1 block text-sky-200/90">e impara</span>
+              <span className="mt-1 block text-emerald-100/90">e impara</span>
             </h2>
             <p className="mt-6 max-w-md text-base text-white/65 text-pretty sm:text-lg">
               Mini-giochi e quiz sull&apos;ONU e sull&apos;Agenda 2030 —

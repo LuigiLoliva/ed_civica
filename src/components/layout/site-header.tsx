@@ -192,7 +192,7 @@ export function SiteHeader({ siteName, logoUrl }: SiteHeaderProps) {
                   <SheetTitle className="font-heading text-lg text-white">
                     {siteName}
                   </SheetTitle>
-                  <SheetDescription className="text-xs tracking-[0.24em] text-sky-200/70 uppercase">
+                  <SheetDescription className="text-xs tracking-[0.24em] text-emerald-100/70 uppercase">
                     Agenda 2030 · Obiettivi 16 &amp; 17
                   </SheetDescription>
                 </SheetHeader>
@@ -221,7 +221,7 @@ export function SiteHeader({ siteName, logoUrl }: SiteHeaderProps) {
                               primary
                                 ? "border-b border-white/10 py-4 font-heading text-3xl font-semibold tracking-tight"
                                 : "py-2.5 text-sm font-medium text-white/65",
-                              active ? "text-sky-300" : "hover:text-sky-200",
+                              active ? "text-emerald-300" : "hover:text-emerald-200",
                             )}
                           >
                             {primary ? (

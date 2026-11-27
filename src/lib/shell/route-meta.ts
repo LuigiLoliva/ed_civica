@@ -231,8 +231,8 @@ export function normalizePath(pathname: string): string {
 }
 
 export const accentRgb: Record<RouteAccent, readonly [number, number, number]> = {
-  onu: [0, 114, 186],
-  goal16: [0, 78, 122],
-  goal17: [11, 53, 84],
-  olive: [24, 166, 106],
+  onu: [27, 122, 78],
+  goal16: [20, 92, 59],
+  goal17: [10, 46, 28],
+  olive: [61, 173, 106],
 };
