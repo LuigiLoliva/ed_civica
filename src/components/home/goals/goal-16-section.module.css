@@ -1,0 +1,258 @@
+/* Scoped Goal 16 — pace, giustizia, istituzioni */
+
+.section {
+  --g16: var(--goal-16, #00689d);
+  --g16-deep: #044a72;
+  --g16-ink: #031824;
+  --g16-glow: rgb(0 158 219 / 35%);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 1.75rem;
+  color: #f3f8fb;
+  background:
+    radial-gradient(ellipse 70% 55% at 12% 18%, rgb(0 158 219 / 28%), transparent 55%),
+    radial-gradient(ellipse 55% 45% at 88% 82%, rgb(95 125 82 / 22%), transparent 50%),
+    linear-gradient(145deg, var(--g16-ink) 0%, var(--g16-deep) 48%, var(--g16) 100%);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 8%) inset,
+    0 24px 60px rgb(3 24 36 / 22%);
+}
+
+.grid {
+  display: grid;
+  gap: 2rem;
+  padding: clamp(1.75rem, 4vw, 3rem);
+}
+
+@media (min-width: 960px) {
+  .grid {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    align-items: center;
+    gap: 2.5rem;
+  }
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 650;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 68%);
+}
+
+.title {
+  margin: 0.85rem 0 0;
+  font-family: var(--font-serif), ui-serif, Georgia, serif;
+  font-size: clamp(1.85rem, 3.6vw, 2.75rem);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.lead {
+  margin: 1rem 0 0;
+  max-width: 34rem;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: rgb(255 255 255 / 78%);
+  text-wrap: pretty;
+}
+
+.pillars {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+@media (min-width: 520px) {
+  .pillars {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.pillar {
+  position: relative;
+  padding: 0.95rem 1rem 1.05rem;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 6%);
+  backdrop-filter: blur(8px);
+  transition:
+    transform var(--motion-duration-base, 550ms) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
+    background var(--motion-duration-fast, 180ms) ease,
+    border-color var(--motion-duration-fast, 180ms) ease;
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+}
+
+.pillar:hover,
+.pillar:focus-visible,
+.pillarActive {
+  transform: translateY(-4px);
+  background: rgb(255 255 255 / 12%);
+  border-color: rgb(126 200 227 / 55%);
+  outline: none;
+}
+
+.pillar:focus-visible {
+  box-shadow: 0 0 0 3px rgb(0 158 219 / 45%);
+}
+
+.pillarIndex {
+  display: block;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 55%);
+}
+
+.pillarTitle {
+  display: block;
+  margin-top: 0.35rem;
+  font-family: var(--font-serif), ui-serif, Georgia, serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.pillarCopy {
+  margin: 0.45rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: rgb(255 255 255 / 68%);
+}
+
+.ctaWrap {
+  display: inline-flex;
+  margin-top: 1.5rem;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.95rem;
+  font-weight: 650;
+  color: #fff;
+  text-decoration: none;
+  text-underline-offset: 4px;
+}
+
+.cta:hover,
+.cta:focus-visible {
+  text-decoration: underline;
+  outline: none;
+}
+
+.stage {
+  position: relative;
+  min-height: 18rem;
+  display: grid;
+  place-items: center;
+}
+
+.glow {
+  position: absolute;
+  inset: 18% 12%;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--g16-glow), transparent 68%);
+  filter: blur(8px);
+  pointer-events: none;
+  animation: g16-pulse 6.5s ease-in-out infinite;
+}
+
+.balance {
+  position: relative;
+  width: min(100%, 22rem);
+  aspect-ratio: 1 / 1.05;
+  touch-action: none;
+  user-select: none;
+}
+
+.svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.beam {
+  transform-origin: 160px 78px;
+  transition: transform var(--motion-duration-slow, 850ms) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.pan {
+  transition: transform var(--motion-duration-slow, 850ms) var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.hint {
+  margin: 0.85rem 0 0;
+  text-align: center;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: rgb(255 255 255 / 55%);
+}
+
+.orbitRing {
+  position: absolute;
+  inset: 8%;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: g16-spin 48s linear infinite;
+}
+
+.orbitRing::before,
+.orbitRing::after {
+  content: "";
+  position: absolute;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: rgb(126 200 227 / 80%);
+  box-shadow: 0 0 12px rgb(0 158 219 / 70%);
+}
+
+.orbitRing::before {
+  top: 12%;
+  left: 62%;
+}
+
+.orbitRing::after {
+  bottom: 18%;
+  left: 18%;
+  background: rgb(143 173 127 / 85%);
+  box-shadow: 0 0 12px rgb(95 125 82 / 65%);
+}
+
+@keyframes g16-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes g16-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow,
+  .orbitRing,
+  .beam,
+  .pan,
+  .pillar {
+    animation: none !important;
+    transition: none !important;
+  }
+}

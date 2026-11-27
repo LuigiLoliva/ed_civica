@@ -3,10 +3,7 @@ import Link from "next/link";
 import { ArticleCard } from "@/components/articles/article-card";
 import { AnimatedStat } from "@/components/home/animated-stat";
 import { CinematicHero } from "@/components/home/cinematic-hero";
-import {
-  NetworkIcon,
-  ScalesIcon,
-} from "@/components/icons/onu-motifs";
+import { GoalsShowcase } from "@/components/home/goals/goals-showcase";
 import { Reveal } from "@/components/motion/reveal";
 import { Button } from "@/components/ui/button";
 import { games } from "@/data/games";
@@ -17,7 +14,6 @@ import {
   getTopicBySlug,
   mockStats,
 } from "@/lib/mock-data";
-import { siteConfig } from "@/lib/site-config";
 import { getSiteSettings } from "@/lib/site-settings/get-site-settings";
 
 export default async function HomePage() {
@@ -34,70 +30,7 @@ export default async function HomePage() {
       <CinematicHero siteName={settings.siteName} tagline={tagline} />
 
       <div className="bg-partnership-pattern">
-        {/* Scroll storytelling: intro Goals — markup Goal lasciato intatto per altri worker */}
-        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
-          <Reveal variant="clip-up">
-            <h2 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl lg:text-[2.75rem]">
-              Due Obiettivi, un impegno comune
-            </h2>
-            <p className="mt-3 max-w-2xl text-muted-foreground text-pretty sm:text-lg">
-              Pace, giustizia, istituzioni solide e partnership globale: i Goal 16 e
-              17 dell&apos;Agenda 2030 delle Nazioni Unite.
-            </p>
-          </Reveal>
-
-          <div className="mt-10 grid gap-8 lg:grid-cols-2">
-            <Reveal delay={0.08} variant="fade-up">
-              <article
-                className="group relative overflow-hidden rounded-2xl bg-goal-16 px-6 py-8 text-white sm:px-8 sm:py-10"
-                data-cursor="link"
-              >
-                <ScalesIcon className="absolute -right-4 -top-2 size-36 text-white/10 transition-transform duration-500 group-hover:scale-105" />
-                <p className="text-sm font-semibold tracking-[0.18em] uppercase text-white/70">
-                  Obiettivo 16
-                </p>
-                <h3 className="font-heading mt-3 text-2xl font-semibold sm:text-3xl">
-                  {siteConfig.goals[16].title}
-                </h3>
-                <p className="mt-3 max-w-md text-sm leading-relaxed text-white/80 sm:text-base">
-                  Promuovere società pacifiche e inclusive, accesso alla giustizia e
-                  istituzioni efficaci, responsabili e trasparenti.
-                </p>
-                <Link
-                  href="/argomenti/obiettivo-16"
-                  className="mt-6 inline-flex text-sm font-semibold text-white underline-offset-4 hover:underline"
-                >
-                  Scopri di più
-                </Link>
-              </article>
-            </Reveal>
-
-            <Reveal delay={0.16} variant="fade-up">
-              <article
-                className="group relative overflow-hidden rounded-2xl bg-goal-17 px-6 py-8 text-white sm:px-8 sm:py-10"
-                data-cursor="link"
-              >
-                <NetworkIcon className="absolute -right-4 -top-2 size-36 text-white/10 transition-transform duration-500 group-hover:scale-105" />
-                <p className="text-sm font-semibold tracking-[0.18em] uppercase text-white/70">
-                  Obiettivo 17
-                </p>
-                <h3 className="font-heading mt-3 text-2xl font-semibold sm:text-3xl">
-                  {siteConfig.goals[17].title}
-                </h3>
-                <p className="mt-3 max-w-md text-sm leading-relaxed text-white/80 sm:text-base">
-                  Rafforzare i mezzi di attuazione e rivitalizzare la partnership
-                  globale per lo sviluppo sostenibile.
-                </p>
-                <Link
-                  href="/argomenti/obiettivo-17"
-                  className="mt-6 inline-flex text-sm font-semibold text-white underline-offset-4 hover:underline"
-                >
-                  Scopri di più
-                </Link>
-              </article>
-            </Reveal>
-          </div>
-        </section>
+        <GoalsShowcase />
 
         <section className="border-y border-border/70 bg-card/70 backdrop-blur-sm">
           <Reveal

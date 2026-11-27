@@ -1,0 +1,231 @@
+/* Scoped Goal 17 — partnership network */
+
+.section {
+  --g17: var(--goal-17, #19486a);
+  --g17-deep: #0b2438;
+  --g17-ink: #061018;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 1.75rem;
+  color: #eef5f9;
+  background:
+    radial-gradient(ellipse 65% 50% at 80% 10%, rgb(0 158 219 / 22%), transparent 55%),
+    radial-gradient(ellipse 50% 45% at 8% 90%, rgb(0 104 157 / 28%), transparent 50%),
+    linear-gradient(160deg, var(--g17-ink) 0%, var(--g17-deep) 42%, var(--g17) 100%);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 8%) inset,
+    0 24px 60px rgb(3 24 36 / 24%);
+}
+
+.layout {
+  display: grid;
+  gap: 1.5rem;
+  padding: clamp(1.75rem, 4vw, 3rem);
+}
+
+@media (min-width: 960px) {
+  .layout {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    align-items: stretch;
+    gap: 2rem;
+  }
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 650;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 68%);
+}
+
+.title {
+  margin: 0.85rem 0 0;
+  font-family: var(--font-serif), ui-serif, Georgia, serif;
+  font-size: clamp(1.85rem, 3.6vw, 2.75rem);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.lead {
+  margin: 1rem 0 0;
+  max-width: 32rem;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: rgb(255 255 255 / 78%);
+  text-wrap: pretty;
+}
+
+.actors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.35rem;
+}
+
+.actor {
+  appearance: none;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 6%);
+  color: #eef5f9;
+  padding: 0.45rem 0.85rem;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 550;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition:
+    background var(--motion-duration-fast, 180ms) ease,
+    border-color var(--motion-duration-fast, 180ms) ease,
+    transform var(--motion-duration-base, 550ms) var(--motion-ease-snappy, cubic-bezier(0.34, 1.2, 0.64, 1));
+}
+
+.actor:hover,
+.actor:focus-visible {
+  background: rgb(255 255 255 / 12%);
+  border-color: rgb(126 200 227 / 55%);
+  outline: none;
+  transform: translateY(-2px);
+}
+
+.actor:focus-visible {
+  box-shadow: 0 0 0 3px rgb(0 158 219 / 45%);
+}
+
+.actorActive {
+  background: rgb(0 158 219 / 28%);
+  border-color: rgb(126 200 227 / 75%);
+}
+
+.detail {
+  margin-top: 1.25rem;
+  padding: 1rem 1.1rem;
+  border-radius: 1rem;
+  border: 1px solid rgb(255 255 255 / 12%);
+  background: rgb(255 255 255 / 6%);
+  min-height: 6.5rem;
+}
+
+.detailLabel {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 55%);
+}
+
+.detailTitle {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-serif), ui-serif, Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.detailCopy {
+  margin: 0.45rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: rgb(255 255 255 / 72%);
+}
+
+.ctaWrap {
+  display: inline-flex;
+  margin-top: 1.35rem;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.95rem;
+  font-weight: 650;
+  color: #fff;
+  text-decoration: none;
+  text-underline-offset: 4px;
+}
+
+.cta:hover,
+.cta:focus-visible {
+  text-decoration: underline;
+  outline: none;
+}
+
+.stage {
+  position: relative;
+  min-height: 22rem;
+  border-radius: 1.25rem;
+  border: 1px solid rgb(255 255 255 / 12%);
+  background:
+    radial-gradient(circle at 50% 45%, rgb(0 158 219 / 16%), transparent 55%),
+    rgb(0 0 0 / 18%);
+  overflow: hidden;
+  touch-action: none;
+}
+
+.canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 22rem;
+  cursor: grab;
+}
+
+.canvasDragging {
+  cursor: grabbing;
+}
+
+.hud {
+  position: absolute;
+  left: 0.85rem;
+  right: 0.85rem;
+  bottom: 0.85rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+}
+
+.hudHint {
+  margin: 0;
+  font-size: 0.75rem;
+  color: rgb(255 255 255 / 62%);
+  letter-spacing: 0.02em;
+}
+
+.hudBadge {
+  margin: 0;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid rgb(255 255 255 / 16%);
+  background: rgb(6 16 24 / 55%);
+  backdrop-filter: blur(8px);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(207 232 244 / 90%);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .actor {
+    transition: none !important;
+  }
+}
