@@ -3,7 +3,7 @@
 .experience {
   --g16-ink: #03090f;
   --g16-night: #041623;
-  --g16-peace: var(--peace, #2a7d62);
+  --g16-peace: var(--peace, #18a66a);
   --g16-ease: var(--motion-ease-out, cubic-bezier(0.22, 1, 0.36, 1));
   position: relative;
   isolation: isolate;
@@ -155,7 +155,7 @@
 
 .titleAccent {
   width: fit-content;
-  background: linear-gradient(100deg, #fff 6%, #6ec5e8 46%, #86c9a8 96%);
+  background: linear-gradient(100deg, #fff 6%, #3dadeb 46%, #5fd4a0 96%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -199,8 +199,8 @@
   bottom: 0.55rem;
   width: 3px;
   border-radius: 3px;
-  background: linear-gradient(180deg, #6ec5e8, #86c9a8);
-  box-shadow: 0 0 20px rgb(0 158 219 / 70%);
+  background: linear-gradient(180deg, #3dadeb, #5fd4a0);
+  box-shadow: 0 0 20px rgb(0 114 186 / 75%);
   transform: scaleY(0);
   transform-origin: 50% 0%;
   transition: transform var(--motion-duration-base, 550ms) var(--g16-ease);
@@ -213,7 +213,7 @@
 }
 
 .pillar:focus-visible {
-  box-shadow: 0 0 0 2px rgb(0 158 219 / 60%);
+  box-shadow: 0 0 0 2px rgb(0 114 186 / 65%);
   border-radius: 0.35rem;
 }
 
@@ -303,7 +303,7 @@
 
 .cta:hover,
 .cta:focus-visible {
-  border-color: #6ec5e8;
+  border-color: #3dadeb;
   outline: none;
 }
 

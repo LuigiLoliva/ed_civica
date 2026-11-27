@@ -63,7 +63,7 @@ export function resolveContentScene(pathname: string): ContentScene {
     return {
       id: "argomenti",
       view: VIEWS.argomenti,
-      accentHex: topic?.color ?? "#009EDB",
+      accentHex: topic?.color ?? "#0072BA",
     };
   }
 
@@ -75,7 +75,7 @@ export function resolveContentScene(pathname: string): ContentScene {
     return {
       id: "articoli-detail",
       view: VIEWS["articoli-detail"],
-      accentHex: topic?.color ?? "#00689D",
+      accentHex: topic?.color ?? "#004E7A",
     };
   }
 

@@ -51,19 +51,19 @@ export const topics: MockTopic[] = [
     name: "ONU: storia e struttura",
     description:
       "Origini, Carta delle Nazioni Unite e organi principali.",
-    color: "#009EDB",
+    color: "#0072BA",
   },
   {
     slug: "obiettivo-16",
     name: "Obiettivo 16",
     description: "Pace, giustizia e istituzioni solide.",
-    color: "#00689D",
+    color: "#004E7A",
   },
   {
     slug: "obiettivo-17",
     name: "Obiettivo 17",
     description: "Partnership per gli obiettivi.",
-    color: "#19486A",
+    color: "#0B3554",
   },
   {
     slug: "diritti-umani",

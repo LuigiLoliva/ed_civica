@@ -35,7 +35,7 @@ export function CinematicHero({ siteName, tagline }: CinematicHeroProps) {
 
   const glowX = useTransform(springX, (v) => `${v * 100}%`);
   const glowY = useTransform(springY, (v) => `${v * 100}%`);
-  const glowBackground = useMotionTemplate`radial-gradient(720px circle at ${glowX} ${glowY}, rgb(0 158 219 / 30%), transparent 58%)`;
+  const glowBackground = useMotionTemplate`radial-gradient(720px circle at ${glowX} ${glowY}, rgb(0 114 186 / 36%), transparent 58%)`;
 
   const onMove = useCallback(
     (event: MouseEvent<HTMLElement>) => {

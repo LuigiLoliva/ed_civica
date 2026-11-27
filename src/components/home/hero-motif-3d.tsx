@@ -27,7 +27,7 @@ export function HeroMotif3D() {
   const rotateX = useTransform(springY, [-0.5, 0.5], [18, -18]);
   const lightX = useTransform(springX, [-0.5, 0.5], [28, 72]);
   const lightY = useTransform(springY, [-0.5, 0.5], [22, 68]);
-  const sphereGlow = useMotionTemplate`radial-gradient(circle at ${lightX}% ${lightY}%, #6ec5e8 0%, #009edb 28%, #00689d 58%, #0b2236 100%)`;
+  const sphereGlow = useMotionTemplate`radial-gradient(circle at ${lightX}% ${lightY}%, #3dadeb 0%, #0072ba 28%, #004e7a 58%, #051a2e 100%)`;
   const rimLight = useMotionTemplate`radial-gradient(circle at ${lightX}% ${lightY}%, rgb(255 255 255 / 55%), transparent 42%)`;
 
   const onMove = useCallback(
