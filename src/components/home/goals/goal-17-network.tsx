@@ -698,10 +698,6 @@ export function Goal17Network() {
       aria-labelledby={titleId}
       data-goal="17"
     >
-      <p className={styles.watermark} aria-hidden>
-        17
-      </p>
-
       <div className={styles.stage} ref={stageRef}>
         <canvas
           ref={canvasRef}
