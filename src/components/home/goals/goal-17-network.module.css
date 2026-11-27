@@ -18,7 +18,7 @@
   color: #e8f6fc;
   background:
     radial-gradient(ellipse 54% 60% at 30% 52%, rgb(0 104 157 / 40%), transparent 72%),
-    radial-gradient(ellipse 40% 42% at 100% 0%, rgb(95 125 82 / 14%), transparent 64%),
+    radial-gradient(ellipse 40% 42% at 100% 0%, rgb(42 125 98 / 13%), transparent 64%),
     linear-gradient(180deg, var(--g17-ink) 0%, var(--g17-deep) 52%, #0b2a41 100%);
 }
 
@@ -173,7 +173,7 @@
 .titleAccent {
   width: fit-content;
   padding-right: 0.06em;
-  background: linear-gradient(100deg, #fff 4%, #8fd3ec 48%, #a9d6bd 98%);
+  background: linear-gradient(100deg, #fff 4%, #6ec5e8 48%, #86c9a8 98%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -326,7 +326,7 @@
 
 .cta:hover,
 .cta:focus-visible {
-  border-color: #7ec8e3;
+  border-color: #6ec5e8;
   outline: none;
 }
 

@@ -7,8 +7,8 @@
 
 /**
  * Design tokens Voci Unite
- * Direzione: «oceano diplomatico» — blu ONU, navy Goal 17, ghiaccio freddo
- * (niente crema/terracotta, niente viola generico).
+ * Direzione: «Collegamento Civico» — superfici ariose, blu ONU e SDG 16/17 ufficiali,
+ * accento pace in verde salvia (niente crema/terracotta, niente viola/indaco generico).
  *
  * Motion tokens (--motion-*): usati da CSS e allineati a src/lib/motion/tokens.ts
  */
@@ -52,6 +52,7 @@
   --color-goal-16: var(--goal-16);
   --color-goal-17: var(--goal-17);
   --color-olive: var(--olive);
+  --color-peace: var(--peace);
   --color-warm-gray: var(--warm-gray);
   --color-warm-surface: var(--warm-surface);
   --color-hero: var(--hero);
@@ -71,13 +72,14 @@
   --onu: #009edb;
   --goal-16: #00689d;
   --goal-17: #19486a;
-  --olive: #5f7d52;
-  --warm-gray: #5a6570;
-  --warm-surface: #e8f1f6;
-  --hero: #0a1c2e;
-  --hero-foreground: #f3f8fb;
-  --depth-shadow: rgb(10 28 46 / 12%);
-  --glow-onu: rgb(0 158 219 / 35%);
+  --peace: #2a7d62;
+  --olive: var(--peace);
+  --warm-gray: #5a6d7d;
+  --warm-surface: #f3f7fa;
+  --hero: #0b2236;
+  --hero-foreground: #f0f7fb;
+  --depth-shadow: rgb(11 34 54 / 14%);
+  --glow-onu: rgb(0 158 219 / 32%);
 
   /* Motion (allineati a src/lib/motion/tokens.ts) */
   --motion-duration-fast: 180ms;
@@ -87,83 +89,84 @@
   --motion-ease-snappy: cubic-bezier(0.34, 1.2, 0.64, 1);
   --motion-ease-inertia: cubic-bezier(0.16, 1, 0.3, 1);
 
-  --background: #e8f1f6;
-  --foreground: #0c1a28;
+  --background: #eef3f7;
+  --foreground: #0e1a26;
   --card: #ffffff;
-  --card-foreground: #0c1a28;
+  --card-foreground: #0e1a26;
   --popover: #ffffff;
-  --popover-foreground: #0c1a28;
+  --popover-foreground: #0e1a26;
   --primary: #009edb;
   --primary-foreground: #ffffff;
-  --secondary: #d7ebf5;
-  --secondary-foreground: #0f3d5c;
-  --muted: #d5e4ee;
-  --muted-foreground: #5a6570;
-  --accent: #cfe8f4;
-  --accent-foreground: #19486a;
-  --destructive: #b42318;
-  --border: #c2d4e0;
-  --input: #c2d4e0;
+  --secondary: #dce8f0;
+  --secondary-foreground: #0f4060;
+  --muted: #d5e0e9;
+  --muted-foreground: #5a6d7d;
+  --accent: #c8e3f1;
+  --accent-foreground: #174a6b;
+  --destructive: #c4320a;
+  --border: #bcc9d4;
+  --input: #bcc9d4;
   --ring: #009edb;
   --chart-1: #009edb;
   --chart-2: #00689d;
   --chart-3: #19486a;
-  --chart-4: #5f7d52;
-  --chart-5: #7ec8e3;
+  --chart-4: #2a7d62;
+  --chart-5: #6ec5e8;
   --radius: 0.75rem;
   --sidebar: #ffffff;
-  --sidebar-foreground: #0c1a28;
+  --sidebar-foreground: #0e1a26;
   --sidebar-primary: #009edb;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #d7ebf5;
+  --sidebar-accent: #dce8f0;
   --sidebar-accent-foreground: #00689d;
-  --sidebar-border: #c2d4e0;
+  --sidebar-border: #bcc9d4;
   --sidebar-ring: #009edb;
 }
 
 .dark {
-  --onu: #33b4e4;
-  --goal-16: #3d8fb8;
-  --goal-17: #6a9bb8;
-  --olive: #8fad7f;
-  --warm-gray: #9aa7b2;
-  --warm-surface: #0d1520;
-  --hero: #061018;
-  --hero-foreground: #eef5f9;
-  --depth-shadow: rgb(0 0 0 / 35%);
-  --glow-onu: rgb(51 180 228 / 30%);
+  --onu: #3bb8e8;
+  --goal-16: #4a9ac4;
+  --goal-17: #6b9fc0;
+  --peace: #5cb896;
+  --olive: var(--peace);
+  --warm-gray: #94a3b0;
+  --warm-surface: #0e1722;
+  --hero: #060f18;
+  --hero-foreground: #ecf4f8;
+  --depth-shadow: rgb(0 0 0 / 36%);
+  --glow-onu: rgb(59 184 232 / 28%);
 
-  --background: #0d1520;
-  --foreground: #eef5f9;
-  --card: #152233;
-  --card-foreground: #eef5f9;
-  --popover: #152233;
-  --popover-foreground: #eef5f9;
-  --primary: #33b4e4;
-  --primary-foreground: #061018;
-  --secondary: #1a3348;
-  --secondary-foreground: #c5e8f5;
-  --muted: #1c2c3c;
-  --muted-foreground: #9aa7b2;
-  --accent: #1a3348;
-  --accent-foreground: #c5e8f5;
-  --destructive: #f97066;
-  --border: rgb(255 255 255 / 12%);
-  --input: rgb(255 255 255 / 15%);
-  --ring: #33b4e4;
-  --chart-1: #33b4e4;
-  --chart-2: #3d8fb8;
-  --chart-3: #6a9bb8;
-  --chart-4: #8fad7f;
-  --chart-5: #c5e8f5;
-  --sidebar: #152233;
-  --sidebar-foreground: #eef5f9;
-  --sidebar-primary: #33b4e4;
-  --sidebar-primary-foreground: #061018;
-  --sidebar-accent: #1a3348;
-  --sidebar-accent-foreground: #c5e8f5;
-  --sidebar-border: rgb(255 255 255 / 12%);
-  --sidebar-ring: #33b4e4;
+  --background: #0e1722;
+  --foreground: #ecf4f8;
+  --card: #162333;
+  --card-foreground: #ecf4f8;
+  --popover: #162333;
+  --popover-foreground: #ecf4f8;
+  --primary: #3bb8e8;
+  --primary-foreground: #060f18;
+  --secondary: #1a3045;
+  --secondary-foreground: #c2e4f2;
+  --muted: #1c2d3d;
+  --muted-foreground: #94a3b0;
+  --accent: #1a3045;
+  --accent-foreground: #c2e4f2;
+  --destructive: #f87171;
+  --border: rgb(255 255 255 / 11%);
+  --input: rgb(255 255 255 / 14%);
+  --ring: #3bb8e8;
+  --chart-1: #3bb8e8;
+  --chart-2: #4a9ac4;
+  --chart-3: #6b9fc0;
+  --chart-4: #5cb896;
+  --chart-5: #c2e4f2;
+  --sidebar: #162333;
+  --sidebar-foreground: #ecf4f8;
+  --sidebar-primary: #3bb8e8;
+  --sidebar-primary-foreground: #060f18;
+  --sidebar-accent: #1a3045;
+  --sidebar-accent-foreground: #c2e4f2;
+  --sidebar-border: rgb(255 255 255 / 11%);
+  --sidebar-ring: #3bb8e8;
 }
 
 @layer base {
@@ -205,28 +208,34 @@
 .bg-partnership-pattern {
   /* Senza colore pieno: lo stage WebGL resta visibile nei gutter */
   background-image:
-    radial-gradient(ellipse 80% 50% at 10% -10%, rgb(0 158 219 / 18%), transparent 55%),
-    radial-gradient(ellipse 60% 40% at 95% 15%, rgb(25 72 106 / 14%), transparent 50%),
-    radial-gradient(ellipse 50% 35% at 50% 100%, rgb(0 104 157 / 10%), transparent 55%),
-    radial-gradient(rgb(25 72 106 / 6%) 1px, transparent 1px);
-  background-size: auto, auto, auto, 22px 22px;
+    radial-gradient(ellipse 70% 45% at 8% -8%, rgb(0 158 219 / 14%), transparent 52%),
+    radial-gradient(ellipse 55% 38% at 96% 12%, rgb(25 72 106 / 11%), transparent 48%),
+    radial-gradient(ellipse 48% 32% at 50% 100%, rgb(0 104 157 / 8%), transparent 52%),
+    radial-gradient(rgb(25 72 106 / 5%) 1px, transparent 1px);
+  background-size: auto, auto, auto, 24px 24px;
 }
 
 /* Hero a tutta larghezza: piano visivo dominante */
 .bg-hero-ocean {
   background-color: var(--hero);
   background-image:
-    radial-gradient(ellipse 90% 70% at 75% 20%, rgb(0 158 219 / 35%), transparent 55%),
-    radial-gradient(ellipse 60% 50% at 15% 80%, rgb(0 104 157 / 40%), transparent 50%),
-    radial-gradient(ellipse 40% 30% at 55% 95%, rgb(95 125 82 / 18%), transparent 45%),
-    linear-gradient(165deg, #061220 0%, #0a1c2e 42%, #123a55 78%, #0d4f72 100%);
+    radial-gradient(ellipse 85% 65% at 78% 18%, rgb(0 158 219 / 30%), transparent 54%),
+    radial-gradient(ellipse 58% 48% at 12% 82%, rgb(0 104 157 / 36%), transparent 50%),
+    radial-gradient(ellipse 38% 28% at 54% 96%, rgb(42 125 98 / 14%), transparent 44%),
+    linear-gradient(
+      162deg,
+      color-mix(in srgb, var(--hero) 92%, black) 0%,
+      var(--hero) 40%,
+      color-mix(in srgb, var(--goal-16) 72%, var(--hero)) 76%,
+      color-mix(in srgb, var(--goal-16) 55%, var(--onu)) 100%
+    );
 }
 
 .bg-page-banner {
   background-image:
-    radial-gradient(ellipse 70% 80% at 100% 0%, rgb(0 158 219 / 16%), transparent 50%),
-    radial-gradient(ellipse 50% 60% at 0% 100%, rgb(25 72 106 / 12%), transparent 45%),
-    linear-gradient(180deg, rgb(255 255 255 / 55%), transparent);
+    radial-gradient(ellipse 68% 78% at 100% 0%, rgb(0 158 219 / 13%), transparent 48%),
+    radial-gradient(ellipse 48% 58% at 0% 100%, rgb(25 72 106 / 10%), transparent 44%),
+    linear-gradient(180deg, rgb(255 255 255 / 52%), transparent);
 }
 
 @keyframes hero-drift {

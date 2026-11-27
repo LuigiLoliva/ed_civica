@@ -27,16 +27,17 @@ export type Projected = {
   z: number;
 };
 
+/** RGB allineati ai token «Collegamento Civico» in globals.css */
 export const PALETTE = {
   white: [255, 255, 255],
-  ice: [232, 246, 252],
-  sky: [126, 200, 227],
+  ice: [240, 247, 251],
+  sky: [110, 197, 232],
   onu: [0, 158, 219],
   deep: [0, 104, 157],
-  navy: [10, 40, 62],
-  olive: [143, 173, 127],
-  oliveDeep: [58, 86, 52],
-  sage: [168, 196, 176],
+  navy: [25, 72, 106],
+  olive: [42, 125, 98],
+  oliveDeep: [28, 82, 66],
+  sage: [134, 179, 159],
 } as const satisfies Record<string, Rgb>;
 
 export const rgba = (c: Rgb, a: number) =>

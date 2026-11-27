@@ -32,6 +32,7 @@ export const siteConfig = {
     onu: "#009EDB",
     goal16: "#00689D",
     goal17: "#19486A",
+    peace: "#2A7D62",
   },
 
   nav: [
