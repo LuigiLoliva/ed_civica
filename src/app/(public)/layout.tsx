@@ -2,6 +2,7 @@ import { CookieNotice } from "@/components/layout/cookie-notice";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SkipLink } from "@/components/layout/skip-link";
+import { PublicMotionRoot } from "@/components/motion/public-motion-root";
 import { getSiteSettings } from "@/lib/site-settings/get-site-settings";
 
 export default async function PublicLayout({
@@ -14,6 +15,7 @@ export default async function PublicLayout({
   return (
     <div className="flex min-h-dvh flex-col">
       <SkipLink />
+      <PublicMotionRoot />
       <SiteHeader siteName={settings.siteName} logoUrl={settings.logoUrl} />
       <main id="contenuto-principale" className="flex-1" tabIndex={-1}>
         {children}
